@@ -148,6 +148,11 @@ ul {
   color: var(--color-accent);
 }
 
+.social-link-inline {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
 .menu-toggle {
   display: none;
   flex-direction: column;
