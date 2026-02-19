@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Portfolio des créations céramique d'Alex le Potier - Pièces en grès façonnées à la main.">
+  <link rel="icon" type="image/png" href="images/logo_nobg.png">
+  <title>Portfolio - Alex le Potier</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <a href="index.html" class="logo">
+        <img src="images/logo_nobg.png" alt="Alex le Potier">
+      </a>
+      <nav class="nav">
+        <ul class="nav-list">
+          <li><a href="index.html" class="nav-link">Accueil</a></li>
+          <li><a href="apropos.html" class="nav-link">À propos</a></li>
+          <li><a href="portfolio.html" class="nav-link active">Portfolio</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+        </ul>
+      </nav>
+      <a href="https://www.instagram.com/alexlepotier" target="_blank" rel="noopener" class="social-link" aria-label="Instagram">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+      </a>
+      <button class="menu-toggle" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <h1>Portfolio</h1>
+        <p>Une sélection de mes créations en grès</p>
+      </div>
+    </section>
+
+    <section class="gallery">
+      <div class="container">
+        <div class="gallery-grid">
+          <a href="images/1.jpg" class="gallery-item" data-lightbox>
+            <img src="images/1.jpg" alt="Création céramique 1" loading="lazy">
+          </a>
+          <a href="images/2.jpg" class="gallery-item" data-lightbox>
+            <img src="images/2.jpg" alt="Création céramique 2" loading="lazy">
+          </a>
+          <a href="images/3.jpg" class="gallery-item" data-lightbox>
+            <img src="images/3.jpg" alt="Création céramique 3" loading="lazy">
+          </a>
+          <a href="images/4.jpg" class="gallery-item" data-lightbox>
+            <img src="images/4.jpg" alt="Création céramique 4" loading="lazy">
+          </a>
+          <a href="images/5.jpg" class="gallery-item" data-lightbox>
+            <img src="images/5.jpg" alt="Création céramique 5" loading="lazy">
+          </a>
+          <a href="images/8.jpg" class="gallery-item" data-lightbox>
+            <img src="images/8.jpg" alt="Création céramique 7" loading="lazy">
+          </a>
+          <a href="images/9.jpg" class="gallery-item" data-lightbox>
+            <img src="images/9.jpg" alt="Création céramique 8" loading="lazy">
+          </a>
+          <a href="images/10.jpg" class="gallery-item" data-lightbox>
+            <img src="images/10.jpg" alt="Création céramique 9" loading="lazy">
+          </a>
+          <a href="images/11.jpg" class="gallery-item" data-lightbox>
+            <img src="images/11.jpg" alt="Création céramique 10" loading="lazy">
+          </a>
+          <a href="images/12.jpg" class="gallery-item" data-lightbox>
+            <img src="images/12.jpg" alt="Création céramique 11" loading="lazy">
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" aria-label="Fermer">&times;</button>
+    <button class="lightbox-prev" aria-label="Précédent">&#10094;</button>
+    <button class="lightbox-next" aria-label="Suivant">&#10095;</button>
+    <img src="" alt="" class="lightbox-image" id="lightbox-image">
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <p>&copy; 2025 Alex le Potier. Tous droits réservés.</p>
+        <a href="https://www.instagram.com/alexlepotier" target="_blank" rel="noopener" class="social-link" aria-label="Instagram">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
