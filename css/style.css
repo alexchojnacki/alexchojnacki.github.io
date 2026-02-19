@@ -493,6 +493,40 @@ ul {
 }
 
 /* --------------------------------------------------------------------------
+   Legal
+   -------------------------------------------------------------------------- */
+.legal {
+  padding: var(--spacing-lg) 0 var(--spacing-xl);
+}
+
+.legal h2 {
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+.legal p {
+  color: var(--color-text-light);
+  margin-bottom: var(--spacing-sm);
+}
+
+.legal a {
+  color: var(--color-accent);
+}
+
+.legal-list {
+  color: var(--color-text-light);
+  margin-bottom: var(--spacing-sm);
+  padding-left: var(--spacing-md);
+}
+
+.legal-list li {
+  list-style: disc;
+  margin-bottom: var(--spacing-xs);
+}
+
+/* --------------------------------------------------------------------------
    Footer
    -------------------------------------------------------------------------- */
 .footer {
@@ -511,6 +545,24 @@ ul {
   font-family: var(--font-secondary);
   font-size: 0.875rem;
   color: var(--color-text-light);
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.footer-links a {
+  color: var(--color-text-light);
+}
+
+.footer-links a:hover {
+  color: var(--color-accent);
+}
+
+.footer-links .social-link {
+  margin-left: var(--spacing-xs);
 }
 
 /* --------------------------------------------------------------------------
