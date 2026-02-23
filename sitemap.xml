@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://alex.lepotier.ovh/</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://alex.lepotier.ovh/portfolio.html</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://alex.lepotier.ovh/apropos.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://alex.lepotier.ovh/contact.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://alex.lepotier.ovh/mentions-legales.html</loc>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://alex.lepotier.ovh/cgv.html</loc>
+    <priority>0.3</priority>
+  </url>
+</urlset>
