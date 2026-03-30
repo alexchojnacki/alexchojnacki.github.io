@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://alex.lepotier.ovh/sitemap.xml
