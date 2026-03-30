@@ -194,8 +194,8 @@ section {
   min-height: 100vh;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  text-align: left;
+  justify-content: center;
+  text-align: center;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -221,9 +221,8 @@ section {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
-  text-align: left;
-  margin-left: 10%;
+  align-items: center;
+  text-align: center;
 }
 
 .hero h1 {
