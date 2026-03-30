@@ -46,6 +46,11 @@ function initLightbox() {
   const prevBtn = lightbox.querySelector('.lightbox-prev');
   const nextBtn = lightbox.querySelector('.lightbox-next');
 
+  // Créer le compteur d'images
+  const counter = document.createElement('div');
+  counter.className = 'lightbox-counter';
+  lightbox.appendChild(counter);
+
   let currentIndex = 0;
   const images = Array.from(galleryItems).map(item => item.href);
 
@@ -78,6 +83,7 @@ function initLightbox() {
   function showImage(index) {
     lightboxImage.src = images[index];
     lightboxImage.alt = `Création céramique ${index + 1}`;
+    counter.textContent = `${index + 1} / ${images.length}`;
   }
 
   function showPrev() {
@@ -109,4 +115,32 @@ function initLightbox() {
         break;
     }
   });
+
+  // Support tactile (swipe)
+  let touchStartX = 0;
+  let touchEndX = 0;
+  const minSwipeDistance = 50;
+
+  lightbox.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  lightbox.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, { passive: true });
+
+  function handleSwipe() {
+    const swipeDistance = touchEndX - touchStartX;
+
+    if (Math.abs(swipeDistance) < minSwipeDistance) return;
+
+    if (swipeDistance > 0) {
+      // Swipe vers la droite -> image précédente
+      showPrev();
+    } else {
+      // Swipe vers la gauche -> image suivante
+      showNext();
+    }
+  }
 }

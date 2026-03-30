@@ -3,8 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Alex le Potier - Ce qui est fait lentement reste.. Pièces en grès façonnées à la main.">
+  <meta name="description" content="Alex le Potier - Ce qui est fait lentement reste. Pièces en grès façonnées à la main.">
   <link rel="icon" type="image/jpeg" href="images/favicon-32x32.jpg">
+  <link rel="canonical" href="https://alex.lepotier.ovh/">
+  <!-- Open Graph -->
+  <meta property="og:title" content="Alex le Potier - Céramiste artisan">
+  <meta property="og:description" content="Ce qui est fait lentement reste. Pièces en grès façonnées à la main.">
+  <meta property="og:image" content="https://alex.lepotier.ovh/images/25.jpg">
+  <meta property="og:url" content="https://alex.lepotier.ovh/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- Données structurées -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Alex le Potier",
+    "description": "Céramiste artisan - Pièces en grès façonnées à la main",
+    "url": "https://alex.lepotier.ovh",
+    "image": "https://alex.lepotier.ovh/images/logo_nobg.png",
+    "sameAs": ["https://www.instagram.com/alexlepotier"],
+    "priceRange": "€€",
+    "address": {
+      "@type": "PostalAddress",
+      "addressRegion": "Hauts-de-France",
+      "addressCountry": "FR"
+    }
+  }
+  </script>
   <title>Alex le Potier - Ce qui est fait lentement reste.</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -17,18 +44,11 @@
       <nav class="nav">
         <ul class="nav-list">
           <li><a href="index.html" class="nav-link active">Accueil</a></li>
+          <li><a href="pieces.html" class="nav-link">Pièces</a></li>
           <li><a href="apropos.html" class="nav-link">À propos</a></li>
-          <li><a href="portfolio.html" class="nav-link">Portfolio</a></li>
           <li><a href="contact.html" class="nav-link">Contact</a></li>
         </ul>
       </nav>
-      <a href="https://www.instagram.com/alexlepotier" target="_blank" rel="noopener" class="social-link" aria-label="Instagram">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-        </svg>
-      </a>
       <button class="menu-toggle" aria-label="Menu">
         <span></span>
         <span></span>
@@ -38,10 +58,21 @@
   </header>
 
   <main>
-    <section class="hero">
+    <section class="hero" style="background-image: url('images/25.jpg');">
+      <div class="hero-content">
+        <h1>Alex le Potier</h1>
+        <p>Ce qui est fait lentement reste.</p>
+        <a href="pieces.html" class="cta">Voir les pièces</a>
+      </div>
+    </section>
+
+    <section class="signature">
       <div class="container">
-        <h1 class="hero-title">Alex le Potier</h1>
-        <p class="hero-subtitle">Ce qui est fait lentement reste.</p>
+        <p>
+          Je ne fabrique pas des collections.<br>
+          Je tourne des objets simples, utiles, faits pour durer.<br>
+          Des pièces uniques pour le quotidien.
+        </p>
       </div>
     </section>
 
@@ -49,23 +80,15 @@
       <div class="container">
         <div class="about-grid">
           <div class="about-image">
-            <img src="images/1.jpg" alt="Création céramique">
+            <img src="images/5.jpg" alt="Création céramique" loading="lazy">
           </div>
           <div class="about-text">
-            <p>Mon travail quotidien construit l'invisible.<br>Ici, je façonne le tangible.</p>
-            <p>La terre résiste.<br>Le geste engage.<br>Rien ne s'efface.</p>
-            <p>Des objets en grès.<br>Utiles. Durables. Essentiels.</p>
-            <p>Grès.<br>Cuisson haute température.<br>Objets du quotidien.</p>
+            <h2>Une démarche artisanale</h2>
+            <p>La terre résiste. Le geste engage. Chaque pièce est façonnée à la main, lentement, une par une.</p>
+            <p>Des objets en grès, pensés pour accompagner le quotidien.</p>
+            <a href="apropos.html" class="cta cta-dark">En savoir plus</a>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section class="cta">
-      <div class="container">
-        <h2>Découvrir mon univers</h2>
-        <a href="apropos.html" class="btn">En savoir plus</a>
-        <a href="portfolio.html" class="btn">Voir le portfolio</a>
       </div>
     </section>
   </main>
