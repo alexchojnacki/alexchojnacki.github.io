@@ -66,9 +66,9 @@ ul {
    Typography
    -------------------------------------------------------------------------- */
 h1 {
-  font-size: 56px;
+  font-size: 64px;
   font-weight: 500;
-  letter-spacing: -0.5px;
+  letter-spacing: -1px;
   line-height: 1.2;
 }
 
@@ -95,7 +95,7 @@ p {
 }
 
 section {
-  padding: 120px 20px;
+  padding: 140px 20px;
 }
 
 .section-small {
@@ -189,7 +189,7 @@ section {
    Hero
    -------------------------------------------------------------------------- */
 .hero {
-  min-height: 90vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -208,26 +208,42 @@ section {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.35);
 }
 
 .hero-content {
   position: relative;
   z-index: 1;
-  max-width: 600px;
+  max-width: 520px;
   color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .hero h1 {
   color: white;
+  font-size: 68px;
+  line-height: 1.05;
   margin-bottom: 1.5rem;
 }
 
 .hero p {
   color: rgba(255, 255, 255, 0.9);
-  max-width: 600px;
-  margin: 0 auto 2rem;
+  max-width: 520px;
+  margin: 20px auto 2rem;
   font-size: 20px;
+  line-height: 1.8;
+}
+
+.hero .signature-word {
+  font-family: var(--font-secondary);
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-top: 40px;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* --------------------------------------------------------------------------
@@ -268,27 +284,32 @@ section {
 .signature {
   text-align: center;
   background-color: var(--color-bg);
+  padding: 60px 20px;
 }
 
 .signature p {
   max-width: 600px;
   margin: 0 auto;
-  font-size: 20px;
-  font-style: italic;
+  font-family: var(--font-secondary);
+  font-size: 14px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
   color: var(--color-text-light);
+  opacity: 0.7;
 }
 
 /* --------------------------------------------------------------------------
    Gallery
    -------------------------------------------------------------------------- */
 .gallery {
-  padding: 120px 20px;
+  padding: 140px 20px;
+  margin-top: 40px;
 }
 
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 40px;
+  gap: 24px;
   max-width: var(--max-width);
   margin: 0 auto;
 }
@@ -298,11 +319,15 @@ section {
   overflow: hidden;
 }
 
+.gallery-item:nth-child(3n) {
+  grid-column: span 2;
+}
+
 .gallery-item img {
   width: 100%;
   height: auto;
   margin-bottom: 0;
-  transition: opacity var(--transition), transform var(--transition);
+  transition: transform 0.4s ease, opacity var(--transition);
 }
 
 .gallery-item:hover img {
@@ -544,17 +569,55 @@ section {
    Footer
    -------------------------------------------------------------------------- */
 .footer {
-  padding: 40px 20px;
+  padding: 50px 20px;
   border-top: 1px solid var(--color-border);
   background-color: var(--color-bg-alt);
 }
 
 .footer-content {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   max-width: var(--max-width);
   margin: 0 auto;
+}
+
+.footer-brand {
+  text-align: left;
+}
+
+.footer-name {
+  font-family: var(--font-primary);
+  font-size: 18px;
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+}
+
+.footer-tagline {
+  font-family: var(--font-secondary);
+  font-size: 13px;
+  color: var(--color-text-light);
+  letter-spacing: 0.5px;
+}
+
+.footer-center {
+  text-align: center;
+}
+
+.footer-contact {
+  font-family: var(--font-secondary);
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.footer-contact:hover {
+  color: var(--color-accent);
+}
+
+.footer-right {
+  text-align: right;
 }
 
 .footer p {
@@ -563,9 +626,15 @@ section {
   color: var(--color-text-light);
 }
 
+.footer-copyright {
+  margin-top: 0.5rem;
+  font-size: 12px !important;
+}
+
 .footer-links {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 1rem;
 }
 
@@ -676,7 +745,11 @@ section {
   }
 
   .hero {
-    min-height: 80vh;
+    min-height: 100vh;
+  }
+
+  .hero h1 {
+    font-size: 42px;
   }
 
   .hero p {
@@ -685,7 +758,11 @@ section {
 
   .gallery-grid {
     grid-template-columns: 1fr;
-    gap: 30px;
+    gap: 24px;
+  }
+
+  .gallery-item:nth-child(3n) {
+    grid-column: span 1;
   }
 
   .about-grid {
@@ -700,8 +777,17 @@ section {
 
   .footer-content {
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
     text-align: center;
+  }
+
+  .footer-brand,
+  .footer-right {
+    text-align: center;
+  }
+
+  .footer-links {
+    justify-content: center;
   }
 
   .lightbox-prev,
