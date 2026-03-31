@@ -16,8 +16,9 @@ Guidelines for agentic coding agents working in this repository.
 /
 ├── index.html          # Homepage - hero with background image + signature section
 ├── pieces.html         # Gallery page with asymmetric grid + lightbox
-├── apropos.html        # About page
-├── contact.html        # Contact form (Formspree integration)
+├── apropos.html        # About page (editorial style with alternating sections)
+├── faq.html            # FAQ page (10 questions/answers)
+├── contact.html        # Contact form (Formspree integration) + FAQ link
 ├── mentions-legales.html # Legal mentions
 ├── cgv.html            # Terms and conditions
 ├── 404.html            # Custom 404 page
@@ -168,7 +169,7 @@ This project has no automated tests. Verify changes manually in browser.
 - Fixed position with logo, nav, mobile toggle
 - Logo: 45px height, margin-bottom -8px to compensate for logo spacing
 - Update `active` class on `.nav-link` for current page
-- Navigation: Accueil, Pièces, À propos, Contact
+- Navigation: Accueil, Pièces, À propos, FAQ, Contact, Instagram icon
 
 ### Footer (repeated on all pages)
 - Logo (40px height), name, tagline
