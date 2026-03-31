@@ -8,24 +8,55 @@ Guidelines for agentic coding agents working in this repository.
 - **Type**: Static HTML/CSS/JS website (no build system)
 - **Hosting**: GitHub Pages at alex.lepotier.ovh
 - **Language**: French (content and comments)
+- **Design**: V2 - Minimalist premium style with full-screen hero
 
 ## Project Structure
 
 ```
 /
-├── index.html          # Homepage - introduction and philosophy
-├── portfolio.html      # Gallery page with lightbox
+├── index.html          # Homepage - hero with background image + signature section
+├── pieces.html         # Gallery page with asymmetric grid + lightbox
+├── apropos.html        # About page
 ├── contact.html        # Contact form (Formspree integration)
+├── mentions-legales.html # Legal mentions
+├── cgv.html            # Terms and conditions
+├── 404.html            # Custom 404 page
 ├── css/
-│   └── style.css       # All styles (single file, ~610 lines)
+│   └── style.css       # All styles (single file, ~880 lines)
 ├── js/
-│   └── main.js         # Mobile menu + lightbox functionality
+│   └── main.js         # Mobile menu + lightbox + swipe support
 ├── images/
-│   ├── logo_nobg.png   # Site logo
-│   ├── logo.jpg        # Logo variant
-│   └── [1-12].jpg      # Portfolio images
+│   ├── logo_nobg.png   # Site logo (trimmed, no background)
+│   ├── logo_nobg_backup.png # Backup of original logo
+│   ├── alex.jpg        # Profile photo
+│   ├── hero.jpg        # Hero background (alternative)
+│   ├── 25.jpg          # Current hero background
+│   ├── 26.jpg          # Planche image
+│   └── [1-26].jpg      # Portfolio images
+├── robots.txt          # SEO robots file
+├── sitemap.xml         # SEO sitemap
 └── CNAME               # Custom domain configuration
 ```
+
+## Current Design (V2)
+
+### Homepage Structure
+1. **Hero** (100vh) - Full-screen with background image (25.jpg), centered content
+   - Title "Alex le Potier"
+   - Tagline "Ce qui est fait lentement reste."
+   - Hero tag "Grès tourné à la main"
+   - CTA button "Voir les pièces"
+2. **Signature section** - "Grès tourné à la main — pièces uniques" + "En savoir plus" button
+3. **Footer** - Logo, name, tagline, contact link, legal links, Instagram
+
+### Gallery (pieces.html)
+- Asymmetric grid: 2 columns, every 3rd image spans full width
+- Gap: 32px, margin-top: 20px on wide images, margin-bottom: 40px
+- Lightbox with keyboard navigation and swipe support on mobile
+
+### Footer (all pages)
+- Contains logo (40px height on desktop, centered on mobile)
+- Three columns: brand info, contact link, legal links + social
 
 ## Development Commands
 
@@ -45,13 +76,16 @@ npx serve .
 
 Then open http://localhost:8000 in a browser.
 
-### Validation
+### Image Optimization
 ```bash
-# Validate HTML (if html-validate installed)
-npx html-validate *.html
+# Convert and optimize images with ImageMagick
+convert source.png -quality 85 destination.jpg
 
-# Check for broken links (if linkinator installed)
-npx linkinator http://localhost:8000
+# Trim transparent borders from logo
+convert logo.png -trim +repage logo.png
+
+# Check image dimensions
+identify image.jpg
 ```
 
 ### No Tests
@@ -63,6 +97,8 @@ This project has no automated tests. Verify changes manually in browser.
 - Use HTML5 doctype and semantic elements (`<header>`, `<main>`, `<footer>`, `<section>`)
 - Set `lang="fr"` on root `<html>` element
 - Include meta viewport and description tags
+- Include Open Graph meta tags for social sharing
+- Include canonical URL
 - Use 2 spaces for indentation
 - Add `loading="lazy"` on gallery images
 - Include ARIA labels for accessibility (`aria-label` on buttons/links)
@@ -77,10 +113,10 @@ This project has no automated tests. Verify changes manually in browser.
      Section Name
      -------------------------------------------------------------------------- */
   ```
-- Follow existing variable naming: `--color-*`, `--font-*`, `--spacing-*`
-- Mobile-first not required; use `@media (max-width: ...)` for responsive
+- Follow existing variable naming: `--color-*`, `--font-*`, `--max-width`
 - Breakpoints: 768px (tablet), 480px (mobile)
 - Use `var(--transition)` for consistent animations
+- Global transition: `* { transition: all 0.25s ease; }`
 
 ### CSS Variables (reference)
 ```css
@@ -90,36 +126,37 @@ This project has no automated tests. Verify changes manually in browser.
 --color-text-light: #666;
 --color-accent: #8b7355;
 --color-border: #e5e2dd;
---font-primary: 'Georgia', serif;
---font-secondary: -apple-system, sans-serif;
---spacing-xs/sm/md/lg/xl: 0.5rem to 6rem;
+--font-primary: 'Georgia', 'Times New Roman', serif;
+--font-secondary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+--max-width: 1000px;
+--transition: 0.3s ease;
 ```
+
+### Typography
+- Body: font-weight 300
+- H1: 76px on desktop, letter-spacing -1.5px, line-height 1.02
+- H1 mobile (768px): 42px
+- H1 small mobile (480px): 28px
 
 ### JavaScript
 - Vanilla JS only (no frameworks or libraries)
 - Use ES6+ syntax (const/let, arrow functions, template literals)
 - 2 spaces for indentation
 - Single quotes for strings
-- JSDoc-style comments for functions:
-  ```javascript
-  /**
-   * Brief description
-   */
-  function functionName() { }
-  ```
+- JSDoc-style comments for functions
 - Guard clauses for early returns: `if (!element) return;`
 - Use `DOMContentLoaded` event for initialization
 - camelCase for functions and variables
 
 ### Naming Conventions
 - **Files**: lowercase, hyphens if needed (`style.css`, `main.js`)
-- **CSS classes**: lowercase with hyphens (BEM-like): `.gallery-item`, `.nav-link`
+- **CSS classes**: lowercase with hyphens (BEM-like): `.gallery-item`, `.nav-link`, `.hero-content`
 - **JS functions**: camelCase (`initMobileMenu`, `showImage`)
 - **JS variables**: camelCase (`currentIndex`, `galleryItems`)
 - **IDs**: lowercase with hyphens (`lightbox-image`)
 
 ### Accessibility
-- All images must have `alt` attributes
+- All images must have `alt` attributes (descriptive, in French)
 - Interactive elements need `aria-label` when text not visible
 - Keyboard navigation supported (Escape, Arrow keys for lightbox)
 - Focus states should be visible
@@ -128,34 +165,43 @@ This project has no automated tests. Verify changes manually in browser.
 ## Component Patterns
 
 ### Header (repeated on all pages)
-- Fixed position with logo, nav, Instagram link, mobile toggle
+- Fixed position with logo, nav, mobile toggle
+- Logo: 45px height, margin-bottom -8px to compensate for logo spacing
 - Update `active` class on `.nav-link` for current page
+- Navigation: Accueil, Pièces, À propos, Contact
 
 ### Footer (repeated on all pages)
-- Copyright year and Instagram link
-- Update year manually when needed
+- Logo (40px height), name, tagline
+- Contact link
+- Legal links (Mentions légales, CGV) + Instagram icon
+- Copyright: © 2026 Alexandre Chojnacki
+- On mobile: all centered, logo with `margin: 0 auto`
 
 ### Adding New Gallery Images
-1. Add image file to `images/` folder (numbered sequentially)
-2. Add gallery item in `portfolio.html`:
+1. Add image file to `images/` folder
+2. Optimize: `convert source.jpg -quality 85 images/N.jpg`
+3. Add gallery item in `pieces.html`:
    ```html
    <a href="images/N.jpg" class="gallery-item" data-lightbox>
-     <img src="images/N.jpg" alt="Création céramique N" loading="lazy">
+     <img src="images/N.jpg" alt="Description en français" loading="lazy">
    </a>
    ```
+4. Note: Every 3rd image (nth-child(3n)) spans 2 columns
 
 ### Adding New Pages
-1. Copy structure from existing page (header/footer)
+1. Copy structure from existing page (header/footer with logo)
 2. Update `<title>` and `<meta name="description">`
-3. Set correct `active` class on nav link
-4. Add link in navigation on all pages
+3. Update Open Graph meta tags
+4. Add canonical URL
+5. Set correct `active` class on nav link
+6. Add link in navigation on all pages
 
 ## Git Conventions
 
 ### Commit Messages
-- Keep messages concise and descriptive
+- Keep messages concise and descriptive in French or English
 - Use imperative mood: "Add feature" not "Added feature"
-- Examples from history: "CNAME ADD", "alexlepotier V1"
+- Examples: "Logo: ajout footer, centrage header", "Mobile: centrage logo footer"
 
 ### Workflow
 - Single `main` branch
@@ -167,9 +213,10 @@ This project has no automated tests. Verify changes manually in browser.
 - **No build step**: Changes are live immediately after push
 - **No dependencies**: No package.json, no node_modules
 - **Form handling**: Contact form uses Formspree (external service)
-- **Images**: Optimize before adding (reasonable file sizes for web)
+- **Images**: Optimize before adding (target < 500KB for portfolio, < 250KB for hero)
+- **Hero image**: Ideal dimensions 1920x1080 or 1536x1024, ratio 16:9 or 3:2
 - **French content**: All user-facing text should be in French
-- **Design**: Minimalist, artisanal aesthetic - earthy tones, serif fonts
+- **Design**: Minimalist, premium, artisanal aesthetic - earthy tones, serif fonts
 
 ## Browser Support
 
