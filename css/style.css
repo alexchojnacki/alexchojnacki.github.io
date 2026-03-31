@@ -175,6 +175,15 @@ section {
   color: var(--color-text);
 }
 
+.nav-social {
+  display: flex;
+  align-items: center;
+}
+
+.nav-social::after {
+  display: none;
+}
+
 .menu-toggle {
   display: none;
   flex-direction: column;
@@ -421,6 +430,164 @@ section {
 .about-text em {
   color: var(--color-accent);
   font-style: italic;
+}
+
+/* --------------------------------------------------------------------------
+   Editorial / À propos (style magazine)
+   -------------------------------------------------------------------------- */
+.quote-hero {
+  padding: calc(70px + 100px) 20px 100px;
+  background-color: var(--color-bg-alt);
+  text-align: center;
+}
+
+.quote-hero blockquote {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.quote-hero .quote-main {
+  font-size: 42px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--color-text);
+  max-width: none;
+  margin-bottom: 1.5rem;
+}
+
+.quote-hero .quote-sub {
+  font-size: 18px;
+  color: var(--color-text-light);
+  line-height: 1.8;
+  max-width: none;
+}
+
+.editorial-section {
+  padding: 80px 20px;
+  background-color: var(--color-bg);
+}
+
+.editorial-section--alt {
+  background-color: var(--color-bg-alt);
+}
+
+.editorial-content {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.editorial-content h2 {
+  font-size: 14px;
+  font-family: var(--font-secondary);
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 2rem;
+}
+
+.editorial-content p {
+  margin-bottom: 1.5rem;
+  color: var(--color-text-light);
+  max-width: none;
+  text-align: justify;
+}
+
+.editorial-content p:last-child {
+  margin-bottom: 0;
+}
+
+.editorial-content .highlight {
+  font-style: italic;
+  color: var(--color-text);
+  font-size: 20px;
+  line-height: 1.6;
+  margin-top: 2rem;
+}
+
+.editorial-image {
+  padding: 40px 20px;
+  background-color: var(--color-bg);
+}
+
+.editorial-image .container {
+  max-width: 500px;
+}
+
+.editorial-image img {
+  width: 100%;
+  height: auto;
+  margin-bottom: 0;
+}
+
+.editorial-signature {
+  padding: 100px 20px;
+  background-color: var(--color-bg-alt);
+  text-align: center;
+}
+
+.editorial-signature blockquote {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.editorial-signature blockquote p:first-child {
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+  max-width: none;
+}
+
+.editorial-signature blockquote p:last-child {
+  font-size: 18px;
+  color: var(--color-text-light);
+  line-height: 1.8;
+  max-width: none;
+}
+
+/* --------------------------------------------------------------------------
+   FAQ
+   -------------------------------------------------------------------------- */
+.faq-section {
+  padding: 80px 20px;
+  background-color: var(--color-bg);
+}
+
+.faq-content {
+  max-width: 750px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.faq-item:first-child {
+  padding-top: 0;
+}
+
+.faq-item:last-child {
+  border-bottom: none;
+}
+
+.faq-item h2 {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.faq-item p {
+  color: var(--color-text-light);
+  text-align: justify;
+  margin-bottom: 1rem;
+  max-width: none;
+}
+
+.faq-item p:last-child {
+  margin-bottom: 0;
 }
 
 /* --------------------------------------------------------------------------
@@ -814,6 +981,14 @@ section {
   .about-grid {
     grid-template-columns: 1fr;
     gap: 40px;
+  }
+
+  .quote-hero blockquote p {
+    font-size: 28px;
+  }
+
+  .editorial-section {
+    padding: 60px 20px;
   }
 
   .contact-grid {
