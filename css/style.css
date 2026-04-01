@@ -180,6 +180,11 @@ section {
   align-items: center;
 }
 
+.nav-social svg {
+  width: 22px;
+  height: 22px;
+}
+
 .nav-social::after {
   display: none;
 }
@@ -372,6 +377,28 @@ section {
   max-height: 520px;
   object-fit: cover;
   display: block;
+}
+
+/* --------------------------------------------------------------------------
+   Commandes Section
+   -------------------------------------------------------------------------- */
+.commandes {
+  margin: 50px 0;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.commandes h2 {
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.commandes p {
+  margin-bottom: 16px;
+  color: var(--color-text);
 }
 
 /* --------------------------------------------------------------------------
