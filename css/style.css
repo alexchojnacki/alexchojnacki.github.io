@@ -383,8 +383,8 @@ section {
    Commandes Section
    -------------------------------------------------------------------------- */
 .commandes {
-  margin: 50px 0;
-  max-width: 700px;
+  margin: 60px 0 50px 0;
+  max-width: 650px;
   margin-left: auto;
   margin-right: auto;
   text-align: center;
@@ -399,6 +399,10 @@ section {
 .commandes p {
   margin-bottom: 16px;
   color: var(--color-text);
+}
+
+.commandes p + p {
+  margin-top: 14px;
 }
 
 /* --------------------------------------------------------------------------
