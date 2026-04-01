@@ -309,36 +309,35 @@ section {
 }
 
 /* --------------------------------------------------------------------------
-   Signature Section
+   Démarche Section
    -------------------------------------------------------------------------- */
-.signature {
-  text-align: center;
+.demarche {
+  margin-top: 40px;
+  margin-bottom: 30px;
   background-color: var(--color-bg);
   padding: 60px 20px;
 }
 
-.signature p {
-  max-width: 600px;
+.demarche .container {
+  max-width: 700px;
   margin: 0 auto;
-  font-family: var(--font-secondary);
-  font-size: 14px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--color-text-light);
-  opacity: 0.7;
+  text-align: center;
+  line-height: 1.6;
 }
 
-.signature-description {
-  margin-top: 30px !important;
-  margin-bottom: 30px !important;
+.demarche h2 {
+  margin-bottom: 16px;
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.demarche p {
   font-family: var(--font-primary);
   font-size: 18px;
-  letter-spacing: 0;
-  text-transform: none;
   line-height: 1.8;
-  opacity: 1;
   color: var(--color-text);
   text-align: justify;
+  margin-bottom: 30px;
 }
 
 /* --------------------------------------------------------------------------
@@ -1067,7 +1066,7 @@ section {
     font-size: 13px;
   }
 
-  .signature p {
-    font-size: 18px;
+  .demarche p {
+    font-size: 16px;
   }
 }
