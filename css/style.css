@@ -363,12 +363,14 @@ section {
 }
 
 .photo-piece {
-  margin: 40px 0;
+  margin: 40px 0 30px 0;
 }
 
 .photo-piece img {
   width: 100%;
   height: auto;
+  max-height: 520px;
+  object-fit: cover;
   display: block;
 }
 
@@ -1105,5 +1107,9 @@ section {
   .arguments-container {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .photo-piece img {
+    max-height: 360px;
   }
 }
