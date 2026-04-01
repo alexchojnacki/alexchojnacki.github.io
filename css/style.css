@@ -478,11 +478,47 @@ section {
 }
 
 /* --------------------------------------------------------------------------
+   Pieces Page
+   -------------------------------------------------------------------------- */
+.pieces-header {
+  text-align: center;
+  max-width: 650px;
+  margin: 140px auto 40px auto;
+  padding: 0 20px;
+}
+
+.pieces-header h1 {
+  margin-bottom: 12px;
+}
+
+.pieces-header p {
+  line-height: 1.6;
+}
+
+.pieces-note {
+  text-align: center;
+  max-width: 600px;
+  margin: 40px auto 60px auto;
+  padding: 0 20px;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.pieces-note a {
+  color: var(--color-text);
+  text-decoration: underline;
+}
+
+.pieces-note a:hover {
+  opacity: 0.7;
+}
+
+/* --------------------------------------------------------------------------
    Gallery
    -------------------------------------------------------------------------- */
 .gallery {
-  padding: 140px 20px;
-  margin-top: 40px;
+  padding: 40px 20px 80px;
+  margin-top: 0;
 }
 
 .gallery-grid {
