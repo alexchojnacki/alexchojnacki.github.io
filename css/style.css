@@ -362,6 +362,16 @@ section {
   color: var(--color-text-light);
 }
 
+.photo-piece {
+  margin: 40px 0;
+}
+
+.photo-piece img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 /* --------------------------------------------------------------------------
    Gallery
    -------------------------------------------------------------------------- */
