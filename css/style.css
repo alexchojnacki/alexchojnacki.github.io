@@ -406,6 +406,39 @@ section {
 }
 
 /* --------------------------------------------------------------------------
+   CTA Final Section
+   -------------------------------------------------------------------------- */
+.cta-final {
+  margin: 60px 0 40px 0;
+  text-align: center;
+}
+
+.cta-final-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.cta-final h2 {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.cta-button {
+  display: inline-block;
+  padding: 12px 22px;
+  border: 1px solid currentColor;
+  text-decoration: none;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.cta-button:hover {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+/* --------------------------------------------------------------------------
    Gallery
    -------------------------------------------------------------------------- */
 .gallery {
