@@ -340,6 +340,26 @@ section {
   margin-bottom: 30px;
 }
 
+.arguments {
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+
+.arguments-container {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  text-align: center;
+}
+
+.argument {
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: var(--color-text-light);
+}
+
 /* --------------------------------------------------------------------------
    Gallery
    -------------------------------------------------------------------------- */
@@ -1068,5 +1088,10 @@ section {
 
   .demarche p {
     font-size: 16px;
+  }
+
+  .arguments-container {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 }
