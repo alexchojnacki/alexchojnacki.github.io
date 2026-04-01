@@ -341,7 +341,7 @@ section {
 }
 
 .arguments {
-  margin-top: 20px;
+  margin-top: 35px;
   margin-bottom: 40px;
 }
 
@@ -355,8 +355,10 @@ section {
 }
 
 .argument {
-  font-size: 0.95rem;
-  letter-spacing: 0.02em;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   color: var(--color-text-light);
 }
 
