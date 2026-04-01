@@ -483,12 +483,14 @@ section {
 .pieces-header {
   text-align: center;
   max-width: 650px;
-  margin: 140px auto 50px auto;
-  padding: 0 20px;
+  margin: 0 auto 50px auto;
+  padding: 140px 20px 0 20px;
 }
 
 .pieces-header h1 {
-  margin-bottom: 12px;
+  margin-bottom: 6px;
+  font-size: 2rem;
+  letter-spacing: -0.5px;
 }
 
 .pieces-header p {
@@ -498,12 +500,9 @@ section {
 .pieces-note {
   text-align: center;
   max-width: 520px;
-  margin: 50px auto 70px auto;
+  margin: 20px auto 70px auto;
   padding: 0 20px;
   line-height: 1.6;
-}
-
-.pieces-note p {
   opacity: 0.9;
 }
 
@@ -515,6 +514,7 @@ section {
   padding-bottom: 2px;
   font-size: 0.95rem;
   color: var(--color-text);
+  opacity: 1;
 }
 
 .pieces-cta:hover {
