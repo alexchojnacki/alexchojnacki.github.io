@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Tests d'émaux - Atelier</title>
+  <link rel="icon" type="image/jpeg" href="images/favicon-32x32.jpg">
+  <link rel="stylesheet" href="css/emaux.css">
+</head>
+<body>
+  <header class="header">
+    <h1>Tests d'émaux</h1>
+    <div class="header-actions">
+      <button id="btn-export" class="btn btn-secondary" title="Exporter JSON">Export</button>
+      <button id="btn-import" class="btn btn-secondary" title="Importer JSON">Import</button>
+      <input type="file" id="import-file" accept=".json" hidden>
+      <button id="btn-new" class="btn btn-primary">+ Nouveau test</button>
+    </div>
+  </header>
+
+  <!-- Navigation onglets -->
+  <nav class="tabs">
+    <button class="tab active" data-tab="tests">Tests</button>
+    <button class="tab" data-tab="bases">Bases</button>
+    <button class="tab" data-tab="recettes">Recettes</button>
+    <button class="tab" data-tab="nomenclature">Nomenclature</button>
+  </nav>
+
+  <main>
+    <!-- Onglet Tests -->
+    <div id="tab-tests" class="tab-content active">
+    <!-- Filtres -->
+    <section class="filters">
+      <input type="text" id="search" placeholder="Rechercher (ID, couleur...)" class="input-search">
+      <select id="filter-base" class="select-filter">
+        <option value="">Toutes les bases</option>
+        <option value="B1">B1 - Soft Green</option>
+        <option value="B2">B2 - Blue Stone</option>
+        <option value="B3">B3 - Beurre</option>
+        <option value="B4">B4 - Noir Mat</option>
+        <option value="B5">B5 - Blanc</option>
+        <option value="B6">B6 - Vert</option>
+      </select>
+      <select id="filter-conclusion" class="select-filter">
+        <option value="">Toutes décisions</option>
+        <option value="keeper">À garder</option>
+        <option value="retry">À refaire</option>
+        <option value="abandon">Abandonné</option>
+        <option value="pending">En attente</option>
+      </select>
+      <button id="btn-compare" class="btn btn-secondary">Comparer</button>
+    </section>
+
+    <!-- Liste des tests -->
+    <section id="tests-list" class="tests-list">
+      <!-- Généré par JS -->
+    </section>
+
+    <!-- Vue comparaison -->
+    <section id="compare-view" class="compare-view hidden">
+      <div class="compare-header">
+        <h2>Comparaison</h2>
+        <button id="btn-close-compare" class="btn btn-secondary">Fermer</button>
+      </div>
+      <div id="compare-table" class="compare-table">
+        <!-- Généré par JS -->
+      </div>
+    </section>
+    </div>
+
+    <!-- Onglet Bases -->
+    <div id="tab-bases" class="tab-content">
+      <section class="info-section">
+        <div class="section-header">
+          <h2>Gestion des bases</h2>
+          <div class="section-header-actions">
+            <button id="btn-sync-bases" class="btn btn-secondary">Sync bases par défaut</button>
+            <button id="btn-new-base" class="btn btn-primary">+ Nouvelle base</button>
+          </div>
+        </div>
+        
+        <div id="bases-list" class="bases-list">
+          <!-- Généré par JS -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Onglet Recettes -->
+    <div id="tab-recettes" class="tab-content">
+      <section class="info-section">
+        <h2>Recettes des bases</h2>
+        <div id="recettes-list">
+          <!-- Généré par JS -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Onglet Nomenclature -->
+    <div id="tab-nomenclature" class="tab-content">
+      <section class="info-section">
+        <h2>Nomenclature des tests</h2>
+        
+        <div class="nomenclature-block">
+          <h3>Format de l'ID</h3>
+          <div class="nomenclature-example">
+            <code>B3-Cu2-Fe1-C8-03</code>
+          </div>
+          <p>Chaque ID est composé de plusieurs parties séparées par des tirets :</p>
+        </div>
+
+        <div class="nomenclature-block">
+          <h3>1. Base (B1-B6)</h3>
+          <p>Identifie la recette de base utilisée :</p>
+          <ul>
+            <li><strong>B1</strong> - Soft Green</li>
+            <li><strong>B2</strong> - Blue Stone</li>
+            <li><strong>B3</strong> - Beurre (base de référence)</li>
+            <li><strong>B4</strong> - Noir Mat</li>
+            <li><strong>B5</strong> - Blanc</li>
+            <li><strong>B6</strong> - Vert</li>
+          </ul>
+        </div>
+
+        <div class="nomenclature-block">
+          <h3>2. Additifs</h3>
+          <p>Liste des oxydes ajoutés avec leur pourcentage :</p>
+          <ul>
+            <li><strong>Cu</strong> - Cuivre (verts, rouges en réduction)</li>
+            <li><strong>Fe</strong> - Fer (bruns, rouilles, céladons)</li>
+            <li><strong>Co</strong> - Cobalt (bleus intenses)</li>
+            <li><strong>Ru</strong> - Rutile (effets nacrés, moirés)</li>
+            <li><strong>Ni</strong> - Nickel (gris, bruns)</li>
+            <li><strong>Ti</strong> - Titane (opacifiant, blancs)</li>
+            <li><strong>Zr</strong> - Zircon (opacifiant)</li>
+            <li><strong>Sn</strong> - Étain (opacifiant, blancs)</li>
+            <li><strong>Cr</strong> - Chrome (verts, roses avec étain)</li>
+            <li><strong>Li</strong> - Lithium (fondant, bleus)</li>
+            <li><strong>Zn</strong> - Zinc (cristallisations)</li>
+          </ul>
+          <p class="nomenclature-note">Exemple : <code>Cu2-Fe1</code> = 2% cuivre + 1% fer</p>
+        </div>
+
+        <div class="nomenclature-block">
+          <h3>3. Cône de cuisson (C6-C10)</h3>
+          <p>Température cible de cuisson :</p>
+          <ul>
+            <li><strong>C6</strong> - 1222°C</li>
+            <li><strong>C7</strong> - 1240°C</li>
+            <li><strong>C8</strong> - 1263°C (standard)</li>
+            <li><strong>C9</strong> - 1280°C</li>
+            <li><strong>C10</strong> - 1305°C</li>
+          </ul>
+        </div>
+
+        <div class="nomenclature-block">
+          <h3>4. Numéro séquentiel</h3>
+          <p>Numéro unique pour différencier les tests ayant la même composition.</p>
+          <p class="nomenclature-note">Exemple : <code>01</code>, <code>02</code>, <code>03</code>...</p>
+        </div>
+
+        <div class="nomenclature-block">
+          <h3>Exemples complets</h3>
+          <ul class="examples-list">
+            <li><code>B3-C8-01</code> → Base Beurre, sans additif, cône 8, premier test</li>
+            <li><code>B3-Cu2-C8-01</code> → Base Beurre + 2% cuivre, cône 8</li>
+            <li><code>B1-Cu3-Ru3-Fe1.5-Co0.5-C8-01</code> → Soft Green complet</li>
+            <li><code>B5-Ti5-Zr5-C9-02</code> → Blanc opacifié, cône 9, 2ème test</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Modal formulaire -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">Nouveau test</h2>
+        <button id="btn-close-modal" class="btn-close">&times;</button>
+      </div>
+      <form id="test-form" class="test-form">
+        <input type="hidden" id="test-id">
+        
+        <!-- Identification -->
+        <fieldset>
+          <legend>Identification</legend>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="base">Base *</label>
+              <select id="base" required>
+                <option value="">Choisir...</option>
+                <option value="B1">B1 - Soft Green</option>
+                <option value="B2">B2 - Blue Stone</option>
+                <option value="B3">B3 - Beurre</option>
+                <option value="B4">B4 - Noir Mat</option>
+                <option value="B5">B5 - Blanc</option>
+                <option value="B6">B6 - Vert</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="date">Date *</label>
+              <input type="date" id="date" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Additifs</label>
+            <div class="additives-grid">
+              <div class="additive-input">
+                <label for="add-cu">Cu</label>
+                <input type="number" id="add-cu" step="0.1" min="0" max="20" placeholder="0">
+              </div>
+              <div class="additive-input">
+                <label for="add-fe">Fe</label>
+                <input type="number" id="add-fe" step="0.1" min="0" max="20" placeholder="0">
+              </div>
+              <div class="additive-input">
+                <label for="add-co">Co</label>
+                <input type="number" id="add-co" step="0.1" min="0" max="5" placeholder="0">
+              </div>
+              <div class="additive-input">
+                <label for="add-ru">Ru</label>
+                <input type="number" id="add-ru" step="0.1" min="0" max="10" placeholder="0">
+              </div>
+              <div class="additive-input">
+                <label for="add-ni">Ni</label>
+                <input type="number" id="add-ni" step="0.1" min="0" max="10" placeholder="0">
+              </div>
+              <div class="additive-input">
+                <label for="add-ti">Ti</label>
+                <input type="number" id="add-ti" step="0.1" min="0" max="15" placeholder="0">
+              </div>
+              <div class="additive-input">
+                <label for="add-zr">Zr</label>
+                <input type="number" id="add-zr" step="0.1" min="0" max="15" placeholder="0">
+              </div>
+              <div class="additive-input">
+                <label for="add-sn">Sn</label>
+                <input type="number" id="add-sn" step="0.1" min="0" max="15" placeholder="0">
+              </div>
+              <div class="additive-input">
+                <label for="add-cr">Cr</label>
+                <input type="number" id="add-cr" step="0.1" min="0" max="10" placeholder="0">
+              </div>
+              <div class="additive-input">
+                <label for="add-li">Li</label>
+                <input type="number" id="add-li" step="0.1" min="0" max="10" placeholder="0">
+              </div>
+              <div class="additive-input">
+                <label for="add-zn">Zn</label>
+                <input type="number" id="add-zn" step="0.1" min="0" max="15" placeholder="0">
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>ID généré</label>
+            <div id="generated-id" class="generated-id">-</div>
+          </div>
+        </fieldset>
+
+        <!-- Cuisson -->
+        <fieldset>
+          <legend>Cuisson</legend>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="target-cone">Cône visé</label>
+              <select id="target-cone">
+                <option value="6">C6 (1222°C)</option>
+                <option value="7">C7 (1240°C)</option>
+                <option value="8" selected>C8 (1263°C)</option>
+                <option value="9">C9 (1280°C)</option>
+                <option value="10">C10 (1305°C)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="actual-cone">Cône réel</label>
+              <select id="actual-cone">
+                <option value="">Non mesuré</option>
+                <option value="6">C6</option>
+                <option value="7">C7</option>
+                <option value="8">C8</option>
+                <option value="9">C9</option>
+                <option value="10">C10</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="kiln-position">Position four</label>
+              <select id="kiln-position">
+                <option value="">-</option>
+                <option value="haut">Haut</option>
+                <option value="milieu">Milieu</option>
+                <option value="bas">Bas</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="thickness">Épaisseur</label>
+              <select id="thickness">
+                <option value="">-</option>
+                <option value="fin">Fin</option>
+                <option value="moyen">Moyen</option>
+                <option value="epais">Épais</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="application">Méthode d'application</label>
+            <select id="application">
+              <option value="">-</option>
+              <option value="trempage">Trempage</option>
+              <option value="pistolet">Pistolet</option>
+              <option value="pinceau">Pinceau</option>
+              <option value="coulage">Coulage</option>
+            </select>
+          </div>
+        </fieldset>
+
+        <!-- Résultat -->
+        <fieldset>
+          <legend>Résultat</legend>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="color">Couleur</label>
+              <input type="text" id="color" placeholder="ex: vert olive, bleu-gris...">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="intensity">Intensité</label>
+              <div class="radio-group">
+                <label class="radio-label"><input type="radio" name="intensity" value="1"> 1 Faible</label>
+                <label class="radio-label"><input type="radio" name="intensity" value="2"> 2 Moyen</label>
+                <label class="radio-label"><input type="radio" name="intensity" value="3"> 3 Fort</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="gloss">Brillance</label>
+              <div class="radio-group">
+                <label class="radio-label"><input type="radio" name="gloss" value="1"> 1 Mat</label>
+                <label class="radio-label"><input type="radio" name="gloss" value="2"> 2 Satiné</label>
+                <label class="radio-label"><input type="radio" name="gloss" value="3"> 3 Brillant</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="texture">Texture</label>
+              <input type="text" id="texture" placeholder="ex: lisse, granuleuse, cratères...">
+            </div>
+            <div class="form-group">
+              <label for="edge-effect">Effet de bord</label>
+              <input type="text" id="edge-effect" placeholder="ex: rupture, dégradé...">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Défauts</label>
+            <div class="checkbox-group">
+              <label class="checkbox-label"><input type="checkbox" name="defects" value="crawling"> Retrait</label>
+              <label class="checkbox-label"><input type="checkbox" name="defects" value="pinholing"> Piqûres</label>
+              <label class="checkbox-label"><input type="checkbox" name="defects" value="crazing"> Tressaillage</label>
+              <label class="checkbox-label"><input type="checkbox" name="defects" value="blistering"> Cloques</label>
+              <label class="checkbox-label"><input type="checkbox" name="defects" value="running"> Coulures</label>
+              <label class="checkbox-label"><input type="checkbox" name="defects" value="underfired"> Sous-cuit</label>
+              <label class="checkbox-label"><input type="checkbox" name="defects" value="overfired"> Sur-cuit</label>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Photo -->
+        <fieldset>
+          <legend>Photo</legend>
+          <div class="form-group">
+            <div class="photo-upload">
+              <input type="file" id="photo-input" accept="image/*" capture="environment">
+              <label for="photo-input" class="btn btn-secondary">Prendre/Choisir photo</label>
+              <div id="photo-preview" class="photo-preview"></div>
+              <button type="button" id="btn-remove-photo" class="btn btn-small hidden">Supprimer photo</button>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Conclusion -->
+        <fieldset>
+          <legend>Conclusion</legend>
+          <div class="form-group">
+            <label for="conclusion">Décision</label>
+            <select id="conclusion">
+              <option value="pending">En attente</option>
+              <option value="keeper">À garder</option>
+              <option value="retry">À refaire</option>
+              <option value="abandon">Abandonné</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="next-action">Prochaine action</label>
+            <textarea id="next-action" rows="2" placeholder="ex: Refaire avec moins de Cu, tester en C9..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="notes">Notes</label>
+            <textarea id="notes" rows="3" placeholder="Observations libres..."></textarea>
+          </div>
+        </fieldset>
+
+        <div class="form-actions">
+          <button type="button" id="btn-delete" class="btn btn-danger hidden">Supprimer</button>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal détail -->
+  <div id="modal-detail" class="modal hidden">
+    <div class="modal-content modal-detail-content">
+      <button id="btn-close-detail" class="btn-close">&times;</button>
+      <div id="detail-content">
+        <!-- Généré par JS -->
+      </div>
+      <div class="detail-actions">
+        <button id="btn-edit-from-detail" class="btn btn-primary">Modifier</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal base -->
+  <div id="modal-base" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-base-title">Nouvelle base</h2>
+        <button id="btn-close-modal-base" class="btn-close">&times;</button>
+      </div>
+      <form id="base-form" class="test-form">
+        <input type="hidden" id="base-id">
+        
+        <fieldset>
+          <legend>Identification</legend>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="base-code">Code *</label>
+              <input type="text" id="base-code" required placeholder="ex: B7" pattern="B\d+" title="Format: B suivi d'un numéro (ex: B7)">
+            </div>
+            <div class="form-group">
+              <label for="base-name">Nom *</label>
+              <input type="text" id="base-name" required placeholder="ex: Céladon">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="base-note">Note</label>
+            <input type="text" id="base-note" placeholder="Description optionnelle">
+          </div>
+          <div class="form-group">
+            <label for="base-warning">Avertissement</label>
+            <input type="text" id="base-warning" placeholder="ex: Potentiellement instable">
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Recette (en %)</legend>
+          <div id="recipe-inputs" class="recipe-inputs">
+            <div class="recipe-row">
+              <input type="text" class="recipe-ingredient" placeholder="Ingrédient">
+              <input type="number" class="recipe-percent" step="0.1" min="0" max="100" placeholder="%">
+              <button type="button" class="btn-remove-row" onclick="removeRecipeRow(this)">&times;</button>
+            </div>
+          </div>
+          <button type="button" id="btn-add-ingredient" class="btn btn-secondary btn-small">+ Ajouter ingrédient</button>
+        </fieldset>
+
+        <fieldset>
+          <legend>Additifs par défaut</legend>
+          <div class="additives-grid">
+            <div class="additive-input">
+              <label for="base-add-cu">Cu</label>
+              <input type="number" id="base-add-cu" step="0.1" min="0" max="20" placeholder="0">
+            </div>
+            <div class="additive-input">
+              <label for="base-add-fe">Fe</label>
+              <input type="number" id="base-add-fe" step="0.1" min="0" max="20" placeholder="0">
+            </div>
+            <div class="additive-input">
+              <label for="base-add-co">Co</label>
+              <input type="number" id="base-add-co" step="0.1" min="0" max="5" placeholder="0">
+            </div>
+            <div class="additive-input">
+              <label for="base-add-ru">Ru</label>
+              <input type="number" id="base-add-ru" step="0.1" min="0" max="10" placeholder="0">
+            </div>
+            <div class="additive-input">
+              <label for="base-add-ni">Ni</label>
+              <input type="number" id="base-add-ni" step="0.1" min="0" max="10" placeholder="0">
+            </div>
+            <div class="additive-input">
+              <label for="base-add-ti">Ti</label>
+              <input type="number" id="base-add-ti" step="0.1" min="0" max="15" placeholder="0">
+            </div>
+            <div class="additive-input">
+              <label for="base-add-zr">Zr</label>
+              <input type="number" id="base-add-zr" step="0.1" min="0" max="15" placeholder="0">
+            </div>
+            <div class="additive-input">
+              <label for="base-add-sn">Sn</label>
+              <input type="number" id="base-add-sn" step="0.1" min="0" max="15" placeholder="0">
+            </div>
+            <div class="additive-input">
+              <label for="base-add-cr">Cr</label>
+              <input type="number" id="base-add-cr" step="0.1" min="0" max="10" placeholder="0">
+            </div>
+            <div class="additive-input">
+              <label for="base-add-li">Li</label>
+              <input type="number" id="base-add-li" step="0.1" min="0" max="10" placeholder="0">
+            </div>
+            <div class="additive-input">
+              <label for="base-add-zn">Zn</label>
+              <input type="number" id="base-add-zn" step="0.1" min="0" max="15" placeholder="0">
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="form-actions">
+          <button type="button" id="btn-delete-base" class="btn btn-danger hidden">Supprimer</button>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/emaux.js"></script>
+</body>
+</html>
