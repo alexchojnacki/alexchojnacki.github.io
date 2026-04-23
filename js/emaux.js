@@ -1845,76 +1845,6 @@ function removePhoto() {
 }
 
 // ==========================================================================
-// IMPORT / EXPORT
-// ==========================================================================
-
-function exportData() {
-  const data = {
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    tests: tests
-  };
-  
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `emaux-tests-${new Date().toISOString().split('T')[0]}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function importData() {
-  $('import-file').click();
-}
-
-function handleImport(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  
-  const reader = new FileReader();
-  reader.onload = async function(event) {
-    try {
-      const data = JSON.parse(event.target.result);
-      
-      if (!data.tests || !Array.isArray(data.tests)) {
-        alert('Format de fichier invalide');
-        return;
-      }
-      
-      const action = confirm(
-        `Importer ${data.tests.length} tests ?\n\n` +
-        'OK = Fusionner avec les tests existants\n' +
-        'Annuler = Abandonner'
-      );
-      
-      if (!action) return;
-      
-      // Fusionner en évitant les doublons (par ID)
-      const existingIds = new Set(tests.map(t => t.id));
-      const newTests = data.tests.filter(t => !existingIds.has(t.id));
-      
-      tests = [...newTests, ...tests];
-      
-      // Synchroniser vers Google Sheets
-      const success = await syncAllToSheets(tests);
-      
-      if (success) {
-        renderTestsList(getFilteredTests());
-        alert(`${newTests.length} nouveaux tests importés et synchronisés`);
-      } else {
-        alert('Tests importés localement mais erreur de synchronisation');
-        renderTestsList(getFilteredTests());
-      }
-    } catch (err) {
-      alert('Erreur de lecture du fichier: ' + err.message);
-    }
-  };
-  reader.readAsText(file);
-  e.target.value = '';
-}
-
-// ==========================================================================
 // INITIAL DATA
 // ==========================================================================
 
@@ -2876,9 +2806,6 @@ async function init() {
   $('btn-delete').addEventListener('click', deleteTest);
   $('btn-compare').addEventListener('click', renderCompareTable);
   $('btn-close-compare').addEventListener('click', closeCompare);
-  $('btn-export').addEventListener('click', exportData);
-  $('btn-import').addEventListener('click', importData);
-  $('import-file').addEventListener('change', handleImport);
   $('btn-remove-photo').addEventListener('click', removePhoto);
   
   elements.testForm.addEventListener('submit', saveTest);
