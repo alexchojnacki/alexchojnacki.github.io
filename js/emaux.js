@@ -4,6 +4,72 @@
  */
 
 // ==========================================================================
+// AUTHENTIFICATION
+// ==========================================================================
+
+const SESSION_KEY = 'emaux_auth';
+
+function getTokenFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('key');
+}
+
+async function verifyToken(token) {
+  try {
+    const response = await fetch(SHEETS_API_URL + '?type=auth&key=' + encodeURIComponent(token));
+    const result = await response.json();
+    return result.success && result.authorized;
+  } catch (e) {
+    console.error('Erreur vérification token:', e);
+    return false;
+  }
+}
+
+function isAuthenticated() {
+  return sessionStorage.getItem(SESSION_KEY) === 'true';
+}
+
+function setAuthenticated() {
+  sessionStorage.setItem(SESSION_KEY, 'true');
+}
+
+async function checkAuth() {
+  const loginScreen = document.getElementById('login-screen');
+  const appContent = document.getElementById('app-content');
+  const loginError = document.getElementById('login-error');
+  
+  // Déjà authentifié dans cette session
+  if (isAuthenticated()) {
+    loginScreen.classList.add('hidden');
+    appContent.classList.remove('hidden');
+    init();
+    return;
+  }
+  
+  // Vérifier le token dans l'URL
+  const token = getTokenFromURL();
+  
+  if (token) {
+    loginError.textContent = 'Vérification...';
+    loginError.classList.remove('hidden');
+    
+    const isValid = await verifyToken(token);
+    
+    if (isValid) {
+      setAuthenticated();
+      loginScreen.classList.add('hidden');
+      appContent.classList.remove('hidden');
+      init();
+      return;
+    } else {
+      loginError.textContent = 'Accès refusé';
+    }
+  } else {
+    loginError.textContent = 'Accès réservé';
+  }
+}
+
+// ==========================================================================
 // CONFIGURATION API GOOGLE SHEETS
 // ==========================================================================
 
@@ -1409,4 +1475,4 @@ async function init() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', checkAuth);

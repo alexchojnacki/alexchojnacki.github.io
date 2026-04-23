@@ -25,6 +25,62 @@
   padding: 0;
 }
 
+/* --------------------------------------------------------------------------
+   Login Screen
+   -------------------------------------------------------------------------- */
+.login-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.login-box {
+  background: var(--bg-card);
+  padding: 40px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  text-align: center;
+  max-width: 320px;
+  width: 90%;
+}
+
+.login-box h1 {
+  font-size: 1.5rem;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.login-box p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.login-logo {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 16px;
+  background: var(--color-logo-bg, #f5f3f0);
+  border-radius: 50%;
+  padding: 10px;
+  object-fit: contain;
+}
+
+.login-status {
+  margin-top: 16px;
+  font-style: italic;
+}
+
+.login-screen.hidden {
+  display: none;
+}
+
 html {
   font-size: 16px;
 }
@@ -35,7 +91,9 @@ body {
   color: var(--text);
   line-height: 1.5;
   min-height: 100vh;
-  padding-bottom: 80px;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
 }
 
 /* --------------------------------------------------------------------------
@@ -54,8 +112,23 @@ body {
   gap: 12px;
 }
 
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-logo {
+  width: 36px;
+  height: 36px;
+  background: var(--color-logo-bg, #f5f3f0);
+  border-radius: 50%;
+  padding: 4px;
+  object-fit: contain;
+}
+
 .header h1 {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: var(--text);
 }
@@ -74,20 +147,24 @@ body {
   border-bottom: 1px solid var(--border);
   padding: 0 16px;
   position: sticky;
-  top: 52px;
+  top: 60px;
   z-index: 40;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .tab {
-  padding: 12px 20px;
+  padding: 12px 16px;
   background: none;
   border: none;
   color: var(--text-muted);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   border-bottom: 2px solid transparent;
   transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .tab:hover {
@@ -647,11 +724,28 @@ legend {
    Responsive
    -------------------------------------------------------------------------- */
 @media (max-width: 480px) {
+  .header {
+    padding: 10px 12px;
+  }
+  
+  .header-logo {
+    width: 30px;
+  }
+  
   .header h1 {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
   
   .header-actions .btn {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+  
+  .tabs {
+    padding: 0 8px;
+  }
+  
+  .tab {
     padding: 10px 12px;
     font-size: 0.85rem;
   }
@@ -672,6 +766,19 @@ legend {
   .radio-label,
   .checkbox-label {
     width: 100%;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .section-header-actions {
+    width: 100%;
+  }
+  
+  .section-header-actions .btn {
+    flex: 1;
   }
 }
 

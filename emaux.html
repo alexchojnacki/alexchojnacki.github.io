@@ -4,18 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="robots" content="noindex, nofollow">
-  <title>Tests d'émaux - Atelier</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Émaux">
+  <link rel="apple-touch-icon" href="images/logo.jpg">
+  <title>Tests d'émaux - Alex le Potier</title>
   <link rel="icon" type="image/jpeg" href="images/favicon-32x32.jpg">
   <link rel="stylesheet" href="css/emaux.css">
 </head>
 <body>
+  <!-- Écran de connexion -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-box">
+      <img src="images/logo_nobg.png" alt="Alex le Potier" class="login-logo">
+      <h1>Alex le Potier</h1>
+      <p>Tests d'émaux</p>
+      <p id="login-error" class="login-status">Vérification...</p>
+    </div>
+  </div>
+
+  <!-- Contenu principal (caché par défaut) -->
+  <div id="app-content" class="hidden">
   <header class="header">
-    <h1>Tests d'émaux</h1>
+    <div class="header-brand">
+      <img src="images/logo_nobg.png" alt="Alex le Potier" class="header-logo">
+      <h1>Tests d'émaux</h1>
+    </div>
     <div class="header-actions">
       <button id="btn-export" class="btn btn-secondary" title="Exporter JSON">Export</button>
       <button id="btn-import" class="btn btn-secondary" title="Importer JSON">Import</button>
       <input type="file" id="import-file" accept=".json" hidden>
-      <button id="btn-new" class="btn btn-primary">+ Nouveau test</button>
+      <button id="btn-new" class="btn btn-primary">+ Nouveau</button>
     </div>
   </header>
 
@@ -526,6 +545,7 @@
       </form>
     </div>
   </div>
+  </div><!-- Fin app-content -->
 
   <script src="js/emaux.js"></script>
 </body>
