@@ -11,6 +11,7 @@
   <title>Tests d'émaux - Alex le Potier</title>
   <link rel="icon" type="image/jpeg" href="images/favicon-32x32.jpg">
   <link rel="stylesheet" href="css/emaux.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <!-- Écran de connexion -->
@@ -41,6 +42,8 @@
   <!-- Navigation onglets -->
   <nav class="tabs">
     <button class="tab active" data-tab="tests">Tests</button>
+    <button class="tab" data-tab="cuissons">Cuissons</button>
+    <button class="tab" data-tab="stats">Stats</button>
     <button class="tab" data-tab="bases">Bases</button>
     <button class="tab" data-tab="recettes">Recettes</button>
     <button class="tab" data-tab="config">Config</button>
@@ -115,6 +118,103 @@
         <!-- Généré par JS -->
       </div>
     </section>
+    </div>
+
+    <!-- Onglet Cuissons -->
+    <div id="tab-cuissons" class="tab-content">
+      <section class="info-section">
+        <div class="section-header">
+          <h2>Historique des cuissons</h2>
+          <button id="btn-new-cuisson" class="btn btn-primary">+ Nouvelle cuisson</button>
+        </div>
+        
+        <!-- Filtres cuissons -->
+        <div class="filters cuissons-filters">
+          <select id="filter-cuisson-type" class="select-filter">
+            <option value="">Tous les types</option>
+            <option value="email">Émail</option>
+            <option value="degourdi">Dégourdi</option>
+          </select>
+          <select id="filter-cuisson-cone" class="select-filter">
+            <option value="">Tous les cônes</option>
+            <option value="06">C06</option>
+            <option value="04">C04</option>
+            <option value="6">C6</option>
+            <option value="7">C7</option>
+            <option value="8">C8</option>
+            <option value="9">C9</option>
+            <option value="10">C10</option>
+          </select>
+          <input type="month" id="filter-cuisson-month" class="input-search" title="Filtrer par mois">
+        </div>
+        
+        <div id="cuissons-list" class="cuissons-list">
+          <!-- Généré par JS -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Onglet Stats -->
+    <div id="tab-stats" class="tab-content">
+      <section class="info-section stats-section">
+        <h2>Statistiques</h2>
+        
+        <!-- KPIs -->
+        <div class="stats-kpis">
+          <div class="kpi-card">
+            <div class="kpi-value" id="kpi-total-tests">0</div>
+            <div class="kpi-label">Tests</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-value" id="kpi-total-cuissons">0</div>
+            <div class="kpi-label">Cuissons</div>
+          </div>
+          <div class="kpi-card kpi-success">
+            <div class="kpi-value" id="kpi-keepers">0</div>
+            <div class="kpi-label">À garder</div>
+          </div>
+          <div class="kpi-card kpi-warning">
+            <div class="kpi-value" id="kpi-retry">0</div>
+            <div class="kpi-label">À refaire</div>
+          </div>
+          <div class="kpi-card kpi-danger">
+            <div class="kpi-value" id="kpi-abandon">0</div>
+            <div class="kpi-label">Abandonnés</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-value" id="kpi-pending">0</div>
+            <div class="kpi-label">En attente</div>
+          </div>
+        </div>
+        
+        <!-- Graphiques -->
+        <div class="stats-charts">
+          <div class="chart-card">
+            <h3>Tests par base</h3>
+            <canvas id="chart-by-base"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>Résultats</h3>
+            <canvas id="chart-conclusions"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>Tests par mois</h3>
+            <canvas id="chart-by-month"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>Défauts les plus fréquents</h3>
+            <canvas id="chart-defects"></canvas>
+          </div>
+        </div>
+        
+        <!-- Top additifs -->
+        <div class="stats-block">
+          <h3>Additifs les plus utilisés</h3>
+          <div id="top-additifs" class="top-list">
+            <!-- Généré par JS -->
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- Onglet Bases -->
@@ -303,6 +403,13 @@
         <!-- Cuisson -->
         <fieldset>
           <legend>Cuisson</legend>
+          <div class="form-group">
+            <label for="cuisson-link">Cuisson associée</label>
+            <select id="cuisson-link">
+              <option value="">Aucune</option>
+              <!-- Généré par JS -->
+            </select>
+          </div>
           <div class="form-row">
             <div class="form-group">
               <label for="target-cone">Cône visé</label>
@@ -369,7 +476,7 @@
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label for="intensity">Intensité</label>
+              <label>Intensité</label>
               <div class="radio-group">
                 <label class="radio-label"><input type="radio" name="intensity" value="1"> 1 Faible</label>
                 <label class="radio-label"><input type="radio" name="intensity" value="2"> 2 Moyen</label>
@@ -377,7 +484,7 @@
               </div>
             </div>
             <div class="form-group">
-              <label for="gloss">Brillance</label>
+              <label>Brillance</label>
               <div class="radio-group">
                 <label class="radio-label"><input type="radio" name="gloss" value="1"> 1 Mat</label>
                 <label class="radio-label"><input type="radio" name="gloss" value="2"> 2 Satiné</label>
@@ -460,6 +567,7 @@
         <!-- Généré par JS -->
       </div>
       <div class="detail-actions">
+        <button id="btn-export-test-pdf" class="btn btn-secondary">Exporter PDF</button>
         <button id="btn-duplicate-from-detail" class="btn btn-secondary">Dupliquer</button>
         <button id="btn-edit-from-detail" class="btn btn-primary">Modifier</button>
       </div>
@@ -524,6 +632,128 @@
       </form>
     </div>
   </div>
+
+  <!-- Modal Cuisson -->
+  <div id="modal-cuisson" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-cuisson-title">Nouvelle cuisson</h2>
+        <button id="btn-close-modal-cuisson" class="btn-close">&times;</button>
+      </div>
+      <form id="cuisson-form" class="test-form">
+        <input type="hidden" id="cuisson-id">
+        
+        <fieldset>
+          <legend>Informations générales</legend>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cuisson-date">Date *</label>
+              <input type="date" id="cuisson-date" required>
+            </div>
+            <div class="form-group">
+              <label for="cuisson-type">Type</label>
+              <select id="cuisson-type">
+                <option value="email">Émail</option>
+                <option value="degourdi">Dégourdi</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cuisson-cone-vise">Cône visé</label>
+              <select id="cuisson-cone-vise">
+                <option value="">-</option>
+                <option value="06">C06 (999°C)</option>
+                <option value="04">C04 (1060°C)</option>
+                <option value="6">C6 (1222°C)</option>
+                <option value="7">C7 (1240°C)</option>
+                <option value="8" selected>C8 (1263°C)</option>
+                <option value="9">C9 (1280°C)</option>
+                <option value="10">C10 (1305°C)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="cuisson-cone-reel">Cône réel</label>
+              <select id="cuisson-cone-reel">
+                <option value="">Non mesuré</option>
+                <option value="06">C06</option>
+                <option value="04">C04</option>
+                <option value="6">C6</option>
+                <option value="7">C7</option>
+                <option value="8">C8</option>
+                <option value="9">C9</option>
+                <option value="10">C10</option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Programme</legend>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cuisson-temp-max">Température max (°C)</label>
+              <input type="number" id="cuisson-temp-max" min="0" max="1400" placeholder="1263">
+            </div>
+            <div class="form-group">
+              <label for="cuisson-duree">Durée totale (h)</label>
+              <input type="number" id="cuisson-duree" step="0.5" min="0" max="24" placeholder="8">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cuisson-vitesse">Vitesse montée (°C/h)</label>
+              <input type="number" id="cuisson-vitesse" min="0" max="500" placeholder="100">
+            </div>
+            <div class="form-group">
+              <label for="cuisson-palier">Palier (min)</label>
+              <input type="number" id="cuisson-palier" min="0" max="120" placeholder="15">
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Photo</legend>
+          <div class="form-group">
+            <div class="photo-upload">
+              <input type="file" id="cuisson-photo-input" accept="image/*" capture="environment">
+              <label for="cuisson-photo-input" class="btn btn-secondary">Prendre/Choisir photo</label>
+              <div id="cuisson-photo-preview" class="photo-preview"></div>
+              <button type="button" id="btn-remove-cuisson-photo" class="btn btn-small hidden">Supprimer photo</button>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Notes</legend>
+          <div class="form-group">
+            <label for="cuisson-notes">Observations</label>
+            <textarea id="cuisson-notes" rows="3" placeholder="Problèmes, observations, réglages..."></textarea>
+          </div>
+        </fieldset>
+
+        <div class="form-actions">
+          <button type="button" id="btn-delete-cuisson" class="btn btn-danger hidden">Supprimer</button>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Détail Cuisson -->
+  <div id="modal-cuisson-detail" class="modal hidden">
+    <div class="modal-content modal-detail-content">
+      <button id="btn-close-cuisson-detail" class="btn-close">&times;</button>
+      <div id="cuisson-detail-content">
+        <!-- Généré par JS -->
+      </div>
+      <div class="detail-actions">
+        <button id="btn-export-cuisson-pdf" class="btn btn-secondary">Exporter PDF</button>
+        <button id="btn-edit-cuisson-from-detail" class="btn btn-primary">Modifier</button>
+      </div>
+    </div>
+  </div>
+
   </div><!-- Fin app-content -->
 
   <script src="js/emaux.js"></script>

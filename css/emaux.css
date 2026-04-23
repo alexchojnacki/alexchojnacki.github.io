@@ -1256,3 +1256,398 @@ legend {
 .filter-cb:has(input:checked) {
   color: var(--accent);
 }
+
+/* ==========================================================================
+   Cuissons
+   ========================================================================== */
+
+.cuissons-filters {
+  margin-bottom: 16px;
+  border-radius: var(--radius);
+}
+
+.cuissons-filters input[type="month"] {
+  min-width: 150px;
+}
+
+.cuissons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cuisson-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cuisson-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.cuisson-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cuisson-card-date {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.cuisson-card-type {
+  background: var(--accent);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.cuisson-card-type.biscuit {
+  background: var(--warning);
+}
+
+.cuisson-card-type.raku {
+  background: var(--danger);
+}
+
+.cuisson-card-type.test {
+  background: var(--text-muted);
+}
+
+.cuisson-card-info {
+  display: flex;
+  gap: 16px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.cuisson-card-info span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cuisson-card-tests {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.cuisson-card-tests strong {
+  color: var(--text);
+}
+
+.cuisson-thumb {
+  width: 100%;
+  max-height: 120px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-top: 12px;
+}
+
+.cuisson-type-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.cuisson-type-email {
+  background: var(--accent);
+  color: white;
+}
+
+.cuisson-type-degourdi {
+  background: var(--warning);
+  color: #1a1a1a;
+}
+
+/* Associated tests in cuisson detail */
+.associated-tests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.associated-test-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-input);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.associated-test-item:hover {
+  background: var(--border);
+}
+
+.associated-test-id {
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+/* ==========================================================================
+   Statistics Dashboard
+   ========================================================================== */
+
+.stats-section {
+  max-width: 1000px;
+}
+
+.stats-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+  .stats-kpis {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.kpi-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+}
+
+.kpi-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.kpi-success .kpi-value { color: var(--success); }
+.kpi-warning .kpi-value { color: var(--warning); }
+.kpi-danger .kpi-value { color: var(--danger); }
+
+.stats-charts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+  .stats-charts {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.chart-card h3 {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.chart-card canvas {
+  max-height: 250px;
+}
+
+.stats-block {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.stats-block h3 {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.top-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.top-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-input);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+}
+
+.top-item-code {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.top-item-count {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.top-item-bar {
+  height: 4px;
+  background: var(--accent);
+  border-radius: 2px;
+  min-width: 20px;
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  body {
+    background: white !important;
+    color: #1a1a1a !important;
+    padding: 0 !important;
+  }
+  
+  .header, .tabs, .filters, .modal, #sync-status,
+  .detail-actions, .btn-close, .test-checkbox,
+  #login-screen {
+    display: none !important;
+  }
+  
+  .print-container {
+    display: block !important;
+    position: static !important;
+    background: white !important;
+    padding: 20px !important;
+    margin: 0 !important;
+    max-width: none !important;
+    box-shadow: none !important;
+  }
+  
+  .print-header {
+    text-align: center;
+    border-bottom: 2px solid #1a1a1a;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .print-header h1 {
+    font-size: 1.5rem;
+    color: #1a1a1a;
+    margin: 0;
+  }
+  
+  .print-header .print-date {
+    font-size: 0.85rem;
+    color: #666;
+  }
+  
+  .print-section {
+    margin-bottom: 16px;
+    page-break-inside: avoid;
+  }
+  
+  .print-section h2 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    color: #666;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+  }
+  
+  .print-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  
+  .print-item {
+    padding: 4px 0;
+  }
+  
+  .print-item-label {
+    font-size: 0.75rem;
+    color: #666;
+  }
+  
+  .print-item-value {
+    font-size: 0.9rem;
+    color: #1a1a1a;
+  }
+  
+  .print-photo {
+    max-width: 300px;
+    max-height: 300px;
+    margin: 16px auto;
+    display: block;
+  }
+  
+  .print-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid #1a1a1a;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+}
+
+.cuisson-detail-tests {
+  margin-top: 16px;
+}
+
+.cuisson-detail-tests h4 {
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.cuisson-detail-test-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cuisson-detail-test-item {
+  background: var(--bg-input);
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.cuisson-detail-test-item:hover {
+  background: var(--border);
+}

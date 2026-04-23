@@ -181,6 +181,7 @@ const DEFAULT_ADDITIFS = [
 // Données dynamiques (chargées depuis Google Sheets)
 let terres = [];
 let additifs = [];
+let cuissons = [];
 
 const DEFECT_LABELS = {
   crawling: 'Retrait',
@@ -197,6 +198,11 @@ const CONCLUSION_LABELS = {
   retry: 'À refaire',
   abandon: 'Abandonné',
   pending: 'En attente'
+};
+
+const CUISSON_TYPE_LABELS = {
+  email: 'Émail',
+  degourdi: 'Dégourdi'
 };
 
 // ==========================================================================
@@ -540,6 +546,77 @@ async function deleteAdditifFromSheets(code) {
   }
 }
 
+// ==========================================================================
+// CUISSONS STORAGE (Google Sheets)
+// ==========================================================================
+
+async function loadCuissonsFromSheets() {
+  try {
+    const response = await fetch(SHEETS_API_URL + '?type=cuissons');
+    const result = await response.json();
+    
+    if (result.success && result.data && result.data.length > 0) {
+      return result.data;
+    }
+    return [];
+  } catch (e) {
+    console.error('Erreur chargement cuissons:', e);
+    return [];
+  }
+}
+
+async function saveCuissonToSheets(cuisson, action = 'updateCuisson') {
+  try {
+    isSyncing = true;
+    showSyncStatus('Sauvegarde cuisson...');
+    
+    const response = await fetch(SHEETS_API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action, cuisson })
+    });
+    const result = await response.json();
+    
+    if (result.success) {
+      showSyncStatus('Cuisson sauvegardée ✓');
+      return true;
+    } else {
+      throw new Error(result.error || 'Erreur sauvegarde cuisson');
+    }
+  } catch (e) {
+    console.error('Erreur sauvegarde cuisson:', e);
+    showSyncStatus('Erreur de sauvegarde', true);
+    return false;
+  } finally {
+    isSyncing = false;
+  }
+}
+
+async function deleteCuissonFromSheets(id) {
+  try {
+    isSyncing = true;
+    showSyncStatus('Suppression cuisson...');
+    
+    const response = await fetch(SHEETS_API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'deleteCuisson', id })
+    });
+    const result = await response.json();
+    
+    if (result.success) {
+      showSyncStatus('Cuisson supprimée ✓');
+      return true;
+    } else {
+      throw new Error(result.error || 'Erreur suppression cuisson');
+    }
+  } catch (e) {
+    console.error('Erreur suppression cuisson:', e);
+    showSyncStatus('Erreur de suppression', true);
+    return false;
+  } finally {
+    isSyncing = false;
+  }
+}
+
 function getNextNumber(base, cone, tests) {
   const prefix = `${base}-`;
   const suffix = `-C${cone}-`;
@@ -613,6 +690,8 @@ let selectedIds = new Set();
 let currentEditId = null;
 let currentPhoto = null;
 let currentEditBaseCode = null;
+let currentEditCuissonId = null;
+let currentCuissonPhoto = null;
 
 // ==========================================================================
 // DOM ELEMENTS
@@ -1364,6 +1443,10 @@ function renderDetail(test) {
     elements.modalDetail.classList.add('hidden');
     duplicateTest(test);
   };
+  
+  $('btn-export-test-pdf').onclick = () => {
+    exportTestPDF(test.id);
+  };
 }
 
 // ==========================================================================
@@ -1399,6 +1482,7 @@ function duplicateTest(sourceTest) {
   $('date').value = new Date().toISOString().split('T')[0]; // Date du jour
   $('target-cone').value = sourceTest.targetCone || '8';
   $('actual-cone').value = ''; // Réinitialiser le cône réel
+  $('cuisson-link').value = ''; // Réinitialiser la cuisson (nouvelle cuisson probable)
   $('kiln-position').value = sourceTest.kilnPosition || '';
   $('thickness').value = sourceTest.thickness || '';
   $('application').value = sourceTest.application || '';
@@ -1450,6 +1534,7 @@ function openEdit(id) {
   $('date').value = test.date || '';
   $('target-cone').value = test.targetCone || '8';
   $('actual-cone').value = test.actualCone || '';
+  $('cuisson-link').value = test.cuissonId || '';
   $('kiln-position').value = test.kilnPosition || '';
   $('thickness').value = test.thickness || '';
   $('application').value = test.application || '';
@@ -1567,6 +1652,7 @@ async function saveTest(e) {
     date: $('date').value,
     targetCone: cone,
     actualCone: $('actual-cone').value,
+    cuissonId: $('cuisson-link').value || null,
     kilnPosition: $('kiln-position').value,
     thickness: $('thickness').value,
     application: $('application').value,
@@ -1898,8 +1984,839 @@ function initTabs() {
       // Activer l'onglet cliqué
       tab.classList.add('active');
       document.getElementById(targetId).classList.add('active');
+      
+      // Render stats quand on ouvre l'onglet stats
+      if (tab.dataset.tab === 'stats') {
+        renderStats();
+      }
     });
   });
+}
+
+// ==========================================================================
+// EXPORT PDF
+// ==========================================================================
+
+function exportTestPDF(testId) {
+  const test = tests.find(t => t.id === testId);
+  if (!test) return;
+  
+  const allBases = getAllBases();
+  const additivesStr = Object.entries(test.additives || {})
+    .map(([k, v]) => `${k}: ${v}%`)
+    .join(', ') || 'Aucun';
+  const defectsStr = (test.defects || [])
+    .map(d => DEFECT_LABELS[d])
+    .join(', ') || 'Aucun';
+  
+  const printContent = `
+    <div class="print-container">
+      <div class="print-header">
+        <h1>${test.generatedId || test.id}</h1>
+        <div class="print-date">Test du ${test.date || '-'}</div>
+        <span class="print-badge">${CONCLUSION_LABELS[test.conclusion] || 'En attente'}</span>
+      </div>
+      
+      ${test.photo ? `<img src="${test.photo}" class="print-photo" alt="">` : ''}
+      
+      <div class="print-section">
+        <h2>Identification</h2>
+        <div class="print-grid">
+          <div class="print-item">
+            <div class="print-item-label">Base</div>
+            <div class="print-item-value">${test.base} - ${allBases[test.base]?.name || ''}</div>
+          </div>
+          <div class="print-item">
+            <div class="print-item-label">Terre</div>
+            <div class="print-item-value">${test.terre || '-'}</div>
+          </div>
+        </div>
+        <div class="print-item">
+          <div class="print-item-label">Additifs</div>
+          <div class="print-item-value">${additivesStr}</div>
+        </div>
+      </div>
+      
+      <div class="print-section">
+        <h2>Cuisson</h2>
+        <div class="print-grid">
+          <div class="print-item">
+            <div class="print-item-label">Cône visé</div>
+            <div class="print-item-value">C${test.targetCone || '-'}</div>
+          </div>
+          <div class="print-item">
+            <div class="print-item-label">Cône réel</div>
+            <div class="print-item-value">${test.actualCone ? 'C' + test.actualCone : '-'}</div>
+          </div>
+          <div class="print-item">
+            <div class="print-item-label">Position</div>
+            <div class="print-item-value">${test.kilnPosition || '-'}</div>
+          </div>
+          <div class="print-item">
+            <div class="print-item-label">Épaisseur</div>
+            <div class="print-item-value">${test.thickness || '-'}</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="print-section">
+        <h2>Résultat</h2>
+        <div class="print-grid">
+          <div class="print-item">
+            <div class="print-item-label">Couleur</div>
+            <div class="print-item-value">${test.color || '-'}</div>
+          </div>
+          <div class="print-item">
+            <div class="print-item-label">Intensité</div>
+            <div class="print-item-value">${test.intensity || '-'}/3</div>
+          </div>
+          <div class="print-item">
+            <div class="print-item-label">Brillance</div>
+            <div class="print-item-value">${test.gloss || '-'}/3</div>
+          </div>
+          <div class="print-item">
+            <div class="print-item-label">Texture</div>
+            <div class="print-item-value">${test.texture || '-'}</div>
+          </div>
+        </div>
+        <div class="print-item">
+          <div class="print-item-label">Défauts</div>
+          <div class="print-item-value">${defectsStr}</div>
+        </div>
+      </div>
+      
+      ${test.notes ? `
+      <div class="print-section">
+        <h2>Notes</h2>
+        <p>${test.notes}</p>
+      </div>
+      ` : ''}
+      
+      ${test.nextAction ? `
+      <div class="print-section">
+        <h2>Prochaine action</h2>
+        <p>${test.nextAction}</p>
+      </div>
+      ` : ''}
+    </div>
+  `;
+  
+  openPrintWindow(printContent);
+}
+
+function exportCuissonPDF(cuissonId) {
+  const cuisson = cuissons.find(c => c.id === cuissonId);
+  if (!cuisson) return;
+  
+  const typeLabel = CUISSON_TYPE_LABELS[cuisson.type] || cuisson.type;
+  const associatedTests = getTestsForCuisson(cuissonId);
+  
+  const testsListHtml = associatedTests.length > 0
+    ? associatedTests.map(t => `<li>${t.generatedId} - ${CONCLUSION_LABELS[t.conclusion] || 'En attente'}</li>`).join('')
+    : '<li>Aucun test associé</li>';
+  
+  const printContent = `
+    <div class="print-container">
+      <div class="print-header">
+        <h1>Cuisson du ${cuisson.date || '-'}</h1>
+        <span class="print-badge">${typeLabel}</span>
+      </div>
+      
+      ${cuisson.photo ? `<img src="${cuisson.photo}" class="print-photo" alt="">` : ''}
+      
+      <div class="print-section">
+        <h2>Paramètres</h2>
+        <div class="print-grid">
+          <div class="print-item">
+            <div class="print-item-label">Cône visé</div>
+            <div class="print-item-value">${cuisson.coneVise ? 'C' + cuisson.coneVise : '-'}</div>
+          </div>
+          <div class="print-item">
+            <div class="print-item-label">Cône réel</div>
+            <div class="print-item-value">${cuisson.coneReel ? 'C' + cuisson.coneReel : '-'}</div>
+          </div>
+          <div class="print-item">
+            <div class="print-item-label">Temp. max</div>
+            <div class="print-item-value">${cuisson.tempMax ? cuisson.tempMax + '°C' : '-'}</div>
+          </div>
+          <div class="print-item">
+            <div class="print-item-label">Durée</div>
+            <div class="print-item-value">${cuisson.duree ? cuisson.duree + 'h' : '-'}</div>
+          </div>
+          <div class="print-item">
+            <div class="print-item-label">Vitesse montée</div>
+            <div class="print-item-value">${cuisson.vitesse ? cuisson.vitesse + '°C/h' : '-'}</div>
+          </div>
+          <div class="print-item">
+            <div class="print-item-label">Palier</div>
+            <div class="print-item-value">${cuisson.palier ? cuisson.palier + ' min' : '-'}</div>
+          </div>
+        </div>
+      </div>
+      
+      ${cuisson.notes ? `
+      <div class="print-section">
+        <h2>Notes</h2>
+        <p>${cuisson.notes}</p>
+      </div>
+      ` : ''}
+      
+      <div class="print-section">
+        <h2>Tests associés (${associatedTests.length})</h2>
+        <ul>${testsListHtml}</ul>
+      </div>
+    </div>
+  `;
+  
+  openPrintWindow(printContent);
+}
+
+function openPrintWindow(content) {
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+      <meta charset="UTF-8">
+      <title>Export - Alex le Potier</title>
+      <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; color: #1a1a1a; line-height: 1.5; }
+        .print-container { max-width: 600px; margin: 0 auto; }
+        .print-header { text-align: center; border-bottom: 2px solid #1a1a1a; padding-bottom: 16px; margin-bottom: 20px; }
+        .print-header h1 { font-size: 1.5rem; margin-bottom: 4px; }
+        .print-date { font-size: 0.85rem; color: #666; margin-bottom: 8px; }
+        .print-badge { display: inline-block; padding: 4px 12px; border: 1px solid #1a1a1a; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+        .print-photo { max-width: 100%; max-height: 300px; margin: 16px auto; display: block; border-radius: 8px; }
+        .print-section { margin-bottom: 20px; }
+        .print-section h2 { font-size: 0.85rem; text-transform: uppercase; color: #666; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 12px; letter-spacing: 1px; }
+        .print-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .print-item { padding: 4px 0; }
+        .print-item-label { font-size: 0.75rem; color: #666; }
+        .print-item-value { font-size: 0.95rem; }
+        ul { padding-left: 20px; }
+        li { padding: 4px 0; }
+        p { color: #333; }
+        @media print { body { padding: 0; } }
+      </style>
+    </head>
+    <body>
+      ${content}
+      <script>window.onload = function() { window.print(); }</script>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+// ==========================================================================
+// STATISTICS & CHARTS
+// ==========================================================================
+
+let chartInstances = {};
+
+function renderStats() {
+  // KPIs
+  const totalTests = tests.length;
+  const totalCuissons = cuissons.length;
+  const keepers = tests.filter(t => t.conclusion === 'keeper').length;
+  const retry = tests.filter(t => t.conclusion === 'retry').length;
+  const abandon = tests.filter(t => t.conclusion === 'abandon').length;
+  const pending = tests.filter(t => !t.conclusion || t.conclusion === 'pending').length;
+  
+  $('kpi-total-tests').textContent = totalTests;
+  $('kpi-total-cuissons').textContent = totalCuissons;
+  $('kpi-keepers').textContent = keepers;
+  $('kpi-retry').textContent = retry;
+  $('kpi-abandon').textContent = abandon;
+  $('kpi-pending').textContent = pending;
+  
+  // Charts
+  renderChartByBase();
+  renderChartConclusions();
+  renderChartByMonth();
+  renderChartDefects();
+  renderTopAdditifs();
+}
+
+function renderChartByBase() {
+  const ctx = $('chart-by-base');
+  if (!ctx) return;
+  
+  // Compter les tests par base
+  const baseCounts = {};
+  tests.forEach(t => {
+    if (t.base) {
+      baseCounts[t.base] = (baseCounts[t.base] || 0) + 1;
+    }
+  });
+  
+  const labels = Object.keys(baseCounts).sort();
+  const data = labels.map(b => baseCounts[b]);
+  
+  if (chartInstances['byBase']) {
+    chartInstances['byBase'].destroy();
+  }
+  
+  chartInstances['byBase'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Tests',
+        data: data,
+        backgroundColor: 'rgba(139, 115, 85, 0.7)',
+        borderColor: 'rgba(139, 115, 85, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#888' },
+          grid: { color: '#3a3a3a' }
+        },
+        x: {
+          ticks: { color: '#888' },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function renderChartConclusions() {
+  const ctx = $('chart-conclusions');
+  if (!ctx) return;
+  
+  const counts = {
+    keeper: tests.filter(t => t.conclusion === 'keeper').length,
+    retry: tests.filter(t => t.conclusion === 'retry').length,
+    abandon: tests.filter(t => t.conclusion === 'abandon').length,
+    pending: tests.filter(t => !t.conclusion || t.conclusion === 'pending').length
+  };
+  
+  if (chartInstances['conclusions']) {
+    chartInstances['conclusions'].destroy();
+  }
+  
+  chartInstances['conclusions'] = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['À garder', 'À refaire', 'Abandonnés', 'En attente'],
+      datasets: [{
+        data: [counts.keeper, counts.retry, counts.abandon, counts.pending],
+        backgroundColor: [
+          'rgba(74, 124, 89, 0.8)',
+          'rgba(201, 162, 39, 0.8)',
+          'rgba(166, 61, 64, 0.8)',
+          'rgba(58, 58, 58, 0.8)'
+        ],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#888', padding: 12 }
+        }
+      }
+    }
+  });
+}
+
+function renderChartByMonth() {
+  const ctx = $('chart-by-month');
+  if (!ctx) return;
+  
+  // Grouper par mois
+  const monthCounts = {};
+  tests.forEach(t => {
+    if (t.date) {
+      const month = t.date.substring(0, 7); // YYYY-MM
+      monthCounts[month] = (monthCounts[month] || 0) + 1;
+    }
+  });
+  
+  const labels = Object.keys(monthCounts).sort();
+  const data = labels.map(m => monthCounts[m]);
+  
+  // Formater les labels (YYYY-MM -> MMM YY)
+  const formattedLabels = labels.map(m => {
+    const [year, month] = m.split('-');
+    const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+    return `${monthNames[parseInt(month) - 1]} ${year.slice(2)}`;
+  });
+  
+  if (chartInstances['byMonth']) {
+    chartInstances['byMonth'].destroy();
+  }
+  
+  chartInstances['byMonth'] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: formattedLabels,
+      datasets: [{
+        label: 'Tests',
+        data: data,
+        borderColor: 'rgba(139, 115, 85, 1)',
+        backgroundColor: 'rgba(139, 115, 85, 0.2)',
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#888' },
+          grid: { color: '#3a3a3a' }
+        },
+        x: {
+          ticks: { color: '#888' },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function renderChartDefects() {
+  const ctx = $('chart-defects');
+  if (!ctx) return;
+  
+  // Compter les défauts
+  const defectCounts = {};
+  tests.forEach(t => {
+    (t.defects || []).forEach(d => {
+      defectCounts[d] = (defectCounts[d] || 0) + 1;
+    });
+  });
+  
+  // Trier par fréquence
+  const sorted = Object.entries(defectCounts).sort((a, b) => b[1] - a[1]);
+  const labels = sorted.map(([code]) => DEFECT_LABELS[code] || code);
+  const data = sorted.map(([, count]) => count);
+  
+  if (chartInstances['defects']) {
+    chartInstances['defects'].destroy();
+  }
+  
+  chartInstances['defects'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Occurrences',
+        data: data,
+        backgroundColor: 'rgba(166, 61, 64, 0.7)',
+        borderColor: 'rgba(166, 61, 64, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: { color: '#888' },
+          grid: { color: '#3a3a3a' }
+        },
+        y: {
+          ticks: { color: '#888' },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+function renderTopAdditifs() {
+  const container = $('top-additifs');
+  if (!container) return;
+  
+  // Compter les utilisations d'additifs
+  const additifCounts = {};
+  tests.forEach(t => {
+    Object.keys(t.additives || {}).forEach(code => {
+      if (t.additives[code] > 0) {
+        additifCounts[code] = (additifCounts[code] || 0) + 1;
+      }
+    });
+  });
+  
+  // Trier par fréquence
+  const sorted = Object.entries(additifCounts).sort((a, b) => b[1] - a[1]);
+  const maxCount = sorted[0]?.[1] || 1;
+  
+  if (sorted.length === 0) {
+    container.innerHTML = '<p class="empty-config">Aucun additif utilisé</p>';
+    return;
+  }
+  
+  container.innerHTML = sorted.map(([code, count]) => {
+    const barWidth = Math.round((count / maxCount) * 100);
+    return `
+      <div class="top-item">
+        <span class="top-item-code">${code}</span>
+        <span class="top-item-count">${count} test${count > 1 ? 's' : ''}</span>
+        <div class="top-item-bar" style="width: ${barWidth}px"></div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ==========================================================================
+// CUISSONS MANAGEMENT
+// ==========================================================================
+
+function getFilteredCuissons() {
+  const typeFilter = $('filter-cuisson-type')?.value || '';
+  const coneFilter = $('filter-cuisson-cone')?.value || '';
+  const monthFilter = $('filter-cuisson-month')?.value || '';
+  
+  return cuissons.filter(cuisson => {
+    if (typeFilter && cuisson.type !== typeFilter) return false;
+    if (coneFilter && cuisson.coneVise !== coneFilter) return false;
+    if (monthFilter && cuisson.date) {
+      const cuissonMonth = cuisson.date.substring(0, 7); // YYYY-MM
+      if (cuissonMonth !== monthFilter) return false;
+    }
+    return true;
+  });
+}
+
+function renderCuissonsList() {
+  const cuissonsList = $('cuissons-list');
+  if (!cuissonsList) return;
+  
+  const filteredCuissons = getFilteredCuissons();
+  
+  if (filteredCuissons.length === 0) {
+    const hasFilters = $('filter-cuisson-type')?.value || $('filter-cuisson-cone')?.value || $('filter-cuisson-month')?.value;
+    cuissonsList.innerHTML = `
+      <div class="empty-state">
+        <p>${hasFilters ? 'Aucune cuisson ne correspond aux filtres' : 'Aucune cuisson enregistrée'}</p>
+        ${!hasFilters ? '<button class="btn btn-primary" onclick="openNewCuisson()">Créer la première cuisson</button>' : ''}
+      </div>
+    `;
+    return;
+  }
+  
+  // Trier par date décroissante
+  const sortedCuissons = [...filteredCuissons].sort((a, b) => 
+    new Date(b.date || 0) - new Date(a.date || 0)
+  );
+  
+  cuissonsList.innerHTML = sortedCuissons.map(cuisson => {
+    const typeLabel = CUISSON_TYPE_LABELS[cuisson.type] || cuisson.type;
+    const testsCount = getTestsForCuisson(cuisson.id).length;
+    
+    return `
+      <div class="cuisson-card" data-id="${cuisson.id}" onclick="openCuissonDetail('${cuisson.id}')">
+        <div class="cuisson-card-header">
+          <div class="cuisson-card-date">${cuisson.date || '-'}</div>
+          <span class="cuisson-type-badge cuisson-type-${cuisson.type}">${typeLabel}</span>
+        </div>
+        <div class="cuisson-card-info">
+          <span class="cuisson-card-cone">
+            Cône ${cuisson.coneVise || '-'}${cuisson.coneReel ? ` → ${cuisson.coneReel}` : ''}
+          </span>
+          ${cuisson.tempMax ? `<span class="cuisson-card-temp">${cuisson.tempMax}°C</span>` : ''}
+        </div>
+        ${testsCount > 0 ? `<div class="cuisson-card-tests">${testsCount} test${testsCount > 1 ? 's' : ''} associé${testsCount > 1 ? 's' : ''}</div>` : ''}
+        ${cuisson.photo ? `<img src="${cuisson.photo}" alt="" class="cuisson-thumb">` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function getTestsForCuisson(cuissonId) {
+  return tests.filter(t => t.cuissonId === cuissonId);
+}
+
+function renderCuissonDetail(cuisson) {
+  const detailContent = $('cuisson-detail-content');
+  if (!detailContent) return;
+  
+  const typeLabel = CUISSON_TYPE_LABELS[cuisson.type] || cuisson.type;
+  const associatedTests = getTestsForCuisson(cuisson.id);
+  
+  detailContent.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-id">Cuisson du ${cuisson.date || '-'}</div>
+      <span class="cuisson-type-badge cuisson-type-${cuisson.type}">${typeLabel}</span>
+    </div>
+    
+    ${cuisson.photo ? `<img src="${cuisson.photo}" alt="" class="detail-photo">` : ''}
+    
+    <div class="detail-section">
+      <h3>Paramètres</h3>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <div class="detail-item-label">Cône visé</div>
+          <div class="detail-item-value">${cuisson.coneVise ? 'C' + cuisson.coneVise : '-'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-item-label">Cône réel</div>
+          <div class="detail-item-value">${cuisson.coneReel ? 'C' + cuisson.coneReel : '-'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-item-label">Temp. max</div>
+          <div class="detail-item-value">${cuisson.tempMax ? cuisson.tempMax + '°C' : '-'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-item-label">Durée</div>
+          <div class="detail-item-value">${cuisson.duree ? cuisson.duree + 'h' : '-'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-item-label">Vitesse montée</div>
+          <div class="detail-item-value">${cuisson.vitesse ? cuisson.vitesse + '°C/h' : '-'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-item-label">Palier</div>
+          <div class="detail-item-value">${cuisson.palier ? cuisson.palier + ' min' : '-'}</div>
+        </div>
+      </div>
+    </div>
+    
+    ${cuisson.notes ? `
+    <div class="detail-section">
+      <h3>Notes</h3>
+      <p style="color: var(--text-muted)">${cuisson.notes}</p>
+    </div>
+    ` : ''}
+    
+    ${associatedTests.length > 0 ? `
+    <div class="detail-section">
+      <h3>Tests associés (${associatedTests.length})</h3>
+      <div class="associated-tests-list">
+        ${associatedTests.map(test => `
+          <div class="associated-test-item" onclick="event.stopPropagation(); closeCuissonDetail(); openDetail('${test.id}');">
+            <span class="associated-test-id">${test.generatedId || test.id}</span>
+            <span class="test-badge badge-${test.conclusion || 'pending'}">${CONCLUSION_LABELS[test.conclusion] || 'En attente'}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    ` : ''}
+  `;
+}
+
+function openCuissonDetail(id) {
+  const cuisson = cuissons.find(c => c.id === id);
+  if (!cuisson) return;
+  
+  renderCuissonDetail(cuisson);
+  
+  $('btn-edit-cuisson-from-detail').onclick = () => {
+    $('modal-cuisson-detail').classList.add('hidden');
+    openEditCuisson(id);
+  };
+  
+  $('btn-export-cuisson-pdf').onclick = () => {
+    exportCuissonPDF(id);
+  };
+  
+  $('modal-cuisson-detail').classList.remove('hidden');
+}
+
+function closeCuissonDetail() {
+  $('modal-cuisson-detail').classList.add('hidden');
+}
+
+function openNewCuisson() {
+  currentEditCuissonId = null;
+  currentCuissonPhoto = null;
+  $('modal-cuisson-title').textContent = 'Nouvelle cuisson';
+  $('cuisson-form').reset();
+  $('btn-delete-cuisson').classList.add('hidden');
+  $('cuisson-photo-preview').innerHTML = '';
+  $('btn-remove-cuisson-photo').classList.add('hidden');
+  
+  // Date par défaut: aujourd'hui
+  $('cuisson-date').value = new Date().toISOString().split('T')[0];
+  
+  $('modal-cuisson').classList.remove('hidden');
+}
+
+function openEditCuisson(id) {
+  const cuisson = cuissons.find(c => c.id === id);
+  if (!cuisson) return;
+  
+  currentEditCuissonId = id;
+  currentCuissonPhoto = cuisson.photo || null;
+  $('modal-cuisson-title').textContent = 'Modifier la cuisson';
+  $('btn-delete-cuisson').classList.remove('hidden');
+  
+  // Remplir le formulaire
+  $('cuisson-date').value = cuisson.date || '';
+  $('cuisson-type').value = cuisson.type || 'email';
+  $('cuisson-cone-vise').value = cuisson.coneVise || '';
+  $('cuisson-cone-reel').value = cuisson.coneReel || '';
+  $('cuisson-temp-max').value = cuisson.tempMax || '';
+  $('cuisson-duree').value = cuisson.duree || '';
+  $('cuisson-vitesse').value = cuisson.vitesse || '';
+  $('cuisson-palier').value = cuisson.palier || '';
+  $('cuisson-notes').value = cuisson.notes || '';
+  
+  // Photo
+  if (cuisson.photo) {
+    $('cuisson-photo-preview').innerHTML = `<img src="${cuisson.photo}" alt="">`;
+    $('btn-remove-cuisson-photo').classList.remove('hidden');
+  } else {
+    $('cuisson-photo-preview').innerHTML = '';
+    $('btn-remove-cuisson-photo').classList.add('hidden');
+  }
+  
+  $('modal-cuisson').classList.remove('hidden');
+}
+
+function closeModalCuisson() {
+  $('modal-cuisson').classList.add('hidden');
+  currentEditCuissonId = null;
+  currentCuissonPhoto = null;
+}
+
+async function saveCuisson(e) {
+  e.preventDefault();
+  
+  const cuissonData = {
+    id: currentEditCuissonId || crypto.randomUUID(),
+    date: $('cuisson-date').value,
+    type: $('cuisson-type').value,
+    coneVise: $('cuisson-cone-vise').value,
+    coneReel: $('cuisson-cone-reel').value,
+    tempMax: $('cuisson-temp-max').value ? parseInt($('cuisson-temp-max').value) : null,
+    duree: $('cuisson-duree').value ? parseFloat($('cuisson-duree').value) : null,
+    vitesse: $('cuisson-vitesse').value ? parseInt($('cuisson-vitesse').value) : null,
+    palier: $('cuisson-palier').value ? parseInt($('cuisson-palier').value) : null,
+    notes: $('cuisson-notes').value,
+    photo: currentCuissonPhoto,
+    updatedAt: new Date().toISOString()
+  };
+  
+  const action = currentEditCuissonId ? 'updateCuisson' : 'addCuisson';
+  const success = await saveCuissonToSheets(cuissonData, action);
+  
+  if (success) {
+    if (currentEditCuissonId) {
+      const index = cuissons.findIndex(c => c.id === currentEditCuissonId);
+      if (index !== -1) {
+        cuissons[index] = { ...cuissons[index], ...cuissonData };
+      }
+    } else {
+      cuissonData.createdAt = new Date().toISOString();
+      cuissons.unshift(cuissonData);
+    }
+    
+    closeModalCuisson();
+    renderCuissonsList();
+    updateCuissonSelect();
+  }
+}
+
+async function deleteCuisson() {
+  if (!currentEditCuissonId) return;
+  
+  // Vérifier s'il y a des tests associés
+  const associatedTests = getTestsForCuisson(currentEditCuissonId);
+  if (associatedTests.length > 0) {
+    if (!confirm(`Cette cuisson a ${associatedTests.length} test(s) associé(s). Supprimer quand même ?`)) {
+      return;
+    }
+  } else {
+    if (!confirm('Supprimer cette cuisson ?')) return;
+  }
+  
+  const success = await deleteCuissonFromSheets(currentEditCuissonId);
+  
+  if (success) {
+    cuissons = cuissons.filter(c => c.id !== currentEditCuissonId);
+    closeModalCuisson();
+    renderCuissonsList();
+    updateCuissonSelect();
+  }
+}
+
+function handleCuissonPhotoUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const maxSize = 800;
+      let { width, height } = img;
+      
+      if (width > maxSize || height > maxSize) {
+        if (width > height) {
+          height = (height / width) * maxSize;
+          width = maxSize;
+        } else {
+          width = (width / height) * maxSize;
+          height = maxSize;
+        }
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      currentCuissonPhoto = canvas.toDataURL('image/jpeg', 0.7);
+      $('cuisson-photo-preview').innerHTML = `<img src="${currentCuissonPhoto}" alt="">`;
+      $('btn-remove-cuisson-photo').classList.remove('hidden');
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeCuissonPhoto() {
+  currentCuissonPhoto = null;
+  $('cuisson-photo-preview').innerHTML = '';
+  $('btn-remove-cuisson-photo').classList.add('hidden');
+  $('cuisson-photo-input').value = '';
+}
+
+function updateCuissonSelect() {
+  const select = $('cuisson-link');
+  if (!select) return;
+  
+  // Trier par date décroissante
+  const sortedCuissons = [...cuissons].sort((a, b) => 
+    new Date(b.date || 0) - new Date(a.date || 0)
+  );
+  
+  const options = sortedCuissons.map(cuisson => {
+    const typeLabel = CUISSON_TYPE_LABELS[cuisson.type] || cuisson.type;
+    const label = `${cuisson.date || 'Sans date'} - ${typeLabel} (C${cuisson.coneVise || '?'})`;
+    return `<option value="${cuisson.id}">${label}</option>`;
+  }).join('');
+  
+  select.innerHTML = '<option value="">Aucune</option>' + options;
 }
 
 // ==========================================================================
@@ -1937,6 +2854,9 @@ async function init() {
   // Mettre à jour les selects avec toutes les bases
   updateBaseSelects();
   
+  // Charger les cuissons depuis Google Sheets
+  cuissons = await loadCuissonsFromSheets();
+  
   // Charger les tests depuis Google Sheets
   tests = await loadTestsFromSheets();
   
@@ -1946,6 +2866,8 @@ async function init() {
   renderTestsList();
   renderBasesList();
   renderRecettesList();
+  renderCuissonsList();
+  updateCuissonSelect();
   
   // Event listeners - Tests
   $('btn-new').addEventListener('click', openNewTest);
@@ -1973,6 +2895,28 @@ async function init() {
   // Event listeners - Config (Terres & Additifs)
   $('btn-new-terre').addEventListener('click', addTerre);
   $('btn-new-additif').addEventListener('click', addAdditif);
+  
+  // Event listeners - Cuissons
+  $('btn-new-cuisson').addEventListener('click', openNewCuisson);
+  $('btn-close-modal-cuisson').addEventListener('click', closeModalCuisson);
+  $('btn-delete-cuisson').addEventListener('click', deleteCuisson);
+  $('cuisson-form').addEventListener('submit', saveCuisson);
+  $('cuisson-photo-input').addEventListener('change', handleCuissonPhotoUpload);
+  $('btn-remove-cuisson-photo').addEventListener('click', removeCuissonPhoto);
+  $('btn-close-cuisson-detail').addEventListener('click', closeCuissonDetail);
+  
+  // Filtres cuissons
+  $('filter-cuisson-type').addEventListener('change', renderCuissonsList);
+  $('filter-cuisson-cone').addEventListener('change', renderCuissonsList);
+  $('filter-cuisson-month').addEventListener('change', renderCuissonsList);
+  
+  // Fermer modals cuisson en cliquant à l'extérieur
+  $('modal-cuisson').addEventListener('click', e => {
+    if (e.target === $('modal-cuisson')) closeModalCuisson();
+  });
+  $('modal-cuisson-detail').addEventListener('click', e => {
+    if (e.target === $('modal-cuisson-detail')) closeCuissonDetail();
+  });
   
   // Fermer modal base en cliquant à l'extérieur
   $('modal-base').addEventListener('click', e => {
@@ -2012,6 +2956,8 @@ async function init() {
       closeDetail();
       closeCompare();
       closeModalBase();
+      closeModalCuisson();
+      closeCuissonDetail();
     }
   });
 }
