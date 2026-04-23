@@ -1099,3 +1099,98 @@ legend {
   padding: 6px 12px;
   font-size: 0.85rem;
 }
+
+/* ==========================================================================
+   Configuration Tab - Terres & Additifs
+   ========================================================================== */
+
+.config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .config-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.config-block {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.config-block .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.config-block h2 {
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+.config-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.config-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-input);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  gap: 12px;
+}
+
+.config-item-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.config-item-code {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.config-item-name {
+  color: var(--text);
+}
+
+.config-item-desc {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.config-item-default {
+  color: var(--success);
+  font-size: 0.8rem;
+}
+
+.config-item-max {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.config-item-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.empty-config {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+}

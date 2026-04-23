@@ -43,6 +43,7 @@
     <button class="tab active" data-tab="tests">Tests</button>
     <button class="tab" data-tab="bases">Bases</button>
     <button class="tab" data-tab="recettes">Recettes</button>
+    <button class="tab" data-tab="config">Config</button>
     <button class="tab" data-tab="nomenclature">Nomenclature</button>
   </nav>
 
@@ -111,6 +112,35 @@
         <h2>Recettes des bases</h2>
         <div id="recettes-list">
           <!-- Généré par JS -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Onglet Configuration -->
+    <div id="tab-config" class="tab-content">
+      <section class="info-section">
+        <div class="config-grid">
+          <!-- Gestion des Terres -->
+          <div class="config-block">
+            <div class="section-header">
+              <h2>Terres</h2>
+              <button id="btn-new-terre" class="btn btn-primary btn-small">+ Ajouter</button>
+            </div>
+            <div id="terres-list" class="config-list">
+              <!-- Généré par JS -->
+            </div>
+          </div>
+
+          <!-- Gestion des Additifs -->
+          <div class="config-block">
+            <div class="section-header">
+              <h2>Additifs</h2>
+              <button id="btn-new-additif" class="btn btn-primary btn-small">+ Ajouter</button>
+            </div>
+            <div id="additifs-list" class="config-list">
+              <!-- Généré par JS -->
+            </div>
+          </div>
         </div>
       </section>
     </div>
@@ -220,8 +250,7 @@
             <div class="form-group">
               <label for="terre">Terre</label>
               <select id="terre">
-                <option value="GSA T40" selected>GSA T40</option>
-                <option value="GE221PY">GE221PY</option>
+                <!-- Généré par JS -->
               </select>
             </div>
           </div>
@@ -232,51 +261,8 @@
           
           <div class="form-group">
             <label>Additifs</label>
-            <div class="additives-grid">
-              <div class="additive-input">
-                <label for="add-cu">Cu</label>
-                <input type="number" id="add-cu" step="0.1" min="0" max="20" placeholder="0">
-              </div>
-              <div class="additive-input">
-                <label for="add-fe">Fe</label>
-                <input type="number" id="add-fe" step="0.1" min="0" max="20" placeholder="0">
-              </div>
-              <div class="additive-input">
-                <label for="add-co">Co</label>
-                <input type="number" id="add-co" step="0.1" min="0" max="5" placeholder="0">
-              </div>
-              <div class="additive-input">
-                <label for="add-ru">Ru</label>
-                <input type="number" id="add-ru" step="0.1" min="0" max="10" placeholder="0">
-              </div>
-              <div class="additive-input">
-                <label for="add-ni">Ni</label>
-                <input type="number" id="add-ni" step="0.1" min="0" max="10" placeholder="0">
-              </div>
-              <div class="additive-input">
-                <label for="add-ti">Ti</label>
-                <input type="number" id="add-ti" step="0.1" min="0" max="15" placeholder="0">
-              </div>
-              <div class="additive-input">
-                <label for="add-zr">Zr</label>
-                <input type="number" id="add-zr" step="0.1" min="0" max="15" placeholder="0">
-              </div>
-              <div class="additive-input">
-                <label for="add-sn">Sn</label>
-                <input type="number" id="add-sn" step="0.1" min="0" max="15" placeholder="0">
-              </div>
-              <div class="additive-input">
-                <label for="add-cr">Cr</label>
-                <input type="number" id="add-cr" step="0.1" min="0" max="10" placeholder="0">
-              </div>
-              <div class="additive-input">
-                <label for="add-li">Li</label>
-                <input type="number" id="add-li" step="0.1" min="0" max="10" placeholder="0">
-              </div>
-              <div class="additive-input">
-                <label for="add-zn">Zn</label>
-                <input type="number" id="add-zn" step="0.1" min="0" max="15" placeholder="0">
-              </div>
+            <div id="additives-grid" class="additives-grid">
+              <!-- Généré par JS -->
             </div>
           </div>
           
@@ -497,51 +483,8 @@
 
         <fieldset>
           <legend>Additifs par défaut</legend>
-          <div class="additives-grid">
-            <div class="additive-input">
-              <label for="base-add-cu">Cu</label>
-              <input type="number" id="base-add-cu" step="0.1" min="0" max="20" placeholder="0">
-            </div>
-            <div class="additive-input">
-              <label for="base-add-fe">Fe</label>
-              <input type="number" id="base-add-fe" step="0.1" min="0" max="20" placeholder="0">
-            </div>
-            <div class="additive-input">
-              <label for="base-add-co">Co</label>
-              <input type="number" id="base-add-co" step="0.1" min="0" max="5" placeholder="0">
-            </div>
-            <div class="additive-input">
-              <label for="base-add-ru">Ru</label>
-              <input type="number" id="base-add-ru" step="0.1" min="0" max="10" placeholder="0">
-            </div>
-            <div class="additive-input">
-              <label for="base-add-ni">Ni</label>
-              <input type="number" id="base-add-ni" step="0.1" min="0" max="10" placeholder="0">
-            </div>
-            <div class="additive-input">
-              <label for="base-add-ti">Ti</label>
-              <input type="number" id="base-add-ti" step="0.1" min="0" max="15" placeholder="0">
-            </div>
-            <div class="additive-input">
-              <label for="base-add-zr">Zr</label>
-              <input type="number" id="base-add-zr" step="0.1" min="0" max="15" placeholder="0">
-            </div>
-            <div class="additive-input">
-              <label for="base-add-sn">Sn</label>
-              <input type="number" id="base-add-sn" step="0.1" min="0" max="15" placeholder="0">
-            </div>
-            <div class="additive-input">
-              <label for="base-add-cr">Cr</label>
-              <input type="number" id="base-add-cr" step="0.1" min="0" max="10" placeholder="0">
-            </div>
-            <div class="additive-input">
-              <label for="base-add-li">Li</label>
-              <input type="number" id="base-add-li" step="0.1" min="0" max="10" placeholder="0">
-            </div>
-            <div class="additive-input">
-              <label for="base-add-zn">Zn</label>
-              <input type="number" id="base-add-zn" step="0.1" min="0" max="15" placeholder="0">
-            </div>
+          <div id="base-additives-grid" class="additives-grid">
+            <!-- Généré par JS -->
           </div>
         </fieldset>
 

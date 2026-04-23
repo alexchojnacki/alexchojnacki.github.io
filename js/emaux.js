@@ -158,7 +158,29 @@ const BASES = {
 
 const ADDITIVE_CODES = ['Cu', 'Fe', 'Co', 'Ru', 'Ni', 'Ti', 'Zr', 'Sn', 'Cr', 'Li', 'Zn'];
 
-const DEFAULT_TERRES = ['GSA T40'];
+// Données par défaut (seront remplacées par celles de Google Sheets)
+const DEFAULT_TERRES = [
+  { code: 'GSA T40', name: 'GSA T40', isDefault: true },
+  { code: 'GE221PY', name: 'GE221PY', isDefault: false }
+];
+
+const DEFAULT_ADDITIFS = [
+  { code: 'Cu', name: 'Cuivre', description: 'verts, rouges en réduction', max: 20 },
+  { code: 'Fe', name: 'Fer', description: 'bruns, rouilles, céladons', max: 20 },
+  { code: 'Co', name: 'Cobalt', description: 'bleus intenses', max: 5 },
+  { code: 'Ru', name: 'Rutile', description: 'effets nacrés, moirés', max: 10 },
+  { code: 'Ni', name: 'Nickel', description: 'gris, bruns', max: 10 },
+  { code: 'Ti', name: 'Titane', description: 'opacifiant, blancs', max: 15 },
+  { code: 'Zr', name: 'Zircon', description: 'opacifiant', max: 15 },
+  { code: 'Sn', name: 'Étain', description: 'opacifiant, blancs', max: 15 },
+  { code: 'Cr', name: 'Chrome', description: 'verts, roses avec étain', max: 10 },
+  { code: 'Li', name: 'Lithium', description: 'fondant, bleus', max: 10 },
+  { code: 'Zn', name: 'Zinc', description: 'cristallisations', max: 15 }
+];
+
+// Données dynamiques (chargées depuis Google Sheets)
+let terres = [];
+let additifs = [];
 
 const DEFECT_LABELS = {
   crawling: 'Retrait',
@@ -380,6 +402,144 @@ async function deleteBaseFromSheets(code) {
   }
 }
 
+// ==========================================================================
+// TERRES & ADDITIFS STORAGE (Google Sheets)
+// ==========================================================================
+
+async function loadTerresFromSheets() {
+  try {
+    const response = await fetch(SHEETS_API_URL + '?type=terres');
+    const result = await response.json();
+    
+    if (result.success && result.data && result.data.length > 0) {
+      return result.data;
+    }
+    return DEFAULT_TERRES;
+  } catch (e) {
+    console.error('Erreur chargement terres:', e);
+    return DEFAULT_TERRES;
+  }
+}
+
+async function saveTerreToSheets(terre, action = 'updateTerre') {
+  try {
+    isSyncing = true;
+    showSyncStatus('Sauvegarde terre...');
+    
+    const response = await fetch(SHEETS_API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action, terre })
+    });
+    const result = await response.json();
+    
+    if (result.success) {
+      showSyncStatus('Terre sauvegardée ✓');
+      return true;
+    } else {
+      throw new Error(result.error || 'Erreur sauvegarde terre');
+    }
+  } catch (e) {
+    console.error('Erreur sauvegarde terre:', e);
+    showSyncStatus('Erreur de sauvegarde', true);
+    return false;
+  } finally {
+    isSyncing = false;
+  }
+}
+
+async function deleteTerreFromSheets(code) {
+  try {
+    isSyncing = true;
+    showSyncStatus('Suppression terre...');
+    
+    const response = await fetch(SHEETS_API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'deleteTerre', code })
+    });
+    const result = await response.json();
+    
+    if (result.success) {
+      showSyncStatus('Terre supprimée ✓');
+      return true;
+    } else {
+      throw new Error(result.error || 'Erreur suppression terre');
+    }
+  } catch (e) {
+    console.error('Erreur suppression terre:', e);
+    showSyncStatus('Erreur de suppression', true);
+    return false;
+  } finally {
+    isSyncing = false;
+  }
+}
+
+async function loadAdditifsFromSheets() {
+  try {
+    const response = await fetch(SHEETS_API_URL + '?type=additifs');
+    const result = await response.json();
+    
+    if (result.success && result.data && result.data.length > 0) {
+      return result.data;
+    }
+    return DEFAULT_ADDITIFS;
+  } catch (e) {
+    console.error('Erreur chargement additifs:', e);
+    return DEFAULT_ADDITIFS;
+  }
+}
+
+async function saveAdditifToSheets(additif, action = 'updateAdditif') {
+  try {
+    isSyncing = true;
+    showSyncStatus('Sauvegarde additif...');
+    
+    const response = await fetch(SHEETS_API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action, additif })
+    });
+    const result = await response.json();
+    
+    if (result.success) {
+      showSyncStatus('Additif sauvegardé ✓');
+      return true;
+    } else {
+      throw new Error(result.error || 'Erreur sauvegarde additif');
+    }
+  } catch (e) {
+    console.error('Erreur sauvegarde additif:', e);
+    showSyncStatus('Erreur de sauvegarde', true);
+    return false;
+  } finally {
+    isSyncing = false;
+  }
+}
+
+async function deleteAdditifFromSheets(code) {
+  try {
+    isSyncing = true;
+    showSyncStatus('Suppression additif...');
+    
+    const response = await fetch(SHEETS_API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'deleteAdditif', code })
+    });
+    const result = await response.json();
+    
+    if (result.success) {
+      showSyncStatus('Additif supprimé ✓');
+      return true;
+    } else {
+      throw new Error(result.error || 'Erreur suppression additif');
+    }
+  } catch (e) {
+    console.error('Erreur suppression additif:', e);
+    showSyncStatus('Erreur de suppression', true);
+    return false;
+  } finally {
+    isSyncing = false;
+  }
+}
+
 function getNextNumber(base, cone, tests) {
   const prefix = `${base}-`;
   const suffix = `-C${cone}-`;
@@ -402,14 +562,21 @@ function getNextNumber(base, cone, tests) {
 // ID GENERATION
 // ==========================================================================
 
-function generateTestId(base, additives, cone, tests) {
+function getAdditiveCodes() {
+  // Utiliser les additifs dynamiques ou les codes par défaut
+  return additifs.length > 0 
+    ? additifs.map(a => a.code) 
+    : ADDITIVE_CODES;
+}
+
+function generateTestId(base, testAdditives, cone, tests) {
   if (!base) return '-';
   
   let parts = [base];
   
   // Ajouter les additifs dans l'ordre
-  ADDITIVE_CODES.forEach(code => {
-    const value = additives[code];
+  getAdditiveCodes().forEach(code => {
+    const value = testAdditives[code];
     if (value && value > 0) {
       parts.push(`${code}${value}`);
     }
@@ -425,15 +592,15 @@ function generateTestId(base, additives, cone, tests) {
 }
 
 function getAdditivesFromForm() {
-  const additives = {};
-  ADDITIVE_CODES.forEach(code => {
+  const result = {};
+  getAdditiveCodes().forEach(code => {
     const input = document.getElementById(`add-${code.toLowerCase()}`);
     if (input && input.value) {
       const val = parseFloat(input.value);
-      if (val > 0) additives[code] = val;
+      if (val > 0) result[code] = val;
     }
   });
-  return additives;
+  return result;
 }
 
 // ==========================================================================
@@ -650,6 +817,212 @@ function updateBaseSelects() {
   }
 }
 
+// ==========================================================================
+// TERRES & ADDITIFS MANAGEMENT
+// ==========================================================================
+
+function renderTerresList() {
+  const terresList = $('terres-list');
+  if (!terresList) return;
+  
+  if (terres.length === 0) {
+    terresList.innerHTML = '<p class="empty-config">Aucune terre configurée</p>';
+    return;
+  }
+  
+  terresList.innerHTML = terres.map(terre => `
+    <div class="config-item" data-code="${terre.code}">
+      <div class="config-item-info">
+        <span class="config-item-code">${terre.code}</span>
+        ${terre.isDefault ? '<span class="config-item-default">(par défaut)</span>' : ''}
+      </div>
+      <div class="config-item-actions">
+        ${terre.isDefault ? '<button class="btn btn-small btn-secondary" onclick="unsetDefaultTerre(\'${terre.code}\')">Retirer défaut</button>' : `<button class="btn btn-small btn-secondary" onclick="setDefaultTerre('${terre.code}')">Défaut</button>`}
+        <button class="btn btn-small btn-danger" onclick="deleteTerre('${terre.code}')">Suppr.</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAdditifsList() {
+  const additifsList = $('additifs-list');
+  if (!additifsList) return;
+  
+  if (additifs.length === 0) {
+    additifsList.innerHTML = '<p class="empty-config">Aucun additif configuré</p>';
+    return;
+  }
+  
+  additifsList.innerHTML = additifs.map(add => `
+    <div class="config-item" data-code="${add.code}">
+      <div class="config-item-info">
+        <span class="config-item-code">${add.code}</span>
+        <span class="config-item-name">${add.name}</span>
+        <span class="config-item-desc">${add.description || ''}</span>
+      </div>
+      <div class="config-item-actions">
+        <span class="config-item-max">max ${add.max}%</span>
+        <button class="btn btn-small btn-danger" onclick="deleteAdditif('${add.code}')">Suppr.</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateTerreSelect() {
+  const terreSelect = $('terre');
+  if (!terreSelect) return;
+  
+  const defaultTerre = terres.find(t => t.isDefault);
+  
+  terreSelect.innerHTML = terres.map(terre => 
+    `<option value="${terre.code}" ${terre.isDefault ? 'selected' : ''}>${terre.code}</option>`
+  ).join('');
+  
+  // Si aucune terre, ajouter une option vide
+  if (terres.length === 0) {
+    terreSelect.innerHTML = '<option value="">-</option>';
+  }
+}
+
+function renderAdditivesGrid() {
+  const grid = $('additives-grid');
+  if (!grid) return;
+  
+  grid.innerHTML = additifs.map(add => `
+    <div class="additive-input">
+      <label for="add-${add.code.toLowerCase()}">${add.code}</label>
+      <input type="number" id="add-${add.code.toLowerCase()}" step="0.1" min="0" max="${add.max}" placeholder="0">
+    </div>
+  `).join('');
+  
+  // Rebind event listeners pour la mise à jour de l'ID généré
+  additifs.forEach(add => {
+    const input = $(`add-${add.code.toLowerCase()}`);
+    if (input) {
+      input.addEventListener('input', updateGeneratedId);
+    }
+  });
+}
+
+function renderBaseAdditivesGrid() {
+  const grid = $('base-additives-grid');
+  if (!grid) return;
+  
+  grid.innerHTML = additifs.map(add => `
+    <div class="additive-input">
+      <label for="base-add-${add.code.toLowerCase()}">${add.code}</label>
+      <input type="number" id="base-add-${add.code.toLowerCase()}" step="0.1" min="0" max="${add.max}" placeholder="0">
+    </div>
+  `).join('');
+}
+
+async function addTerre() {
+  const code = prompt('Code de la terre (ex: GSA T40) :');
+  if (!code || !code.trim()) return;
+  
+  const trimmedCode = code.trim();
+  
+  // Vérifier si existe déjà
+  if (terres.find(t => t.code === trimmedCode)) {
+    alert('Cette terre existe déjà');
+    return;
+  }
+  
+  const newTerre = {
+    code: trimmedCode,
+    name: trimmedCode,
+    isDefault: terres.length === 0  // Première terre = défaut
+  };
+  
+  const success = await saveTerreToSheets(newTerre, 'addTerre');
+  
+  if (success) {
+    terres.push(newTerre);
+    renderTerresList();
+    updateTerreSelect();
+  }
+}
+
+async function deleteTerre(code) {
+  if (!confirm(`Supprimer la terre "${code}" ?`)) return;
+  
+  const success = await deleteTerreFromSheets(code);
+  
+  if (success) {
+    terres = terres.filter(t => t.code !== code);
+    
+    // Si c'était la terre par défaut, mettre la première comme défaut
+    if (terres.length > 0 && !terres.find(t => t.isDefault)) {
+      terres[0].isDefault = true;
+      await saveTerreToSheets(terres[0], 'updateTerre');
+    }
+    
+    renderTerresList();
+    updateTerreSelect();
+  }
+}
+
+async function setDefaultTerre(code) {
+  // Retirer le défaut de l'ancienne
+  const oldDefault = terres.find(t => t.isDefault);
+  if (oldDefault) {
+    oldDefault.isDefault = false;
+    await saveTerreToSheets(oldDefault, 'updateTerre');
+  }
+  
+  // Mettre le défaut sur la nouvelle
+  const newDefault = terres.find(t => t.code === code);
+  if (newDefault) {
+    newDefault.isDefault = true;
+    await saveTerreToSheets(newDefault, 'updateTerre');
+  }
+  
+  renderTerresList();
+  updateTerreSelect();
+}
+
+async function addAdditif() {
+  const code = prompt('Code de l\'additif (ex: Mn) :');
+  if (!code || !code.trim()) return;
+  
+  const trimmedCode = code.trim();
+  
+  // Vérifier si existe déjà
+  if (additifs.find(a => a.code === trimmedCode)) {
+    alert('Cet additif existe déjà');
+    return;
+  }
+  
+  const name = prompt('Nom complet (ex: Manganèse) :') || trimmedCode;
+  const description = prompt('Description (ex: violets, bruns) :') || '';
+  const maxStr = prompt('Pourcentage maximum (ex: 10) :') || '10';
+  const max = parseFloat(maxStr) || 10;
+  
+  const newAdditif = { code: trimmedCode, name, description, max };
+  
+  const success = await saveAdditifToSheets(newAdditif, 'addAdditif');
+  
+  if (success) {
+    additifs.push(newAdditif);
+    renderAdditifsList();
+    renderAdditivesGrid();
+    renderBaseAdditivesGrid();
+  }
+}
+
+async function deleteAdditif(code) {
+  if (!confirm(`Supprimer l'additif "${code}" ?`)) return;
+  
+  const success = await deleteAdditifFromSheets(code);
+  
+  if (success) {
+    additifs = additifs.filter(a => a.code !== code);
+    renderAdditifsList();
+    renderAdditivesGrid();
+    renderBaseAdditivesGrid();
+  }
+}
+
 function openNewBase() {
   currentEditBaseCode = null;
   $('modal-base-title').textContent = 'Nouvelle base';
@@ -665,6 +1038,9 @@ function openNewBase() {
       <button type="button" class="btn-remove-row" onclick="removeRecipeRow(this)">&times;</button>
     </div>
   `;
+  
+  // Réinitialiser les additifs par défaut (grille dynamique)
+  renderBaseAdditivesGrid();
   
   $('modal-base').classList.remove('hidden');
 }
@@ -707,8 +1083,9 @@ function openEditBase(code) {
     `).join('');
   }
   
-  // Remplir les additifs par défaut
-  ADDITIVE_CODES.forEach(addCode => {
+  // Régénérer la grille des additifs et remplir les valeurs
+  renderBaseAdditivesGrid();
+  getAdditiveCodes().forEach(addCode => {
     const input = $(`base-add-${addCode.toLowerCase()}`);
     if (input) {
       input.value = base.defaultAdditives?.[addCode] || '';
@@ -764,7 +1141,7 @@ async function saveBase(e) {
   
   // Récupérer les additifs par défaut
   const defaultAdditives = {};
-  ADDITIVE_CODES.forEach(addCode => {
+  getAdditiveCodes().forEach(addCode => {
     const input = $(`base-add-${addCode.toLowerCase()}`);
     if (input && input.value) {
       const val = parseFloat(input.value);
@@ -1019,7 +1396,7 @@ function openEdit(id) {
   $('notes').value = test.notes || '';
   
   // Additifs
-  ADDITIVE_CODES.forEach(code => {
+  getAdditiveCodes().forEach(code => {
     const input = $(`add-${code.toLowerCase()}`);
     if (input) input.value = test.additives?.[code] || '';
   });
@@ -1398,6 +1775,17 @@ async function init() {
   // Initialiser la navigation par onglets
   initTabs();
   
+  // Charger les terres et additifs depuis Google Sheets
+  terres = await loadTerresFromSheets();
+  additifs = await loadAdditifsFromSheets();
+  
+  // Initialiser les grilles et selects dynamiques
+  renderAdditivesGrid();
+  renderBaseAdditivesGrid();
+  updateTerreSelect();
+  renderTerresList();
+  renderAdditifsList();
+  
   // Charger les bases personnalisées depuis Google Sheets
   const customBasesArray = await loadBasesFromSheets();
   customBasesArray.forEach(base => {
@@ -1446,6 +1834,10 @@ async function init() {
   $('btn-add-ingredient').addEventListener('click', addRecipeRow);
   $('base-form').addEventListener('submit', saveBase);
   
+  // Event listeners - Config (Terres & Additifs)
+  $('btn-new-terre').addEventListener('click', addTerre);
+  $('btn-new-additif').addEventListener('click', addAdditif);
+  
   // Fermer modal base en cliquant à l'extérieur
   $('modal-base').addEventListener('click', e => {
     if (e.target === $('modal-base')) closeModalBase();
@@ -1459,10 +1851,7 @@ async function init() {
   // Update ID en temps réel
   $('base').addEventListener('change', updateGeneratedId);
   $('target-cone').addEventListener('change', updateGeneratedId);
-  ADDITIVE_CODES.forEach(code => {
-    const input = $(`add-${code.toLowerCase()}`);
-    if (input) input.addEventListener('input', updateGeneratedId);
-  });
+  // Note: les event listeners pour les additifs sont ajoutés dans renderAdditivesGrid()
   
   // Fermer modals en cliquant à l'extérieur
   elements.modal.addEventListener('click', e => {
