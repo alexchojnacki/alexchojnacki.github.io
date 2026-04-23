@@ -633,6 +633,7 @@ const elements = {
   compareTable: $('compare-table'),
   searchInput: $('search'),
   filterBase: $('filter-base'),
+  filterTerre: $('filter-terre'),
   filterConclusion: $('filter-conclusion'),
   photoInput: $('photo-input'),
   photoPreview: $('photo-preview'),
@@ -870,17 +871,25 @@ function renderAdditifsList() {
 
 function updateTerreSelect() {
   const terreSelect = $('terre');
-  if (!terreSelect) return;
+  const filterTerre = $('filter-terre');
   
-  const defaultTerre = terres.find(t => t.isDefault);
-  
-  terreSelect.innerHTML = terres.map(terre => 
+  const options = terres.map(terre => 
     `<option value="${terre.code}" ${terre.isDefault ? 'selected' : ''}>${terre.code}</option>`
   ).join('');
   
-  // Si aucune terre, ajouter une option vide
-  if (terres.length === 0) {
-    terreSelect.innerHTML = '<option value="">-</option>';
+  // Select du formulaire
+  if (terreSelect) {
+    if (terres.length === 0) {
+      terreSelect.innerHTML = '<option value="">-</option>';
+    } else {
+      terreSelect.innerHTML = options;
+    }
+  }
+  
+  // Filtre par terre
+  if (filterTerre) {
+    filterTerre.innerHTML = '<option value="">Toutes les terres</option>' + 
+      terres.map(terre => `<option value="${terre.code}">${terre.code}</option>`).join('');
   }
 }
 
@@ -1348,6 +1357,11 @@ function renderDetail(test) {
     elements.modalDetail.classList.add('hidden');
     openEdit(test.id);
   };
+  
+  $('btn-duplicate-from-detail').onclick = () => {
+    elements.modalDetail.classList.add('hidden');
+    duplicateTest(test);
+  };
 }
 
 // ==========================================================================
@@ -1365,6 +1379,55 @@ function openNewTest() {
   
   // Date par défaut: aujourd'hui
   $('date').value = new Date().toISOString().split('T')[0];
+  
+  updateGeneratedId();
+  elements.modal.classList.remove('hidden');
+}
+
+function duplicateTest(sourceTest) {
+  // Ouvrir le formulaire en mode création avec les données pré-remplies
+  currentEditId = null;
+  currentPhoto = sourceTest.photo || null;
+  elements.modalTitle.textContent = 'Dupliquer le test';
+  elements.btnDelete.classList.add('hidden');
+  
+  // Remplir le formulaire avec les données du test source
+  $('base').value = sourceTest.base || '';
+  $('terre').value = sourceTest.terre || '';
+  $('date').value = new Date().toISOString().split('T')[0]; // Date du jour
+  $('target-cone').value = sourceTest.targetCone || '8';
+  $('actual-cone').value = ''; // Réinitialiser le cône réel
+  $('kiln-position').value = sourceTest.kilnPosition || '';
+  $('thickness').value = sourceTest.thickness || '';
+  $('application').value = sourceTest.application || '';
+  $('color').value = ''; // Réinitialiser la couleur
+  $('texture').value = '';
+  $('edge-effect').value = '';
+  $('conclusion').value = 'pending'; // Remettre en attente
+  $('next-action').value = '';
+  $('notes').value = `Dupliqué depuis ${sourceTest.generatedId}`;
+  
+  // Additifs
+  getAdditiveCodes().forEach(code => {
+    const input = $(`add-${code.toLowerCase()}`);
+    if (input) input.value = sourceTest.additives?.[code] || '';
+  });
+  
+  // Réinitialiser radio buttons
+  document.querySelectorAll('input[name="intensity"]').forEach(r => r.checked = false);
+  document.querySelectorAll('input[name="gloss"]').forEach(r => r.checked = false);
+  
+  // Réinitialiser checkboxes défauts
+  document.querySelectorAll('input[name="defects"]').forEach(cb => cb.checked = false);
+  
+  // Photo (copier si existe)
+  if (sourceTest.photo) {
+    elements.photoPreview.innerHTML = `<img src="${sourceTest.photo}" alt="">`;
+    elements.btnRemovePhoto.classList.remove('hidden');
+  } else {
+    elements.photoPreview.innerHTML = '';
+    elements.btnRemovePhoto.classList.add('hidden');
+  }
   
   updateGeneratedId();
   elements.modal.classList.remove('hidden');
@@ -1558,10 +1621,12 @@ async function deleteTest() {
 function getFilteredTests() {
   const search = elements.searchInput.value.toLowerCase();
   const baseFilter = elements.filterBase.value;
+  const terreFilter = elements.filterTerre.value;
   const conclusionFilter = elements.filterConclusion.value;
   
   return tests.filter(test => {
     if (baseFilter && test.base !== baseFilter) return false;
+    if (terreFilter && test.terre !== terreFilter) return false;
     if (conclusionFilter && test.conclusion !== conclusionFilter) return false;
     if (search) {
       const searchStr = `${test.generatedId} ${test.color} ${test.notes}`.toLowerCase();
@@ -1846,6 +1911,7 @@ async function init() {
   // Filtres
   elements.searchInput.addEventListener('input', applyFilters);
   elements.filterBase.addEventListener('change', applyFilters);
+  elements.filterTerre.addEventListener('change', applyFilters);
   elements.filterConclusion.addEventListener('change', applyFilters);
   
   // Update ID en temps réel
