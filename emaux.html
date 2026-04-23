@@ -52,7 +52,7 @@
     <div id="tab-tests" class="tab-content active">
     <!-- Filtres -->
     <section class="filters">
-      <input type="text" id="search" placeholder="Rechercher (ID, couleur...)" class="input-search">
+      <input type="text" id="search" placeholder="Rechercher (ID, couleur, notes...)" class="input-search">
       <select id="filter-base" class="select-filter">
         <option value="">Toutes les bases</option>
         <option value="B1">B1 - Soft Green</option>
@@ -73,7 +73,31 @@
         <option value="abandon">Abandonné</option>
         <option value="pending">En attente</option>
       </select>
+      <button id="btn-toggle-advanced" class="btn btn-secondary">+ Filtres</button>
       <button id="btn-compare" class="btn btn-secondary">Comparer</button>
+    </section>
+
+    <!-- Filtres avancés -->
+    <section id="advanced-filters" class="advanced-filters hidden">
+      <div class="filter-group">
+        <label>Additifs présents :</label>
+        <div id="filter-additifs" class="filter-checkboxes">
+          <!-- Généré par JS -->
+        </div>
+      </div>
+      <div class="filter-group">
+        <label>Défauts :</label>
+        <div id="filter-defauts" class="filter-checkboxes">
+          <label class="filter-cb"><input type="checkbox" name="filter-defect" value="crawling"> Retrait</label>
+          <label class="filter-cb"><input type="checkbox" name="filter-defect" value="pinholing"> Piqûres</label>
+          <label class="filter-cb"><input type="checkbox" name="filter-defect" value="crazing"> Tressaillage</label>
+          <label class="filter-cb"><input type="checkbox" name="filter-defect" value="blistering"> Cloques</label>
+          <label class="filter-cb"><input type="checkbox" name="filter-defect" value="running"> Coulures</label>
+          <label class="filter-cb"><input type="checkbox" name="filter-defect" value="underfired"> Sous-cuit</label>
+          <label class="filter-cb"><input type="checkbox" name="filter-defect" value="overfired"> Sur-cuit</label>
+        </div>
+      </div>
+      <button id="btn-clear-filters" class="btn btn-small btn-secondary">Effacer filtres</button>
     </section>
 
     <!-- Liste des tests -->

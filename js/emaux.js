@@ -1016,6 +1016,7 @@ async function addAdditif() {
     renderAdditifsList();
     renderAdditivesGrid();
     renderBaseAdditivesGrid();
+    renderFilterAdditifs();
   }
 }
 
@@ -1029,6 +1030,7 @@ async function deleteAdditif(code) {
     renderAdditifsList();
     renderAdditivesGrid();
     renderBaseAdditivesGrid();
+    renderFilterAdditifs();
   }
 }
 
@@ -1624,20 +1626,88 @@ function getFilteredTests() {
   const terreFilter = elements.filterTerre.value;
   const conclusionFilter = elements.filterConclusion.value;
   
+  // Filtres avancés - Additifs
+  const selectedAdditifs = Array.from(document.querySelectorAll('input[name="filter-additif"]:checked'))
+    .map(cb => cb.value);
+  
+  // Filtres avancés - Défauts
+  const selectedDefects = Array.from(document.querySelectorAll('input[name="filter-defect"]:checked'))
+    .map(cb => cb.value);
+  
   return tests.filter(test => {
     if (baseFilter && test.base !== baseFilter) return false;
     if (terreFilter && test.terre !== terreFilter) return false;
     if (conclusionFilter && test.conclusion !== conclusionFilter) return false;
+    
+    // Filtre recherche texte (élargi)
     if (search) {
-      const searchStr = `${test.generatedId} ${test.color} ${test.notes}`.toLowerCase();
+      const searchStr = `${test.generatedId} ${test.color} ${test.notes} ${test.texture} ${test.edgeEffect}`.toLowerCase();
       if (!searchStr.includes(search)) return false;
     }
+    
+    // Filtre additifs (doit contenir TOUS les additifs sélectionnés)
+    if (selectedAdditifs.length > 0) {
+      const testAdditifs = Object.keys(test.additives || {});
+      const hasAllAdditifs = selectedAdditifs.every(add => testAdditifs.includes(add));
+      if (!hasAllAdditifs) return false;
+    }
+    
+    // Filtre défauts (doit contenir AU MOINS UN des défauts sélectionnés)
+    if (selectedDefects.length > 0) {
+      const testDefects = test.defects || [];
+      const hasAnyDefect = selectedDefects.some(def => testDefects.includes(def));
+      if (!hasAnyDefect) return false;
+    }
+    
     return true;
   });
 }
 
 function applyFilters() {
   renderTestsList(getFilteredTests());
+}
+
+function toggleAdvancedFilters() {
+  const panel = $('advanced-filters');
+  const btn = $('btn-toggle-advanced');
+  
+  if (panel.classList.contains('hidden')) {
+    panel.classList.remove('hidden');
+    btn.textContent = '- Filtres';
+  } else {
+    panel.classList.add('hidden');
+    btn.textContent = '+ Filtres';
+  }
+}
+
+function renderFilterAdditifs() {
+  const container = $('filter-additifs');
+  if (!container) return;
+  
+  container.innerHTML = additifs.map(add => `
+    <label class="filter-cb">
+      <input type="checkbox" name="filter-additif" value="${add.code}"> ${add.code}
+    </label>
+  `).join('');
+  
+  // Ajouter les event listeners
+  container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', applyFilters);
+  });
+}
+
+function clearAdvancedFilters() {
+  // Décocher tous les checkboxes
+  document.querySelectorAll('input[name="filter-additif"]').forEach(cb => cb.checked = false);
+  document.querySelectorAll('input[name="filter-defect"]').forEach(cb => cb.checked = false);
+  
+  // Réinitialiser les selects
+  elements.filterBase.value = '';
+  elements.filterTerre.value = '';
+  elements.filterConclusion.value = '';
+  elements.searchInput.value = '';
+  
+  applyFilters();
 }
 
 // ==========================================================================
@@ -1850,6 +1920,7 @@ async function init() {
   updateTerreSelect();
   renderTerresList();
   renderAdditifsList();
+  renderFilterAdditifs();
   
   // Charger les bases personnalisées depuis Google Sheets
   const customBasesArray = await loadBasesFromSheets();
@@ -1913,6 +1984,13 @@ async function init() {
   elements.filterBase.addEventListener('change', applyFilters);
   elements.filterTerre.addEventListener('change', applyFilters);
   elements.filterConclusion.addEventListener('change', applyFilters);
+  
+  // Filtres avancés
+  $('btn-toggle-advanced').addEventListener('click', toggleAdvancedFilters);
+  $('btn-clear-filters').addEventListener('click', clearAdvancedFilters);
+  document.querySelectorAll('input[name="filter-defect"]').forEach(cb => {
+    cb.addEventListener('change', applyFilters);
+  });
   
   // Update ID en temps réel
   $('base').addEventListener('change', updateGeneratedId);

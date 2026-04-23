@@ -1194,3 +1194,65 @@ legend {
   padding: 20px;
   font-style: italic;
 }
+
+/* ==========================================================================
+   Advanced Filters
+   ========================================================================== */
+
+.advanced-filters {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.advanced-filters.hidden {
+  display: none;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-group > label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.filter-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-cb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-input);
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.filter-cb:hover {
+  background: var(--border);
+}
+
+.filter-cb input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.filter-cb input[type="checkbox"]:checked + span,
+.filter-cb:has(input:checked) {
+  color: var(--accent);
+}
