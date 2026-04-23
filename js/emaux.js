@@ -158,6 +158,8 @@ const BASES = {
 
 const ADDITIVE_CODES = ['Cu', 'Fe', 'Co', 'Ru', 'Ni', 'Ti', 'Zr', 'Sn', 'Cr', 'Li', 'Zn'];
 
+const DEFAULT_TERRES = ['GSA T40'];
+
 const DEFECT_LABELS = {
   crawling: 'Retrait',
   pinholing: 'Piqûres',
@@ -888,6 +890,10 @@ function renderDetail(test) {
           <div class="detail-item-value">${test.base} - ${allBases[test.base]?.name || ''}</div>
         </div>
         <div class="detail-item">
+          <div class="detail-item-label">Terre</div>
+          <div class="detail-item-value">${test.terre || '-'}</div>
+        </div>
+        <div class="detail-item">
           <div class="detail-item-label">Date</div>
           <div class="detail-item-value">${test.date || '-'}</div>
         </div>
@@ -998,6 +1004,7 @@ function openEdit(id) {
   
   // Remplir le formulaire
   $('base').value = test.base || '';
+  $('terre').value = test.terre || '';
   $('date').value = test.date || '';
   $('target-cone').value = test.targetCone || '8';
   $('actual-cone').value = test.actualCone || '';
@@ -1113,6 +1120,7 @@ async function saveTest(e) {
       ? tests.find(t => t.id === currentEditId)?.generatedId 
       : generateTestId(base, additives, cone, tests),
     base,
+    terre: $('terre').value,
     additives,
     date: $('date').value,
     targetCone: cone,
