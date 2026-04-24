@@ -1916,8 +1916,13 @@ function generateRecipes() {
     return;
   }
   
+  // Demander la quantité de matière sèche
+  const input = prompt('Quantité de matière sèche par recette (en grammes) :', '100');
+  if (input === null) return; // Annulé
+  
+  const baseQuantity = parseFloat(input) || 100;
+  
   const allBases = getAllBases();
-  const baseQuantity = 100; // grammes
   
   let html = `<p class="recipes-intro">Tests sélectionnés : <strong>${selectedTests.length}</strong> — Base : <strong>${baseQuantity}g</strong></p>`;
   
