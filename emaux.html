@@ -74,7 +74,6 @@
         <option value="pending">En attente</option>
       </select>
       <button id="btn-toggle-advanced" class="btn btn-secondary">+ Filtres</button>
-      <button id="btn-compare" class="btn btn-secondary">Comparer</button>
     </section>
 
     <!-- Filtres avancés -->
@@ -104,6 +103,12 @@
     <section id="tests-list" class="tests-list">
       <!-- Généré par JS -->
     </section>
+    
+    <!-- Actions globales -->
+    <section class="global-actions">
+      <button id="btn-compare" class="btn btn-secondary">Comparer sélection</button>
+      <button id="btn-recipes" class="btn btn-secondary">Préparer recettes (En attente)</button>
+    </section>
 
     <!-- Vue comparaison -->
     <section id="compare-view" class="compare-view hidden">
@@ -115,6 +120,23 @@
         <!-- Généré par JS -->
       </div>
     </section>
+    
+    <!-- Modal Recettes à préparer -->
+    <div id="modal-recipes" class="modal hidden">
+      <div class="modal-content modal-large">
+        <div class="modal-header">
+          <h2>Recettes à préparer</h2>
+          <button id="btn-close-recipes" class="btn-close">&times;</button>
+        </div>
+        <div id="recipes-content" class="recipes-content">
+          <!-- Généré par JS -->
+        </div>
+        <div class="modal-footer">
+          <button id="btn-print-recipes" class="btn btn-secondary">Imprimer</button>
+          <button id="btn-close-recipes-footer" class="btn btn-primary">Fermer</button>
+        </div>
+      </div>
+    </div>
     </div>
 
     <!-- Onglet Cuissons -->

@@ -1904,6 +1904,116 @@ function initTabs() {
 }
 
 // ==========================================================================
+// RECETTES À PRÉPARER
+// ==========================================================================
+
+function generateRecipes() {
+  // Récupérer les tests "En attente"
+  const pendingTests = tests.filter(t => t.conclusion === 'pending' || !t.conclusion);
+  
+  if (pendingTests.length === 0) {
+    alert('Aucun test en attente à préparer.');
+    return;
+  }
+  
+  const allBases = getAllBases();
+  const baseQuantity = 100; // grammes
+  
+  let html = `<p class="recipes-intro">Tests en attente : <strong>${pendingTests.length}</strong> — Base : <strong>${baseQuantity}g</strong></p>`;
+  
+  pendingTests.forEach(test => {
+    const base = allBases[test.base];
+    if (!base) return;
+    
+    const baseName = base.name || test.base;
+    const recipe = base.recipe || {};
+    
+    // Calculer les quantités pour la base
+    let recipeRows = '';
+    Object.entries(recipe).forEach(([ingredient, percent]) => {
+      const quantity = (percent * baseQuantity / 100).toFixed(1);
+      recipeRows += `<tr><td>${ingredient}</td><td class="recipe-percent">${percent}%</td><td class="recipe-qty">${quantity}g</td></tr>`;
+    });
+    
+    // Additifs
+    let additivesRows = '';
+    const additives = test.additives || {};
+    Object.entries(additives).forEach(([code, percent]) => {
+      if (percent > 0) {
+        const quantity = (percent * baseQuantity / 100).toFixed(1);
+        const additifInfo = configAdditifs.find(a => a.code === code);
+        const name = additifInfo ? additifInfo.name : code;
+        additivesRows += `<tr class="additif-row"><td>${name} (${code})</td><td class="recipe-percent">${percent}%</td><td class="recipe-qty">${quantity}g</td></tr>`;
+      }
+    });
+    
+    html += `
+      <div class="recipe-card">
+        <div class="recipe-header">
+          <h3>${test.generatedId || test.id}</h3>
+          <span class="recipe-base">${test.base} - ${baseName}</span>
+        </div>
+        <table class="recipe-table">
+          <thead>
+            <tr><th>Ingrédient</th><th>%</th><th>Quantité</th></tr>
+          </thead>
+          <tbody>
+            ${recipeRows}
+            ${additivesRows ? '<tr class="separator"><td colspan="3">Additifs</td></tr>' + additivesRows : ''}
+          </tbody>
+        </table>
+        ${test.terre ? `<p class="recipe-terre">Terre : ${test.terre}</p>` : ''}
+        ${test.notes ? `<p class="recipe-notes">Notes : ${test.notes}</p>` : ''}
+      </div>
+    `;
+  });
+  
+  $('recipes-content').innerHTML = html;
+  $('modal-recipes').classList.remove('hidden');
+}
+
+function printRecipes() {
+  const content = $('recipes-content').innerHTML;
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Recettes à préparer</title>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; }
+        h1 { text-align: center; margin-bottom: 20px; }
+        .recipes-intro { text-align: center; margin-bottom: 20px; color: #666; }
+        .recipe-card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; page-break-inside: avoid; }
+        .recipe-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        .recipe-header h3 { margin: 0; font-size: 1.2rem; }
+        .recipe-base { color: #666; font-size: 0.9rem; }
+        .recipe-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+        .recipe-table th, .recipe-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid #eee; }
+        .recipe-table th { background: #f5f5f5; font-size: 0.85rem; }
+        .recipe-percent, .recipe-qty { text-align: right; }
+        .recipe-qty { font-weight: 600; }
+        .additif-row { background: #f9f9f9; }
+        .separator td { font-weight: 600; font-size: 0.85rem; color: #666; padding-top: 12px; }
+        .recipe-terre, .recipe-notes { font-size: 0.85rem; color: #666; margin: 4px 0; }
+        @media print { .recipe-card { break-inside: avoid; } }
+      </style>
+    </head>
+    <body>
+      <h1>Recettes à préparer</h1>
+      ${content}
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
+}
+
+function closeRecipes() {
+  $('modal-recipes').classList.add('hidden');
+}
+
+// ==========================================================================
 // EXPORT PDF
 // ==========================================================================
 
@@ -2728,6 +2838,10 @@ async function init() {
   $('btn-delete').addEventListener('click', deleteTest);
   $('btn-compare').addEventListener('click', renderCompareTable);
   $('btn-close-compare').addEventListener('click', closeCompare);
+  $('btn-recipes').addEventListener('click', generateRecipes);
+  $('btn-close-recipes').addEventListener('click', closeRecipes);
+  $('btn-close-recipes-footer').addEventListener('click', closeRecipes);
+  $('btn-print-recipes').addEventListener('click', printRecipes);
   
   elements.testForm.addEventListener('submit', saveTest);
   
@@ -2793,6 +2907,9 @@ async function init() {
   elements.modalDetail.addEventListener('click', e => {
     if (e.target === elements.modalDetail) closeDetail();
   });
+  $('modal-recipes').addEventListener('click', e => {
+    if (e.target === $('modal-recipes')) closeRecipes();
+  });
   
   // Raccourcis clavier
   document.addEventListener('keydown', e => {
@@ -2803,6 +2920,7 @@ async function init() {
       closeModalBase();
       closeModalCuisson();
       closeCuissonDetail();
+      closeRecipes();
     }
   });
 }
