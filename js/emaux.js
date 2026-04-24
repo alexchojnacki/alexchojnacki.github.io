@@ -110,7 +110,7 @@ const BASES = {
       'Silice': 20.6,
       'Ball Clay': 19.6,
       'CaCO3': 18.8,
-      'Feldspath K': 36.9,
+      'Feldspath Potassique': 36.9,
       'Talc': 10.1
     },
     defaultAdditives: { Ru: 5, Ni: 2, Co: 0.5 },
@@ -119,7 +119,7 @@ const BASES = {
   B3: {
     name: 'Beurre',
     recipe: {
-      'Feldspath K': 24,
+      'Feldspath Potassique': 24,
       'Silice': 24,
       'Craie': 19,
       'Talc': 19,
