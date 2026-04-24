@@ -1804,13 +1804,13 @@ function handlePhotoUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
   
-  // Redimensionner et compresser
+  // Redimensionner et compresser fortement pour Google Sheets
   const reader = new FileReader();
   reader.onload = function(event) {
     const img = new Image();
     img.onload = function() {
       const canvas = document.createElement('canvas');
-      const maxSize = 800;
+      const maxSize = 400; // Réduit de 800 à 400
       let { width, height } = img;
       
       if (width > maxSize || height > maxSize) {
@@ -1828,7 +1828,7 @@ function handlePhotoUpload(e) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, width, height);
       
-      currentPhoto = canvas.toDataURL('image/jpeg', 0.7);
+      currentPhoto = canvas.toDataURL('image/jpeg', 0.5); // Réduit de 0.7 à 0.5
       elements.photoPreview.innerHTML = `<img src="${currentPhoto}" alt="">`;
       elements.btnRemovePhoto.classList.remove('hidden');
     };
