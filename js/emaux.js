@@ -75,6 +75,14 @@ async function checkAuth() {
 
 const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbyeam2b2k1TYPYJ42MkZCnrHvUpNbwFGfx7_lxH_oGRAfhugrk0ichWGZBS5FqirK3gsA/exec';
 
+// Formater une date YYYY-MM-DD en DD-MM-YYYY (format français)
+function formatDateFR(dateStr) {
+  if (!dateStr || dateStr === '-') return '-';
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  return `${parts[2]}-${parts[1]}-${parts[0]}`;
+}
+
 // État de synchronisation
 let isSyncing = false;
 let syncError = null;
@@ -747,7 +755,7 @@ function renderTestsList(filteredTests = null) {
         <div class="test-card-main" onclick="openDetail('${test.id}')">
           <div class="test-id">${test.generatedId || test.id}</div>
           <div class="test-meta">
-            <span>${test.date || '-'}</span>
+            <span>${formatDateFR(test.date)}</span>
             <span class="test-badge ${badgeClass}">${badgeLabel}</span>
           </div>
           ${test.color ? `<div class="test-color">${test.color}</div>` : ''}
@@ -1362,7 +1370,7 @@ function renderDetail(test) {
         </div>
         <div class="detail-item">
           <div class="detail-item-label">Date</div>
-          <div class="detail-item-value">${test.date || '-'}</div>
+          <div class="detail-item-value">${formatDateFR(test.date)}</div>
         </div>
       </div>
       <div class="detail-item" style="margin-top: 8px">
@@ -1944,7 +1952,7 @@ function exportTestPDF(testId) {
     <div class="print-container">
       <div class="print-header">
         <h1>${test.generatedId || test.id}</h1>
-        <div class="print-date">Test du ${test.date || '-'}</div>
+        <div class="print-date">Test du ${formatDateFR(test.date)}</div>
         <span class="print-badge">${CONCLUSION_LABELS[test.conclusion] || 'En attente'}</span>
       </div>
       
@@ -2049,7 +2057,7 @@ function exportCuissonPDF(cuissonId) {
   const printContent = `
     <div class="print-container">
       <div class="print-header">
-        <h1>Cuisson du ${cuisson.date || '-'}</h1>
+        <h1>Cuisson du ${formatDateFR(cuisson.date)}</h1>
         <span class="print-badge">${typeLabel}</span>
       </div>
       
@@ -2465,7 +2473,7 @@ function renderCuissonsList() {
     return `
       <div class="cuisson-card" data-id="${cuisson.id}" onclick="openCuissonDetail('${cuisson.id}')">
         <div class="cuisson-card-header">
-          <div class="cuisson-card-date">${cuisson.date || '-'}</div>
+          <div class="cuisson-card-date">${formatDateFR(cuisson.date)}</div>
           <span class="cuisson-type-badge cuisson-type-${cuisson.type}">${typeLabel}</span>
         </div>
         <div class="cuisson-card-info">
@@ -2494,7 +2502,7 @@ function renderCuissonDetail(cuisson) {
   
   detailContent.innerHTML = `
     <div class="detail-header">
-      <div class="detail-id">Cuisson du ${cuisson.date || '-'}</div>
+      <div class="detail-id">Cuisson du ${formatDateFR(cuisson.date)}</div>
       <span class="cuisson-type-badge cuisson-type-${cuisson.type}">${typeLabel}</span>
     </div>
     
@@ -2743,7 +2751,7 @@ function updateCuissonSelect() {
   
   const options = sortedCuissons.map(cuisson => {
     const typeLabel = CUISSON_TYPE_LABELS[cuisson.type] || cuisson.type;
-    const label = `${cuisson.date || 'Sans date'} - ${typeLabel} (C${cuisson.coneVise || '?'})`;
+    const label = `${formatDateFR(cuisson.date) || 'Sans date'} - ${typeLabel} (C${cuisson.coneVise || '?'})`;
     return `<option value="${cuisson.id}">${label}</option>`;
   }).join('');
   
