@@ -1649,7 +1649,7 @@ async function saveTest(e) {
     base,
     terre: $('terre').value,
     additives,
-    date: $('date').value,
+    date: $('date').value || new Date().toISOString().split('T')[0],
     targetCone: cone,
     actualCone: $('actual-cone').value,
     cuissonId: $('cuisson-link').value || null,
@@ -1810,7 +1810,7 @@ function handlePhotoUpload(e) {
     const img = new Image();
     img.onload = function() {
       const canvas = document.createElement('canvas');
-      const maxSize = 400; // Réduit de 800 à 400
+      const maxSize = 200; // Très petit pour Google Sheets
       let { width, height } = img;
       
       if (width > maxSize || height > maxSize) {
@@ -1828,7 +1828,8 @@ function handlePhotoUpload(e) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, width, height);
       
-      currentPhoto = canvas.toDataURL('image/jpeg', 0.5); // Réduit de 0.7 à 0.5
+      currentPhoto = canvas.toDataURL('image/jpeg', 0.4); // Qualité 40%
+      console.log('Taille photo base64:', currentPhoto.length, 'caractères');
       elements.photoPreview.innerHTML = `<img src="${currentPhoto}" alt="">`;
       elements.btnRemovePhoto.classList.remove('hidden');
     };
