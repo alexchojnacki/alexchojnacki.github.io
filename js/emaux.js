@@ -1539,7 +1539,7 @@ function openEdit(id) {
   // Remplir le formulaire
   $('base').value = test.base || '';
   $('terre').value = test.terre || '';
-  $('date').value = test.date || '';
+  $('date').value = test.date || new Date().toISOString().split('T')[0];
   $('target-cone').value = test.targetCone || '8';
   $('actual-cone').value = test.actualCone || '';
   $('cuisson-link').value = test.cuissonId || '';
@@ -2608,7 +2608,7 @@ function openEditCuisson(id) {
   $('btn-delete-cuisson').classList.remove('hidden');
   
   // Remplir le formulaire
-  $('cuisson-date').value = cuisson.date || '';
+  $('cuisson-date').value = cuisson.date || new Date().toISOString().split('T')[0];
   $('cuisson-type').value = cuisson.type || 'email';
   $('cuisson-cone-vise').value = cuisson.coneVise || '';
   $('cuisson-cone-reel').value = cuisson.coneReel || '';
