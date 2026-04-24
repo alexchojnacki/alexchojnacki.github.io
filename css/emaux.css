@@ -613,25 +613,6 @@ legend {
   cursor: pointer;
 }
 
-/* Photo upload */
-.photo-upload {
-  text-align: center;
-}
-
-.photo-upload input[type="file"] {
-  display: none;
-}
-
-.photo-preview {
-  margin-top: 12px;
-}
-
-.photo-preview img {
-  max-width: 100%;
-  max-height: 200px;
-  border-radius: var(--radius);
-}
-
 /* Form actions */
 .form-actions {
   display: flex;
@@ -668,14 +649,6 @@ legend {
   font-weight: 600;
   color: var(--accent);
   margin-bottom: 8px;
-}
-
-.detail-photo {
-  width: 100%;
-  max-height: 300px;
-  object-fit: contain;
-  border-radius: var(--radius);
-  margin-bottom: 20px;
 }
 
 .detail-section {
@@ -1612,13 +1585,6 @@ legend {
   .print-item-value {
     font-size: 0.9rem;
     color: #1a1a1a;
-  }
-  
-  .print-photo {
-    max-width: 300px;
-    max-height: 300px;
-    margin: 16px auto;
-    display: block;
   }
   
   .print-badge {

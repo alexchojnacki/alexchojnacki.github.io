@@ -696,10 +696,8 @@ let tests = [];
 let customBases = {};  // Bases personnalisées chargées depuis Sheets
 let selectedIds = new Set();
 let currentEditId = null;
-let currentPhoto = null;
 let currentEditBaseCode = null;
 let currentEditCuissonId = null;
-let currentCuissonPhoto = null;
 
 // ==========================================================================
 // DOM ELEMENTS
@@ -722,9 +720,6 @@ const elements = {
   filterBase: $('filter-base'),
   filterTerre: $('filter-terre'),
   filterConclusion: $('filter-conclusion'),
-  photoInput: $('photo-input'),
-  photoPreview: $('photo-preview'),
-  btnRemovePhoto: $('btn-remove-photo'),
   btnDelete: $('btn-delete')
 };
 
@@ -760,7 +755,6 @@ function renderTestsList(filteredTests = null) {
           </div>
           ${test.color ? `<div class="test-color">${test.color}</div>` : ''}
         </div>
-        ${test.photo ? `<img src="${test.photo}" alt="" class="test-thumb">` : ''}
         <input type="checkbox" class="test-checkbox" 
                ${isSelected ? 'checked' : ''} 
                onclick="event.stopPropagation(); toggleSelect('${test.id}')">
@@ -1355,8 +1349,6 @@ function renderDetail(test) {
       <span class="test-badge badge-${test.conclusion || 'pending'}">${CONCLUSION_LABELS[test.conclusion] || 'En attente'}</span>
     </div>
     
-    ${test.photo ? `<img src="${test.photo}" alt="" class="detail-photo">` : ''}
-    
     <div class="detail-section">
       <h3>Identification</h3>
       <div class="detail-grid">
@@ -1463,12 +1455,9 @@ function renderDetail(test) {
 
 function openNewTest() {
   currentEditId = null;
-  currentPhoto = null;
   elements.modalTitle.textContent = 'Nouveau test';
   elements.testForm.reset();
   elements.btnDelete.classList.add('hidden');
-  elements.photoPreview.innerHTML = '';
-  elements.btnRemovePhoto.classList.add('hidden');
   
   // Date par défaut: aujourd'hui
   $('date').value = new Date().toISOString().split('T')[0];
@@ -1480,7 +1469,6 @@ function openNewTest() {
 function duplicateTest(sourceTest) {
   // Ouvrir le formulaire en mode création avec les données pré-remplies
   currentEditId = null;
-  currentPhoto = sourceTest.photo || null;
   elements.modalTitle.textContent = 'Dupliquer le test';
   elements.btnDelete.classList.add('hidden');
   
@@ -1514,15 +1502,6 @@ function duplicateTest(sourceTest) {
   // Réinitialiser checkboxes défauts
   document.querySelectorAll('input[name="defects"]').forEach(cb => cb.checked = false);
   
-  // Photo (copier si existe)
-  if (sourceTest.photo) {
-    elements.photoPreview.innerHTML = `<img src="${sourceTest.photo}" alt="">`;
-    elements.btnRemovePhoto.classList.remove('hidden');
-  } else {
-    elements.photoPreview.innerHTML = '';
-    elements.btnRemovePhoto.classList.add('hidden');
-  }
-  
   updateGeneratedId();
   elements.modal.classList.remove('hidden');
 }
@@ -1532,7 +1511,6 @@ function openEdit(id) {
   if (!test) return;
   
   currentEditId = id;
-  currentPhoto = test.photo || null;
   elements.modalTitle.textContent = 'Modifier le test';
   elements.btnDelete.classList.remove('hidden');
   
@@ -1574,15 +1552,6 @@ function openEdit(id) {
     cb.checked = test.defects?.includes(cb.value) || false;
   });
   
-  // Photo
-  if (test.photo) {
-    elements.photoPreview.innerHTML = `<img src="${test.photo}" alt="">`;
-    elements.btnRemovePhoto.classList.remove('hidden');
-  } else {
-    elements.photoPreview.innerHTML = '';
-    elements.btnRemovePhoto.classList.add('hidden');
-  }
-  
   updateGeneratedId();
   elements.modal.classList.remove('hidden');
 }
@@ -1598,7 +1567,6 @@ function openDetail(id) {
 function closeModal() {
   elements.modal.classList.add('hidden');
   currentEditId = null;
-  currentPhoto = null;
 }
 
 function closeDetail() {
@@ -1673,7 +1641,6 @@ async function saveTest(e) {
     conclusion: $('conclusion').value,
     nextAction: $('next-action').value,
     notes: $('notes').value,
-    photo: currentPhoto,
     updatedAt: new Date().toISOString()
   };
   
@@ -1808,51 +1775,6 @@ function clearAdvancedFilters() {
 // PHOTO
 // ==========================================================================
 
-function handlePhotoUpload(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  
-  // Redimensionner et compresser fortement pour Google Sheets
-  const reader = new FileReader();
-  reader.onload = function(event) {
-    const img = new Image();
-    img.onload = function() {
-      const canvas = document.createElement('canvas');
-      const maxSize = 200; // Très petit pour Google Sheets
-      let { width, height } = img;
-      
-      if (width > maxSize || height > maxSize) {
-        if (width > height) {
-          height = (height / width) * maxSize;
-          width = maxSize;
-        } else {
-          width = (width / height) * maxSize;
-          height = maxSize;
-        }
-      }
-      
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      
-      currentPhoto = canvas.toDataURL('image/jpeg', 0.4); // Qualité 40%
-      console.log('Taille photo base64:', currentPhoto.length, 'caractères');
-      elements.photoPreview.innerHTML = `<img src="${currentPhoto}" alt="">`;
-      elements.btnRemovePhoto.classList.remove('hidden');
-    };
-    img.src = event.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function removePhoto() {
-  currentPhoto = null;
-  elements.photoPreview.innerHTML = '';
-  elements.btnRemovePhoto.classList.add('hidden');
-  elements.photoInput.value = '';
-}
-
 // ==========================================================================
 // INITIAL DATA
 // ==========================================================================
@@ -1956,7 +1878,7 @@ function exportTestPDF(testId) {
         <span class="print-badge">${CONCLUSION_LABELS[test.conclusion] || 'En attente'}</span>
       </div>
       
-      ${test.photo ? `<img src="${test.photo}" class="print-photo" alt="">` : ''}
+
       
       <div class="print-section">
         <h2>Identification</h2>
@@ -2061,7 +1983,7 @@ function exportCuissonPDF(cuissonId) {
         <span class="print-badge">${typeLabel}</span>
       </div>
       
-      ${cuisson.photo ? `<img src="${cuisson.photo}" class="print-photo" alt="">` : ''}
+
       
       <div class="print-section">
         <h2>Paramètres</h2>
@@ -2126,7 +2048,7 @@ function openPrintWindow(content) {
         .print-header h1 { font-size: 1.5rem; margin-bottom: 4px; }
         .print-date { font-size: 0.85rem; color: #666; margin-bottom: 8px; }
         .print-badge { display: inline-block; padding: 4px 12px; border: 1px solid #1a1a1a; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
-        .print-photo { max-width: 100%; max-height: 300px; margin: 16px auto; display: block; border-radius: 8px; }
+
         .print-section { margin-bottom: 20px; }
         .print-section h2 { font-size: 0.85rem; text-transform: uppercase; color: #666; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 12px; letter-spacing: 1px; }
         .print-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -2483,7 +2405,7 @@ function renderCuissonsList() {
           ${cuisson.tempMax ? `<span class="cuisson-card-temp">${cuisson.tempMax}°C</span>` : ''}
         </div>
         ${testsCount > 0 ? `<div class="cuisson-card-tests">${testsCount} test${testsCount > 1 ? 's' : ''} associé${testsCount > 1 ? 's' : ''}</div>` : ''}
-        ${cuisson.photo ? `<img src="${cuisson.photo}" alt="" class="cuisson-thumb">` : ''}
+
       </div>
     `;
   }).join('');
@@ -2506,7 +2428,7 @@ function renderCuissonDetail(cuisson) {
       <span class="cuisson-type-badge cuisson-type-${cuisson.type}">${typeLabel}</span>
     </div>
     
-    ${cuisson.photo ? `<img src="${cuisson.photo}" alt="" class="detail-photo">` : ''}
+
     
     <div class="detail-section">
       <h3>Paramètres</h3>
@@ -2585,12 +2507,9 @@ function closeCuissonDetail() {
 
 function openNewCuisson() {
   currentEditCuissonId = null;
-  currentCuissonPhoto = null;
   $('modal-cuisson-title').textContent = 'Nouvelle cuisson';
   $('cuisson-form').reset();
   $('btn-delete-cuisson').classList.add('hidden');
-  $('cuisson-photo-preview').innerHTML = '';
-  $('btn-remove-cuisson-photo').classList.add('hidden');
   
   // Date par défaut: aujourd'hui
   $('cuisson-date').value = new Date().toISOString().split('T')[0];
@@ -2603,7 +2522,6 @@ function openEditCuisson(id) {
   if (!cuisson) return;
   
   currentEditCuissonId = id;
-  currentCuissonPhoto = cuisson.photo || null;
   $('modal-cuisson-title').textContent = 'Modifier la cuisson';
   $('btn-delete-cuisson').classList.remove('hidden');
   
@@ -2618,22 +2536,12 @@ function openEditCuisson(id) {
   $('cuisson-palier').value = cuisson.palier || '';
   $('cuisson-notes').value = cuisson.notes || '';
   
-  // Photo
-  if (cuisson.photo) {
-    $('cuisson-photo-preview').innerHTML = `<img src="${cuisson.photo}" alt="">`;
-    $('btn-remove-cuisson-photo').classList.remove('hidden');
-  } else {
-    $('cuisson-photo-preview').innerHTML = '';
-    $('btn-remove-cuisson-photo').classList.add('hidden');
-  }
-  
   $('modal-cuisson').classList.remove('hidden');
 }
 
 function closeModalCuisson() {
   $('modal-cuisson').classList.add('hidden');
   currentEditCuissonId = null;
-  currentCuissonPhoto = null;
 }
 
 async function saveCuisson(e) {
@@ -2650,7 +2558,6 @@ async function saveCuisson(e) {
     vitesse: $('cuisson-vitesse').value ? parseInt($('cuisson-vitesse').value) : null,
     palier: $('cuisson-palier').value ? parseInt($('cuisson-palier').value) : null,
     notes: $('cuisson-notes').value,
-    photo: currentCuissonPhoto,
     updatedAt: new Date().toISOString()
   };
   
@@ -2695,49 +2602,6 @@ async function deleteCuisson() {
     renderCuissonsList();
     updateCuissonSelect();
   }
-}
-
-function handleCuissonPhotoUpload(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  
-  const reader = new FileReader();
-  reader.onload = function(event) {
-    const img = new Image();
-    img.onload = function() {
-      const canvas = document.createElement('canvas');
-      const maxSize = 800;
-      let { width, height } = img;
-      
-      if (width > maxSize || height > maxSize) {
-        if (width > height) {
-          height = (height / width) * maxSize;
-          width = maxSize;
-        } else {
-          width = (width / height) * maxSize;
-          height = maxSize;
-        }
-      }
-      
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      
-      currentCuissonPhoto = canvas.toDataURL('image/jpeg', 0.7);
-      $('cuisson-photo-preview').innerHTML = `<img src="${currentCuissonPhoto}" alt="">`;
-      $('btn-remove-cuisson-photo').classList.remove('hidden');
-    };
-    img.src = event.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function removeCuissonPhoto() {
-  currentCuissonPhoto = null;
-  $('cuisson-photo-preview').innerHTML = '';
-  $('btn-remove-cuisson-photo').classList.add('hidden');
-  $('cuisson-photo-input').value = '';
 }
 
 function updateCuissonSelect() {
@@ -2815,10 +2679,8 @@ async function init() {
   $('btn-delete').addEventListener('click', deleteTest);
   $('btn-compare').addEventListener('click', renderCompareTable);
   $('btn-close-compare').addEventListener('click', closeCompare);
-  $('btn-remove-photo').addEventListener('click', removePhoto);
   
   elements.testForm.addEventListener('submit', saveTest);
-  elements.photoInput.addEventListener('change', handlePhotoUpload);
   
   // Event listeners - Bases
   $('btn-new-base').addEventListener('click', openNewBase);
@@ -2837,8 +2699,6 @@ async function init() {
   $('btn-close-modal-cuisson').addEventListener('click', closeModalCuisson);
   $('btn-delete-cuisson').addEventListener('click', deleteCuisson);
   $('cuisson-form').addEventListener('submit', saveCuisson);
-  $('cuisson-photo-input').addEventListener('change', handleCuissonPhotoUpload);
-  $('btn-remove-cuisson-photo').addEventListener('click', removeCuissonPhoto);
   $('btn-close-cuisson-detail').addEventListener('click', closeCuissonDetail);
   
   // Filtres cuissons
