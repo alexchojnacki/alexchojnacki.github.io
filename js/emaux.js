@@ -1941,7 +1941,7 @@ function generateRecipes() {
     Object.entries(additives).forEach(([code, percent]) => {
       if (percent > 0) {
         const quantity = (percent * baseQuantity / 100).toFixed(1);
-        const additifInfo = configAdditifs.find(a => a.code === code);
+        const additifInfo = additifs.find(a => a.code === code);
         const name = additifInfo ? additifInfo.name : code;
         additivesRows += `<tr class="additif-row"><td>${name} (${code})</td><td class="recipe-percent">${percent}%</td><td class="recipe-qty">${quantity}g</td></tr>`;
       }
