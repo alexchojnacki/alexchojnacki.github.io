@@ -75,12 +75,12 @@ async function checkAuth() {
 
 const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbyeam2b2k1TYPYJ42MkZCnrHvUpNbwFGfx7_lxH_oGRAfhugrk0ichWGZBS5FqirK3gsA/exec';
 
-// Formater une date YYYY-MM-DD en DD-MM-YYYY (format français)
+// Formater une date YYYY-MM-DD en DD/MM/YYYY (format français)
 function formatDateFR(dateStr) {
   if (!dateStr || dateStr === '-') return '-';
   const parts = dateStr.split('-');
   if (parts.length !== 3) return dateStr;
-  return `${parts[2]}-${parts[1]}-${parts[0]}`;
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
 }
 
 // État de synchronisation
