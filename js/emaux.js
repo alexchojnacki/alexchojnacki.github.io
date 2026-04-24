@@ -1833,25 +1833,74 @@ async function loadInitialData() {
 function initTabs() {
   const tabs = document.querySelectorAll('.tab');
   const tabContents = document.querySelectorAll('.tab-content');
+  const tabNames = Array.from(tabs).map(t => t.dataset.tab);
   
+  function switchToTab(tabName) {
+    const tab = document.querySelector(`.tab[data-tab="${tabName}"]`);
+    if (!tab) return;
+    
+    const targetId = `tab-${tabName}`;
+    
+    // Désactiver tous les onglets
+    tabs.forEach(t => t.classList.remove('active'));
+    tabContents.forEach(c => c.classList.remove('active'));
+    
+    // Activer l'onglet
+    tab.classList.add('active');
+    document.getElementById(targetId).classList.add('active');
+    
+    // Scroll l'onglet actif dans la barre de navigation
+    tab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    
+    // Render stats quand on ouvre l'onglet stats
+    if (tabName === 'stats') {
+      renderStats();
+    }
+  }
+  
+  function getCurrentTabIndex() {
+    const activeTab = document.querySelector('.tab.active');
+    return tabNames.indexOf(activeTab?.dataset.tab || 'tests');
+  }
+  
+  // Click sur onglets
   tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      const targetId = `tab-${tab.dataset.tab}`;
-      
-      // Désactiver tous les onglets
-      tabs.forEach(t => t.classList.remove('active'));
-      tabContents.forEach(c => c.classList.remove('active'));
-      
-      // Activer l'onglet cliqué
-      tab.classList.add('active');
-      document.getElementById(targetId).classList.add('active');
-      
-      // Render stats quand on ouvre l'onglet stats
-      if (tab.dataset.tab === 'stats') {
-        renderStats();
-      }
-    });
+    tab.addEventListener('click', () => switchToTab(tab.dataset.tab));
   });
+  
+  // Swipe pour naviguer entre onglets (mobile)
+  let touchStartX = 0;
+  let touchEndX = 0;
+  const minSwipeDistance = 50;
+  
+  document.addEventListener('touchstart', e => {
+    // Ignorer si on est dans un modal
+    if (e.target.closest('.modal:not(.hidden)')) return;
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+  
+  document.addEventListener('touchend', e => {
+    // Ignorer si on est dans un modal
+    if (e.target.closest('.modal:not(.hidden)')) return;
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, { passive: true });
+  
+  function handleSwipe() {
+    const swipeDistance = touchEndX - touchStartX;
+    
+    if (Math.abs(swipeDistance) < minSwipeDistance) return;
+    
+    const currentIndex = getCurrentTabIndex();
+    
+    if (swipeDistance > 0 && currentIndex > 0) {
+      // Swipe droite -> onglet précédent
+      switchToTab(tabNames[currentIndex - 1]);
+    } else if (swipeDistance < 0 && currentIndex < tabNames.length - 1) {
+      // Swipe gauche -> onglet suivant
+      switchToTab(tabNames[currentIndex + 1]);
+    }
+  }
 }
 
 // ==========================================================================
