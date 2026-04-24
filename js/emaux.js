@@ -100,7 +100,7 @@ const BASES = {
       'Kaolin': 15,
       'Dolomie': 13.5,
       'Colémanite': 4.5,
-      'CaCO3': 3
+      'Craie': 3
     },
     defaultAdditives: { Cu: 3, Ru: 3, Fe: 1.5, Co: 0.5 }
   },
@@ -109,7 +109,7 @@ const BASES = {
     recipe: {
       'Silice': 20.6,
       'Ball Clay': 19.6,
-      'CaCO3': 18.8,
+      'Craie': 18.8,
       'Feldspath Potassique': 36.9,
       'Talc': 10.1
     },
