@@ -1908,20 +1908,20 @@ function initTabs() {
 // ==========================================================================
 
 function generateRecipes() {
-  // Récupérer les tests "En attente"
-  const pendingTests = tests.filter(t => t.conclusion === 'pending' || !t.conclusion);
+  // Récupérer les tests sélectionnés (checkboxes)
+  let selectedTests = tests.filter(t => selectedIds.has(t.id));
   
-  if (pendingTests.length === 0) {
-    alert('Aucun test en attente à préparer.');
+  if (selectedTests.length === 0) {
+    alert('Sélectionne au moins un test (checkbox) pour préparer les recettes.');
     return;
   }
   
   const allBases = getAllBases();
   const baseQuantity = 100; // grammes
   
-  let html = `<p class="recipes-intro">Tests en attente : <strong>${pendingTests.length}</strong> — Base : <strong>${baseQuantity}g</strong></p>`;
+  let html = `<p class="recipes-intro">Tests sélectionnés : <strong>${selectedTests.length}</strong> — Base : <strong>${baseQuantity}g</strong></p>`;
   
-  pendingTests.forEach(test => {
+  selectedTests.forEach(test => {
     const base = allBases[test.base];
     if (!base) return;
     
