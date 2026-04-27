@@ -214,6 +214,27 @@ const CUISSON_TYPE_LABELS = {
 };
 
 // ==========================================================================
+// UTILS - PERFORMANCE
+// ==========================================================================
+
+/**
+ * Debounce - limite la fréquence d'exécution d'une fonction
+ * @param {Function} func - Fonction à exécuter
+ * @param {number} wait - Délai en ms (défaut: 150ms)
+ */
+function debounce(func, wait = 150) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// ==========================================================================
 // STORAGE (Google Sheets API)
 // ==========================================================================
 
@@ -740,27 +761,42 @@ function renderTestsList(filteredTests = null) {
     return;
   }
   
-  elements.testsList.innerHTML = toRender.map(test => {
+  // Utiliser DocumentFragment pour un rendu plus performant
+  const fragment = document.createDocumentFragment();
+  
+  toRender.forEach(test => {
     const isSelected = selectedIds.has(test.id);
     const badgeClass = `badge-${test.conclusion || 'pending'}`;
     const badgeLabel = CONCLUSION_LABELS[test.conclusion] || 'En attente';
     
-    return `
-      <div class="test-card ${isSelected ? 'selected' : ''}" data-id="${test.id}">
-        <div class="test-card-main" onclick="openDetail('${test.id}')">
-          <div class="test-id">${test.generatedId || test.id}</div>
-          <div class="test-meta">
-            <span>${formatDateFR(test.date)}</span>
-            <span class="test-badge ${badgeClass}">${badgeLabel}</span>
-          </div>
-          ${test.color ? `<div class="test-color">${test.color}</div>` : ''}
+    const card = document.createElement('div');
+    card.className = `test-card${isSelected ? ' selected' : ''}`;
+    card.dataset.id = test.id;
+    
+    card.innerHTML = `
+      <div class="test-card-main">
+        <div class="test-id">${test.generatedId || test.id}</div>
+        <div class="test-meta">
+          <span>${formatDateFR(test.date)}</span>
+          <span class="test-badge ${badgeClass}">${badgeLabel}</span>
         </div>
-        <input type="checkbox" class="test-checkbox" 
-               ${isSelected ? 'checked' : ''} 
-               onclick="event.stopPropagation(); toggleSelect('${test.id}')">
+        ${test.color ? `<div class="test-color">${test.color}</div>` : ''}
       </div>
+      <input type="checkbox" class="test-checkbox" ${isSelected ? 'checked' : ''}>
     `;
-  }).join('');
+    
+    // Event listeners via délégation (plus performant que onclick inline)
+    card.querySelector('.test-card-main').addEventListener('click', () => openDetail(test.id));
+    card.querySelector('.test-checkbox').addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleSelect(test.id);
+    });
+    
+    fragment.appendChild(card);
+  });
+  
+  elements.testsList.innerHTML = '';
+  elements.testsList.appendChild(fragment);
 }
 
 function renderCompareTable() {
@@ -1727,6 +1763,9 @@ function getFilteredTests() {
 function applyFilters() {
   renderTestsList(getFilteredTests());
 }
+
+// Version debounced pour la recherche texte (évite les re-renders à chaque frappe)
+const applyFiltersDebounced = debounce(applyFilters, 200);
 
 function toggleAdvancedFilters() {
   const panel = $('advanced-filters');
@@ -2794,20 +2833,28 @@ async function init() {
   // Initialiser la navigation par onglets
   initTabs();
   
-  // Charger les terres et additifs depuis Google Sheets
-  terres = await loadTerresFromSheets();
-  additifs = await loadAdditifsFromSheets();
+  // Charger toutes les données en parallèle pour accélérer le démarrage
+  const [
+    terresData,
+    additifsData,
+    customBasesArray,
+    cuissonsData,
+    testsData
+  ] = await Promise.all([
+    loadTerresFromSheets(),
+    loadAdditifsFromSheets(),
+    loadBasesFromSheets(),
+    loadCuissonsFromSheets(),
+    loadTestsFromSheets()
+  ]);
   
-  // Initialiser les grilles et selects dynamiques
-  renderAdditivesGrid();
-  renderBaseAdditivesGrid();
-  updateTerreSelect();
-  renderTerresList();
-  renderAdditifsList();
-  renderFilterAdditifs();
+  // Assigner les données chargées
+  terres = terresData;
+  additifs = additifsData;
+  cuissons = cuissonsData;
+  tests = testsData;
   
-  // Charger les bases personnalisées depuis Google Sheets
-  const customBasesArray = await loadBasesFromSheets();
+  // Traiter les bases personnalisées
   customBasesArray.forEach(base => {
     customBases[base.code] = {
       name: base.name,
@@ -2818,14 +2865,16 @@ async function init() {
     };
   });
   
+  // Initialiser les grilles et selects dynamiques
+  renderAdditivesGrid();
+  renderBaseAdditivesGrid();
+  updateTerreSelect();
+  renderTerresList();
+  renderAdditifsList();
+  renderFilterAdditifs();
+  
   // Mettre à jour les selects avec toutes les bases
   updateBaseSelects();
-  
-  // Charger les cuissons depuis Google Sheets
-  cuissons = await loadCuissonsFromSheets();
-  
-  // Charger les tests depuis Google Sheets
-  tests = await loadTestsFromSheets();
   
   // Si aucun test, charger les données initiales
   await loadInitialData();
@@ -2887,8 +2936,9 @@ async function init() {
     if (e.target === $('modal-base')) closeModalBase();
   });
   
-  // Filtres
-  elements.searchInput.addEventListener('input', applyFilters);
+  // Filtres - debounce sur la recherche texte (évite lag à chaque frappe)
+  elements.searchInput.addEventListener('input', applyFiltersDebounced);
+  // Les selects n'ont pas besoin de debounce (changement unique)
   elements.filterBase.addEventListener('change', applyFilters);
   elements.filterTerre.addEventListener('change', applyFilters);
   elements.filterConclusion.addEventListener('change', applyFilters);
