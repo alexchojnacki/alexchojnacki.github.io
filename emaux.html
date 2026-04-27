@@ -128,8 +128,18 @@
           <h2>Recettes à préparer</h2>
           <button id="btn-close-recipes" class="btn-close">&times;</button>
         </div>
+        <div class="recipes-controls">
+          <label for="recipe-quantity">Matière sèche par recette :</label>
+          <div class="quantity-input-group">
+            <input type="number" id="recipe-quantity" value="100" min="1" max="10000" step="10">
+            <span class="quantity-unit">g</span>
+          </div>
+        </div>
         <div id="recipes-content" class="recipes-content">
           <!-- Généré par JS -->
+        </div>
+        <div id="recipes-totals" class="recipes-totals hidden">
+          <!-- Total des ingrédients généré par JS -->
         </div>
         <div class="modal-footer">
           <button id="btn-print-recipes" class="btn btn-secondary">Imprimer</button>

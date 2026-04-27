@@ -1946,26 +1946,33 @@ function initTabs() {
 // RECETTES À PRÉPARER
 // ==========================================================================
 
+// Stocke les tests sélectionnés pour le recalcul
+let currentRecipeTests = [];
+
 function generateRecipes() {
   // Récupérer les tests sélectionnés (checkboxes)
-  let selectedTests = tests.filter(t => selectedIds.has(t.id));
+  currentRecipeTests = tests.filter(t => selectedIds.has(t.id));
   
-  if (selectedTests.length === 0) {
+  if (currentRecipeTests.length === 0) {
     alert('Sélectionne au moins un test (checkbox) pour préparer les recettes.');
     return;
   }
   
-  // Demander la quantité de matière sèche
-  const input = prompt('Quantité de matière sèche par recette (en grammes) :', '100');
-  if (input === null) return; // Annulé
-  
-  const baseQuantity = parseFloat(input) || 100;
-  
+  // Afficher la modal et calculer les recettes
+  $('modal-recipes').classList.remove('hidden');
+  updateRecipesDisplay();
+}
+
+function updateRecipesDisplay() {
+  const baseQuantity = parseFloat($('recipe-quantity').value) || 100;
   const allBases = getAllBases();
   
-  let html = `<p class="recipes-intro">Tests sélectionnés : <strong>${selectedTests.length}</strong> — Base : <strong>${baseQuantity}g</strong></p>`;
+  // Pour calculer les totaux
+  const totals = {};
   
-  selectedTests.forEach(test => {
+  let html = `<p class="recipes-intro">Tests sélectionnés : <strong>${currentRecipeTests.length}</strong></p>`;
+  
+  currentRecipeTests.forEach(test => {
     const base = allBases[test.base];
     if (!base) return;
     
@@ -1975,19 +1982,26 @@ function generateRecipes() {
     // Calculer les quantités pour la base
     let recipeRows = '';
     Object.entries(recipe).forEach(([ingredient, percent]) => {
-      const quantity = (percent * baseQuantity / 100).toFixed(1);
-      recipeRows += `<tr><td>${ingredient}</td><td class="recipe-percent">${percent}%</td><td class="recipe-qty">${quantity}g</td></tr>`;
+      const quantity = (percent * baseQuantity / 100);
+      recipeRows += `<tr><td>${ingredient}</td><td class="recipe-percent">${percent}%</td><td class="recipe-qty">${quantity.toFixed(1)}g</td></tr>`;
+      
+      // Ajouter aux totaux
+      totals[ingredient] = (totals[ingredient] || 0) + quantity;
     });
     
     // Additifs
     let additivesRows = '';
-    const additives = test.additives || {};
-    Object.entries(additives).forEach(([code, percent]) => {
+    const testAdditives = test.additives || {};
+    Object.entries(testAdditives).forEach(([code, percent]) => {
       if (percent > 0) {
-        const quantity = (percent * baseQuantity / 100).toFixed(1);
+        const quantity = (percent * baseQuantity / 100);
         const additifInfo = additifs.find(a => a.code === code);
         const name = additifInfo ? additifInfo.name : code;
-        additivesRows += `<tr class="additif-row"><td>${name} (${code})</td><td class="recipe-percent">${percent}%</td><td class="recipe-qty">${quantity}g</td></tr>`;
+        additivesRows += `<tr class="additif-row"><td>${name} (${code})</td><td class="recipe-percent">${percent}%</td><td class="recipe-qty">${quantity.toFixed(1)}g</td></tr>`;
+        
+        // Ajouter aux totaux (avec le nom complet)
+        const totalKey = `${name} (${code})`;
+        totals[totalKey] = (totals[totalKey] || 0) + quantity;
       }
     });
     
@@ -2013,11 +2027,47 @@ function generateRecipes() {
   });
   
   $('recipes-content').innerHTML = html;
-  $('modal-recipes').classList.remove('hidden');
+  
+  // Afficher les totaux
+  renderRecipesTotals(totals);
+}
+
+function renderRecipesTotals(totals) {
+  const totalsContainer = $('recipes-totals');
+  
+  if (Object.keys(totals).length === 0) {
+    totalsContainer.classList.add('hidden');
+    return;
+  }
+  
+  // Trier par quantité décroissante
+  const sortedTotals = Object.entries(totals)
+    .sort((a, b) => b[1] - a[1]);
+  
+  const totalWeight = sortedTotals.reduce((sum, [, qty]) => sum + qty, 0);
+  
+  let html = `<h3>Total des ingrédients (${totalWeight.toFixed(0)}g)</h3>`;
+  html += '<div class="totals-grid">';
+  
+  sortedTotals.forEach(([ingredient, quantity]) => {
+    html += `
+      <div class="total-item">
+        <span class="total-item-name">${ingredient}</span>
+        <span class="total-item-qty">${quantity.toFixed(1)}g</span>
+      </div>
+    `;
+  });
+  
+  html += '</div>';
+  
+  totalsContainer.innerHTML = html;
+  totalsContainer.classList.remove('hidden');
 }
 
 function printRecipes() {
   const content = $('recipes-content').innerHTML;
+  const totalsContent = $('recipes-totals').innerHTML;
+  const quantity = $('recipe-quantity').value;
   const printWindow = window.open('', '_blank');
   printWindow.document.write(`
     <!DOCTYPE html>
@@ -2026,7 +2076,8 @@ function printRecipes() {
       <title>Recettes à préparer</title>
       <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; }
-        h1 { text-align: center; margin-bottom: 20px; }
+        h1 { text-align: center; margin-bottom: 10px; }
+        .print-info { text-align: center; color: #666; margin-bottom: 20px; font-size: 0.9rem; }
         .recipes-intro { text-align: center; margin-bottom: 20px; color: #666; }
         .recipe-card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; page-break-inside: avoid; }
         .recipe-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
@@ -2040,12 +2091,22 @@ function printRecipes() {
         .additif-row { background: #f9f9f9; }
         .separator td { font-weight: 600; font-size: 0.85rem; color: #666; padding-top: 12px; }
         .recipe-terre, .recipe-notes { font-size: 0.85rem; color: #666; margin: 4px 0; }
-        @media print { .recipe-card { break-inside: avoid; } }
+        .totals-section { margin-top: 30px; padding-top: 20px; border-top: 2px solid #333; page-break-inside: avoid; }
+        .totals-section h3 { font-size: 1rem; margin-bottom: 12px; }
+        .totals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .total-item { display: flex; justify-content: space-between; padding: 6px 10px; background: #f5f5f5; border-radius: 4px; }
+        .total-item-name { font-size: 0.85rem; }
+        .total-item-qty { font-weight: 600; }
+        @media print { .recipe-card, .totals-section { break-inside: avoid; } }
       </style>
     </head>
     <body>
       <h1>Recettes à préparer</h1>
+      <p class="print-info">Base : ${quantity}g de matière sèche par recette</p>
       ${content}
+      <div class="totals-section">
+        ${totalsContent}
+      </div>
     </body>
     </html>
   `);
@@ -2896,6 +2957,9 @@ async function init() {
   $('btn-close-recipes').addEventListener('click', closeRecipes);
   $('btn-close-recipes-footer').addEventListener('click', closeRecipes);
   $('btn-print-recipes').addEventListener('click', printRecipes);
+  
+  // Recalculer les recettes quand la quantité change
+  $('recipe-quantity').addEventListener('input', debounce(updateRecipesDisplay, 300));
   
   elements.testForm.addEventListener('submit', saveTest);
   
