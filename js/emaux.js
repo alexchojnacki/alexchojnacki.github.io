@@ -1385,9 +1385,7 @@ async function saveBase(e) {
   });
   
   // Sauvegarder les nouveaux matériaux
-  console.log('Nouveaux matériaux détectés:', newMaterials);
   for (const mat of newMaterials) {
-    console.log('Sauvegarde du matériau:', mat);
     await saveMaterialToSheets(mat);
   }
   
