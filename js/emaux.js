@@ -88,6 +88,24 @@ let isSyncing = false;
 let syncError = null;
 
 // ==========================================================================
+// MATÉRIAUX DE BASE (pour les recettes)
+// ==========================================================================
+
+const MATERIALS = [
+  'Silice',
+  'Feldspath sodique',
+  'Feldspath Potassique',
+  'Kaolin',
+  'Dolomie',
+  'Colémanite',
+  'Craie',
+  'Ball Clay',
+  'Talc',
+  'Molochite',
+  'Bentonite'
+];
+
+// ==========================================================================
 // DONNÉES DE BASE
 // ==========================================================================
 
@@ -573,6 +591,64 @@ async function deleteAdditifFromSheets(code) {
   } finally {
     isSyncing = false;
   }
+}
+
+// ==========================================================================
+// MATÉRIAUX STORAGE (Google Sheets)
+// ==========================================================================
+
+let customMaterials = []; // Matériaux personnalisés chargés depuis Sheets
+
+async function loadMateriauxFromSheets() {
+  try {
+    const response = await fetch(SHEETS_API_URL + '?type=materiaux');
+    const result = await response.json();
+    
+    if (result.success && result.data && result.data.length > 0) {
+      customMaterials = result.data.map(m => m.name || m);
+      return customMaterials;
+    }
+    return [];
+  } catch (e) {
+    console.error('Erreur chargement matériaux:', e);
+    return [];
+  }
+}
+
+async function saveMaterialToSheets(name) {
+  try {
+    isSyncing = true;
+    showSyncStatus('Sauvegarde matériau...');
+    
+    const response = await fetch(SHEETS_API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'addMaterial', material: { name } })
+    });
+    const result = await response.json();
+    
+    if (result.success) {
+      showSyncStatus('Matériau sauvegardé ✓');
+      // Ajouter à la liste locale
+      if (!customMaterials.includes(name)) {
+        customMaterials.push(name);
+      }
+      return true;
+    } else {
+      throw new Error(result.error || 'Erreur sauvegarde matériau');
+    }
+  } catch (e) {
+    console.error('Erreur sauvegarde matériau:', e);
+    showSyncStatus('Erreur de sauvegarde', true);
+    return false;
+  } finally {
+    isSyncing = false;
+  }
+}
+
+function getAllMaterials() {
+  // Fusionner les matériaux par défaut et personnalisés, sans doublons, triés
+  const all = [...new Set([...MATERIALS, ...customMaterials])];
+  return all.sort((a, b) => a.localeCompare(b, 'fr'));
 }
 
 // ==========================================================================
@@ -1159,13 +1235,7 @@ function openNewBase() {
   $('base-code').removeAttribute('readonly');
   
   // Réinitialiser les ingrédients
-  $('recipe-inputs').innerHTML = `
-    <div class="recipe-row">
-      <input type="text" class="recipe-ingredient" placeholder="Ingrédient">
-      <input type="number" class="recipe-percent" step="0.1" min="0" max="100" placeholder="%">
-      <button type="button" class="btn-remove-row" onclick="removeRecipeRow(this)">&times;</button>
-    </div>
-  `;
+  $('recipe-inputs').innerHTML = getRecipeRowHTML();
   
   // Réinitialiser les additifs par défaut (grille dynamique)
   renderBaseAdditivesGrid();
@@ -1194,21 +1264,11 @@ function openEditBase(code) {
   const recipeEntries = Object.entries(base.recipe || {});
   
   if (recipeEntries.length === 0) {
-    recipeInputs.innerHTML = `
-      <div class="recipe-row">
-        <input type="text" class="recipe-ingredient" placeholder="Ingrédient">
-        <input type="number" class="recipe-percent" step="0.1" min="0" max="100" placeholder="%">
-        <button type="button" class="btn-remove-row" onclick="removeRecipeRow(this)">&times;</button>
-      </div>
-    `;
+    recipeInputs.innerHTML = getRecipeRowHTML();
   } else {
-    recipeInputs.innerHTML = recipeEntries.map(([ingredient, percent]) => `
-      <div class="recipe-row">
-        <input type="text" class="recipe-ingredient" value="${ingredient}" placeholder="Ingrédient">
-        <input type="number" class="recipe-percent" value="${percent}" step="0.1" min="0" max="100" placeholder="%">
-        <button type="button" class="btn-remove-row" onclick="removeRecipeRow(this)">&times;</button>
-      </div>
-    `).join('');
+    recipeInputs.innerHTML = recipeEntries.map(([ingredient, percent]) => 
+      getRecipeRowHTML(ingredient, percent)
+    ).join('');
   }
   
   // Régénérer la grille des additifs et remplir les valeurs
@@ -1228,12 +1288,52 @@ function closeModalBase() {
   currentEditBaseCode = null;
 }
 
+function getMaterialSelectHTML(selectedValue = '') {
+  const materials = getAllMaterials();
+  const options = materials.map(m => 
+    `<option value="${m}"${m === selectedValue ? ' selected' : ''}>${m}</option>`
+  ).join('');
+  
+  const isCustom = selectedValue && !materials.includes(selectedValue);
+  
+  return `
+    <select class="recipe-ingredient-select" onchange="handleMaterialChange(this)">
+      <option value="">-- Choisir --</option>
+      ${options}
+      <option value="__other__"${isCustom ? ' selected' : ''}>Autre...</option>
+    </select>
+    <input type="text" class="recipe-ingredient-custom${isCustom ? '' : ' hidden'}" 
+           value="${isCustom ? selectedValue : ''}" placeholder="Nom du matériau">
+  `;
+}
+
+function handleMaterialChange(select) {
+  const customInput = select.parentElement.querySelector('.recipe-ingredient-custom');
+  if (select.value === '__other__') {
+    customInput.classList.remove('hidden');
+    customInput.focus();
+  } else {
+    customInput.classList.add('hidden');
+    customInput.value = '';
+  }
+}
+
+function getRecipeRowHTML(ingredient = '', percent = '') {
+  return `
+    <div class="recipe-row">
+      ${getMaterialSelectHTML(ingredient)}
+      <input type="number" class="recipe-percent" value="${percent}" step="0.1" min="0" max="100" placeholder="%">
+      <button type="button" class="btn-remove-row" onclick="removeRecipeRow(this)">&times;</button>
+    </div>
+  `;
+}
+
 function addRecipeRow() {
   const recipeInputs = $('recipe-inputs');
   const newRow = document.createElement('div');
   newRow.className = 'recipe-row';
   newRow.innerHTML = `
-    <input type="text" class="recipe-ingredient" placeholder="Ingrédient">
+    ${getMaterialSelectHTML()}
     <input type="number" class="recipe-percent" step="0.1" min="0" max="100" placeholder="%">
     <button type="button" class="btn-remove-row" onclick="removeRecipeRow(this)">&times;</button>
   `;
@@ -1258,14 +1358,36 @@ async function saveBase(e) {
   
   // Récupérer la recette
   const recipe = {};
+  const newMaterials = []; // Nouveaux matériaux à sauvegarder
+  const allMaterials = getAllMaterials();
+  
   const rows = $('recipe-inputs').querySelectorAll('.recipe-row');
   rows.forEach(row => {
-    const ingredient = row.querySelector('.recipe-ingredient').value.trim();
+    const select = row.querySelector('.recipe-ingredient-select');
+    const customInput = row.querySelector('.recipe-ingredient-custom');
     const percent = parseFloat(row.querySelector('.recipe-percent').value);
+    
+    // Utiliser la valeur custom si "Autre" est sélectionné, sinon la valeur du select
+    let ingredient = '';
+    if (select.value === '__other__') {
+      ingredient = customInput.value.trim();
+      // Vérifier si c'est un nouveau matériau
+      if (ingredient && !allMaterials.includes(ingredient)) {
+        newMaterials.push(ingredient);
+      }
+    } else {
+      ingredient = select.value;
+    }
+    
     if (ingredient && percent > 0) {
       recipe[ingredient] = percent;
     }
   });
+  
+  // Sauvegarder les nouveaux matériaux
+  for (const mat of newMaterials) {
+    await saveMaterialToSheets(mat);
+  }
   
   // Récupérer les additifs par défaut
   const defaultAdditives = {};
@@ -2900,13 +3022,15 @@ async function init() {
     additifsData,
     customBasesArray,
     cuissonsData,
-    testsData
+    testsData,
+    materiauxData
   ] = await Promise.all([
     loadTerresFromSheets(),
     loadAdditifsFromSheets(),
     loadBasesFromSheets(),
     loadCuissonsFromSheets(),
-    loadTestsFromSheets()
+    loadTestsFromSheets(),
+    loadMateriauxFromSheets()
   ]);
   
   // Assigner les données chargées

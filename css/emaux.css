@@ -1239,6 +1239,20 @@ legend {
   flex: 2;
 }
 
+.recipe-row .recipe-ingredient-select {
+  flex: 2;
+  min-width: 0;
+}
+
+.recipe-row .recipe-ingredient-custom {
+  flex: 1;
+  min-width: 100px;
+}
+
+.recipe-row .recipe-ingredient-custom.hidden {
+  display: none;
+}
+
 .recipe-row .recipe-percent {
   flex: 1;
   max-width: 80px;
