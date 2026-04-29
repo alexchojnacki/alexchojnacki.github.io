@@ -21,11 +21,43 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://alex.lepotier.ovh/fds.html</loc>
+    <priority>0.4</priority>
+  </url>
+  <url>
     <loc>https://alex.lepotier.ovh/mentions-legales.html</loc>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://alex.lepotier.ovh/cgv.html</loc>
     <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://alex.lepotier.ovh/en/index.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://alex.lepotier.ovh/en/pieces.html</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://alex.lepotier.ovh/en/about.html</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://alex.lepotier.ovh/en/contact.html</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://alex.lepotier.ovh/en/faq.html</loc>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://alex.lepotier.ovh/en/legal.html</loc>
+    <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://alex.lepotier.ovh/en/terms.html</loc>
+    <priority>0.2</priority>
   </url>
 </urlset>

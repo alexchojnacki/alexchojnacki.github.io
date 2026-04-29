@@ -25,12 +25,19 @@ async function verifyToken(token) {
   }
 }
 
+// IMPORTANT: ne pas remplacer ce fetch par authFetch (pas encore de token stocké)
+
 function isAuthenticated() {
-  return sessionStorage.getItem(SESSION_KEY) === 'true';
+  const token = sessionStorage.getItem(SESSION_KEY);
+  return token && token !== 'true' && token.length > 8;
 }
 
-function setAuthenticated() {
-  sessionStorage.setItem(SESSION_KEY, 'true');
+function getStoredToken() {
+  return sessionStorage.getItem(SESSION_KEY);
+}
+
+function setAuthenticated(token) {
+  sessionStorage.setItem(SESSION_KEY, token);
 }
 
 async function checkAuth() {
@@ -38,7 +45,7 @@ async function checkAuth() {
   const appContent = document.getElementById('app-content');
   const loginError = document.getElementById('login-error');
   
-  // Déjà authentifié dans cette session
+  // Déjà authentifié dans cette session (token stocké)
   if (isAuthenticated()) {
     loginScreen.classList.add('hidden');
     appContent.classList.remove('hidden');
@@ -56,7 +63,9 @@ async function checkAuth() {
     const isValid = await verifyToken(token);
     
     if (isValid) {
-      setAuthenticated();
+      setAuthenticated(token);
+      // Nettoyer le token de l'URL (sécurité : éviter historique/partage)
+      window.history.replaceState({}, document.title, window.location.pathname);
       loginScreen.classList.add('hidden');
       appContent.classList.remove('hidden');
       init();
@@ -74,6 +83,36 @@ async function checkAuth() {
 // ==========================================================================
 
 const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbyeam2b2k1TYPYJ42MkZCnrHvUpNbwFGfx7_lxH_oGRAfhugrk0ichWGZBS5FqirK3gsA/exec';
+
+/**
+ * Fetch authentifié - ajoute le token à chaque requête
+ * @param {string} url - URL de base (GET params déjà inclus)
+ * @param {object} [options] - Options fetch (method, body, etc.)
+ * @returns {Promise<Response>}
+ */
+function authFetch(url, options = {}) {
+  const token = getStoredToken();
+  if (!token) {
+    return Promise.reject(new Error('Non authentifié'));
+  }
+  
+  // Ajouter le token en query param pour les GET
+  const separator = url.includes('?') ? '&' : '?';
+  const authUrl = `${url}${separator}key=${encodeURIComponent(token)}`;
+  
+  // Pour les POST, ajouter aussi le token dans le body
+  if (options.body) {
+    try {
+      const body = JSON.parse(options.body);
+      body.key = token;
+      options.body = JSON.stringify(body);
+    } catch (e) {
+      // body non-JSON, on laisse tel quel
+    }
+  }
+  
+  return fetch(authUrl, options);
+}
 
 // Formater une date YYYY-MM-DD en DD/MM/YYYY (format français)
 function formatDateFR(dateStr) {
@@ -253,6 +292,62 @@ function debounce(func, wait = 150) {
 }
 
 // ==========================================================================
+// CACHE LOCAL (localStorage avec TTL)
+// ==========================================================================
+
+const CACHE_PREFIX = 'emaux_cache_';
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Lit une entrée du cache localStorage
+ * @param {string} key - Clé de cache
+ * @returns {any|null} Données cachées ou null si expiré/absent
+ */
+function cacheGet(key) {
+  try {
+    const raw = localStorage.getItem(CACHE_PREFIX + key);
+    if (!raw) return null;
+    const entry = JSON.parse(raw);
+    if (Date.now() > entry.expiry) {
+      localStorage.removeItem(CACHE_PREFIX + key);
+      return null;
+    }
+    return entry.data;
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * Écrit une entrée dans le cache localStorage
+ * @param {string} key - Clé de cache
+ * @param {any} data - Données à cacher
+ */
+function cacheSet(key, data) {
+  try {
+    localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({
+      data,
+      expiry: Date.now() + CACHE_TTL
+    }));
+  } catch (e) {
+    // localStorage plein ou indisponible, on ignore
+  }
+}
+
+/**
+ * Invalide une ou toutes les entrées du cache
+ * @param {string} [key] - Clé spécifique, ou toutes si omis
+ */
+function cacheInvalidate(key) {
+  if (key) {
+    localStorage.removeItem(CACHE_PREFIX + key);
+  } else {
+    const keys = Object.keys(localStorage).filter(k => k.startsWith(CACHE_PREFIX));
+    keys.forEach(k => localStorage.removeItem(k));
+  }
+}
+
+// ==========================================================================
 // STORAGE (Google Sheets API)
 // ==========================================================================
 
@@ -280,16 +375,21 @@ function hideSyncStatus() {
 }
 
 async function loadTestsFromSheets() {
+  const cached = cacheGet('tests');
+  if (cached) { hideSyncStatus(); return cached; }
+  
   try {
     isSyncing = true;
     showSyncStatus('Chargement...');
     
-    const response = await fetch(SHEETS_API_URL);
+    const response = await authFetch(SHEETS_API_URL);
     const result = await response.json();
     
     if (result.success) {
       hideSyncStatus();
-      return result.data || [];
+      const data = result.data || [];
+      cacheSet('tests', data);
+      return data;
     } else {
       throw new Error(result.error || 'Erreur inconnue');
     }
@@ -308,7 +408,7 @@ async function saveTestToSheets(test, action = 'update') {
     isSyncing = true;
     showSyncStatus('Sauvegarde...');
     
-    const response = await fetch(SHEETS_API_URL, {
+    const response = await authFetch(SHEETS_API_URL, {
       method: 'POST',
       body: JSON.stringify({ action, test })
     });
@@ -316,6 +416,7 @@ async function saveTestToSheets(test, action = 'update') {
     
     if (result.success) {
       showSyncStatus('Sauvegardé ✓');
+      cacheInvalidate('tests');
       return true;
     } else {
       throw new Error(result.error || 'Erreur sauvegarde');
@@ -335,7 +436,7 @@ async function deleteTestFromSheets(id) {
     isSyncing = true;
     showSyncStatus('Suppression...');
     
-    const response = await fetch(SHEETS_API_URL, {
+    const response = await authFetch(SHEETS_API_URL, {
       method: 'POST',
       body: JSON.stringify({ action: 'delete', id })
     });
@@ -343,6 +444,7 @@ async function deleteTestFromSheets(id) {
     
     if (result.success) {
       showSyncStatus('Supprimé ✓');
+      cacheInvalidate('tests');
       return true;
     } else {
       throw new Error(result.error || 'Erreur suppression');
@@ -362,7 +464,7 @@ async function syncAllToSheets(tests) {
     isSyncing = true;
     showSyncStatus('Synchronisation...');
     
-    const response = await fetch(SHEETS_API_URL, {
+    const response = await authFetch(SHEETS_API_URL, {
       method: 'POST',
       body: JSON.stringify({ action: 'sync', tests })
     });
@@ -370,6 +472,7 @@ async function syncAllToSheets(tests) {
     
     if (result.success) {
       showSyncStatus(`${result.count} tests synchronisés ✓`);
+      cacheInvalidate('tests');
       return true;
     } else {
       throw new Error(result.error || 'Erreur sync');
@@ -389,11 +492,15 @@ async function syncAllToSheets(tests) {
 // ==========================================================================
 
 async function loadBasesFromSheets() {
+  const cached = cacheGet('bases');
+  if (cached) return cached;
+  
   try {
-    const response = await fetch(SHEETS_API_URL + '?type=bases');
+    const response = await authFetch(SHEETS_API_URL + '?type=bases');
     const result = await response.json();
     
     if (result.success && result.data) {
+      cacheSet('bases', result.data);
       return result.data;
     }
     return [];
@@ -408,7 +515,7 @@ async function saveBaseToSheets(base, action = 'updateBase') {
     isSyncing = true;
     showSyncStatus('Sauvegarde base...');
     
-    const response = await fetch(SHEETS_API_URL, {
+    const response = await authFetch(SHEETS_API_URL, {
       method: 'POST',
       body: JSON.stringify({ action, base })
     });
@@ -416,6 +523,7 @@ async function saveBaseToSheets(base, action = 'updateBase') {
     
     if (result.success) {
       showSyncStatus('Base sauvegardée ✓');
+      cacheInvalidate('bases');
       return true;
     } else {
       throw new Error(result.error || 'Erreur sauvegarde base');
@@ -434,7 +542,7 @@ async function deleteBaseFromSheets(code) {
     isSyncing = true;
     showSyncStatus('Suppression base...');
     
-    const response = await fetch(SHEETS_API_URL, {
+    const response = await authFetch(SHEETS_API_URL, {
       method: 'POST',
       body: JSON.stringify({ action: 'deleteBase', code })
     });
@@ -442,6 +550,7 @@ async function deleteBaseFromSheets(code) {
     
     if (result.success) {
       showSyncStatus('Base supprimée ✓');
+      cacheInvalidate('bases');
       return true;
     } else {
       throw new Error(result.error || 'Erreur suppression base');
@@ -460,11 +569,15 @@ async function deleteBaseFromSheets(code) {
 // ==========================================================================
 
 async function loadTerresFromSheets() {
+  const cached = cacheGet('terres');
+  if (cached) return cached;
+  
   try {
-    const response = await fetch(SHEETS_API_URL + '?type=terres');
+    const response = await authFetch(SHEETS_API_URL + '?type=terres');
     const result = await response.json();
     
     if (result.success && result.data && result.data.length > 0) {
+      cacheSet('terres', result.data);
       return result.data;
     }
     return DEFAULT_TERRES;
@@ -479,7 +592,7 @@ async function saveTerreToSheets(terre, action = 'updateTerre') {
     isSyncing = true;
     showSyncStatus('Sauvegarde terre...');
     
-    const response = await fetch(SHEETS_API_URL, {
+    const response = await authFetch(SHEETS_API_URL, {
       method: 'POST',
       body: JSON.stringify({ action, terre })
     });
@@ -487,6 +600,7 @@ async function saveTerreToSheets(terre, action = 'updateTerre') {
     
     if (result.success) {
       showSyncStatus('Terre sauvegardée ✓');
+      cacheInvalidate('terres');
       return true;
     } else {
       throw new Error(result.error || 'Erreur sauvegarde terre');
@@ -505,7 +619,7 @@ async function deleteTerreFromSheets(code) {
     isSyncing = true;
     showSyncStatus('Suppression terre...');
     
-    const response = await fetch(SHEETS_API_URL, {
+    const response = await authFetch(SHEETS_API_URL, {
       method: 'POST',
       body: JSON.stringify({ action: 'deleteTerre', code })
     });
@@ -513,6 +627,7 @@ async function deleteTerreFromSheets(code) {
     
     if (result.success) {
       showSyncStatus('Terre supprimée ✓');
+      cacheInvalidate('terres');
       return true;
     } else {
       throw new Error(result.error || 'Erreur suppression terre');
@@ -527,11 +642,15 @@ async function deleteTerreFromSheets(code) {
 }
 
 async function loadAdditifsFromSheets() {
+  const cached = cacheGet('additifs');
+  if (cached) return cached;
+  
   try {
-    const response = await fetch(SHEETS_API_URL + '?type=additifs');
+    const response = await authFetch(SHEETS_API_URL + '?type=additifs');
     const result = await response.json();
     
     if (result.success && result.data && result.data.length > 0) {
+      cacheSet('additifs', result.data);
       return result.data;
     }
     return DEFAULT_ADDITIFS;
@@ -546,7 +665,7 @@ async function saveAdditifToSheets(additif, action = 'updateAdditif') {
     isSyncing = true;
     showSyncStatus('Sauvegarde additif...');
     
-    const response = await fetch(SHEETS_API_URL, {
+    const response = await authFetch(SHEETS_API_URL, {
       method: 'POST',
       body: JSON.stringify({ action, additif })
     });
@@ -554,6 +673,7 @@ async function saveAdditifToSheets(additif, action = 'updateAdditif') {
     
     if (result.success) {
       showSyncStatus('Additif sauvegardé ✓');
+      cacheInvalidate('additifs');
       return true;
     } else {
       throw new Error(result.error || 'Erreur sauvegarde additif');
@@ -572,7 +692,7 @@ async function deleteAdditifFromSheets(code) {
     isSyncing = true;
     showSyncStatus('Suppression additif...');
     
-    const response = await fetch(SHEETS_API_URL, {
+    const response = await authFetch(SHEETS_API_URL, {
       method: 'POST',
       body: JSON.stringify({ action: 'deleteAdditif', code })
     });
@@ -580,6 +700,7 @@ async function deleteAdditifFromSheets(code) {
     
     if (result.success) {
       showSyncStatus('Additif supprimé ✓');
+      cacheInvalidate('additifs');
       return true;
     } else {
       throw new Error(result.error || 'Erreur suppression additif');
@@ -600,12 +721,16 @@ async function deleteAdditifFromSheets(code) {
 let customMaterials = []; // Matériaux personnalisés chargés depuis Sheets
 
 async function loadMateriauxFromSheets() {
+  const cached = cacheGet('materiaux');
+  if (cached) { customMaterials = cached; return cached; }
+  
   try {
-    const response = await fetch(SHEETS_API_URL + '?type=materiaux');
+    const response = await authFetch(SHEETS_API_URL + '?type=materiaux');
     const result = await response.json();
     
     if (result.success && result.data && result.data.length > 0) {
       customMaterials = result.data.map(m => m.name || m);
+      cacheSet('materiaux', customMaterials);
       return customMaterials;
     }
     return [];
@@ -620,7 +745,7 @@ async function saveMaterialToSheets(name) {
     isSyncing = true;
     showSyncStatus('Sauvegarde matériau...');
     
-    const response = await fetch(SHEETS_API_URL, {
+    const response = await authFetch(SHEETS_API_URL, {
       method: 'POST',
       body: JSON.stringify({ action: 'addMaterial', material: { name } })
     });
@@ -628,6 +753,7 @@ async function saveMaterialToSheets(name) {
     
     if (result.success) {
       showSyncStatus('Matériau sauvegardé ✓');
+      cacheInvalidate('materiaux');
       // Ajouter à la liste locale
       if (!customMaterials.includes(name)) {
         customMaterials.push(name);
@@ -656,11 +782,15 @@ function getAllMaterials() {
 // ==========================================================================
 
 async function loadCuissonsFromSheets() {
+  const cached = cacheGet('cuissons');
+  if (cached) return cached;
+  
   try {
-    const response = await fetch(SHEETS_API_URL + '?type=cuissons');
+    const response = await authFetch(SHEETS_API_URL + '?type=cuissons');
     const result = await response.json();
     
     if (result.success && result.data && result.data.length > 0) {
+      cacheSet('cuissons', result.data);
       return result.data;
     }
     return [];
@@ -675,7 +805,7 @@ async function saveCuissonToSheets(cuisson, action = 'updateCuisson') {
     isSyncing = true;
     showSyncStatus('Sauvegarde cuisson...');
     
-    const response = await fetch(SHEETS_API_URL, {
+    const response = await authFetch(SHEETS_API_URL, {
       method: 'POST',
       body: JSON.stringify({ action, cuisson })
     });
@@ -683,6 +813,7 @@ async function saveCuissonToSheets(cuisson, action = 'updateCuisson') {
     
     if (result.success) {
       showSyncStatus('Cuisson sauvegardée ✓');
+      cacheInvalidate('cuissons');
       return true;
     } else {
       throw new Error(result.error || 'Erreur sauvegarde cuisson');
@@ -701,7 +832,7 @@ async function deleteCuissonFromSheets(id) {
     isSyncing = true;
     showSyncStatus('Suppression cuisson...');
     
-    const response = await fetch(SHEETS_API_URL, {
+    const response = await authFetch(SHEETS_API_URL, {
       method: 'POST',
       body: JSON.stringify({ action: 'deleteCuisson', id })
     });
@@ -709,6 +840,7 @@ async function deleteCuissonFromSheets(id) {
     
     if (result.success) {
       showSyncStatus('Cuisson supprimée ✓');
+      cacheInvalidate('cuissons');
       return true;
     } else {
       throw new Error(result.error || 'Erreur suppression cuisson');
@@ -931,8 +1063,9 @@ function renderBasesList() {
   if (!basesList) return;
   
   const baseCodes = Object.keys(allBases).sort();
+  const fragment = document.createDocumentFragment();
   
-  basesList.innerHTML = baseCodes.map(code => {
+  baseCodes.forEach(code => {
     const base = allBases[code];
     const isCustom = customBases[code] !== undefined;
     const recipePreview = Object.entries(base.recipe || {})
@@ -940,21 +1073,26 @@ function renderBasesList() {
       .map(([k, v]) => `${k} ${v}%`)
       .join(', ');
     
-    return `
-      <div class="base-card" onclick="openEditBase('${code}')">
-        <div class="base-card-header">
-          <div>
-            <span class="base-card-code">${code}</span>
-            <span class="base-card-name"> - ${base.name}</span>
-            ${isCustom ? '<span class="base-card-custom">(personnalisée)</span>' : ''}
-          </div>
+    const card = document.createElement('div');
+    card.className = 'base-card';
+    card.addEventListener('click', () => openEditBase(code));
+    card.innerHTML = `
+      <div class="base-card-header">
+        <div>
+          <span class="base-card-code">${code}</span>
+          <span class="base-card-name"> - ${base.name}</span>
+          ${isCustom ? '<span class="base-card-custom">(personnalisée)</span>' : ''}
         </div>
-        ${base.note ? `<div class="base-card-note">${base.note}</div>` : ''}
-        ${base.warning ? `<div class="base-card-warning">⚠️ ${base.warning}</div>` : ''}
-        <div class="base-card-recipe">${recipePreview}${Object.keys(base.recipe || {}).length > 3 ? '...' : ''}</div>
       </div>
+      ${base.note ? `<div class="base-card-note">${base.note}</div>` : ''}
+      ${base.warning ? `<div class="base-card-warning">⚠️ ${base.warning}</div>` : ''}
+      <div class="base-card-recipe">${recipePreview}${Object.keys(base.recipe || {}).length > 3 ? '...' : ''}</div>
     `;
-  }).join('');
+    fragment.appendChild(card);
+  });
+  
+  basesList.innerHTML = '';
+  basesList.appendChild(fragment);
 }
 
 function renderRecettesList() {
@@ -964,8 +1102,9 @@ function renderRecettesList() {
   if (!recettesList) return;
   
   const baseCodes = Object.keys(allBases).sort();
+  const fragment = document.createDocumentFragment();
   
-  recettesList.innerHTML = baseCodes.map(code => {
+  baseCodes.forEach(code => {
     const base = allBases[code];
     const defaultAdditivesStr = Object.entries(base.defaultAdditives || {})
       .map(([k, v]) => `${k} ${v}%`)
@@ -975,19 +1114,23 @@ function renderRecettesList() {
       .map(([ingredient, percent]) => `<tr><td>${ingredient}</td><td>${percent}%</td></tr>`)
       .join('');
     
-    return `
-      <div class="recipe-card">
-        <div class="recipe-header">
-          <h3>${code} - ${base.name}</h3>
-          <span class="recipe-note">${base.note || ''} ${base.note && defaultAdditivesStr !== 'Aucun' ? '- ' : ''}${defaultAdditivesStr !== 'Aucun' ? 'Additifs par défaut : ' + defaultAdditivesStr : ''}</span>
-          ${base.warning ? `<span class="recipe-warning">⚠️ ${base.warning}</span>` : ''}
-        </div>
-        <table class="recipe-table">
-          ${recipeRows}
-        </table>
+    const card = document.createElement('div');
+    card.className = 'recipe-card';
+    card.innerHTML = `
+      <div class="recipe-header">
+        <h3>${code} - ${base.name}</h3>
+        <span class="recipe-note">${base.note || ''} ${base.note && defaultAdditivesStr !== 'Aucun' ? '- ' : ''}${defaultAdditivesStr !== 'Aucun' ? 'Additifs par défaut : ' + defaultAdditivesStr : ''}</span>
+        ${base.warning ? `<span class="recipe-warning">⚠️ ${base.warning}</span>` : ''}
       </div>
+      <table class="recipe-table">
+        ${recipeRows}
+      </table>
     `;
-  }).join('');
+    fragment.appendChild(card);
+  });
+  
+  recettesList.innerHTML = '';
+  recettesList.appendChild(fragment);
 }
 
 function updateBaseSelects() {
@@ -1024,18 +1167,30 @@ function renderTerresList() {
     return;
   }
   
-  terresList.innerHTML = terres.map(terre => `
-    <div class="config-item" data-code="${terre.code}">
+  const fragment = document.createDocumentFragment();
+  terres.forEach(terre => {
+    const item = document.createElement('div');
+    item.className = 'config-item';
+    item.dataset.code = terre.code;
+    item.innerHTML = `
       <div class="config-item-info">
         <span class="config-item-code">${terre.code}</span>
         ${terre.isDefault ? '<span class="config-item-default">(par défaut)</span>' : ''}
       </div>
       <div class="config-item-actions">
-        ${terre.isDefault ? '<button class="btn btn-small btn-secondary" onclick="unsetDefaultTerre(\'${terre.code}\')">Retirer défaut</button>' : `<button class="btn btn-small btn-secondary" onclick="setDefaultTerre('${terre.code}')">Défaut</button>`}
-        <button class="btn btn-small btn-danger" onclick="deleteTerre('${terre.code}')">Suppr.</button>
+        <button class="btn btn-small btn-secondary btn-default-terre">${terre.isDefault ? 'Retirer défaut' : 'Défaut'}</button>
+        <button class="btn btn-small btn-danger btn-delete-terre">Suppr.</button>
       </div>
-    </div>
-  `).join('');
+    `;
+    item.querySelector('.btn-default-terre').addEventListener('click', () => {
+      terre.isDefault ? unsetDefaultTerre(terre.code) : setDefaultTerre(terre.code);
+    });
+    item.querySelector('.btn-delete-terre').addEventListener('click', () => deleteTerre(terre.code));
+    fragment.appendChild(item);
+  });
+  
+  terresList.innerHTML = '';
+  terresList.appendChild(fragment);
 }
 
 function renderAdditifsList() {
@@ -1047,8 +1202,12 @@ function renderAdditifsList() {
     return;
   }
   
-  additifsList.innerHTML = additifs.map(add => `
-    <div class="config-item" data-code="${add.code}">
+  const fragment = document.createDocumentFragment();
+  additifs.forEach(add => {
+    const item = document.createElement('div');
+    item.className = 'config-item';
+    item.dataset.code = add.code;
+    item.innerHTML = `
       <div class="config-item-info">
         <span class="config-item-code">${add.code}</span>
         <span class="config-item-name">${add.name}</span>
@@ -1056,10 +1215,15 @@ function renderAdditifsList() {
       </div>
       <div class="config-item-actions">
         <span class="config-item-max">max ${add.max}%</span>
-        <button class="btn btn-small btn-danger" onclick="deleteAdditif('${add.code}')">Suppr.</button>
+        <button class="btn btn-small btn-danger btn-delete-additif">Suppr.</button>
       </div>
-    </div>
-  `).join('');
+    `;
+    item.querySelector('.btn-delete-additif').addEventListener('click', () => deleteAdditif(add.code));
+    fragment.appendChild(item);
+  });
+  
+  additifsList.innerHTML = '';
+  additifsList.appendChild(fragment);
 }
 
 function updateTerreSelect() {
@@ -1737,7 +1901,15 @@ function toggleSelect(id) {
   } else {
     selectedIds.add(id);
   }
-  renderTestsList(getFilteredTests());
+  
+  // Mise à jour ciblée : toggle la classe sur la carte sans re-render
+  const card = elements.testsList.querySelector(`.test-card[data-id="${id}"]`);
+  if (card) {
+    const isSelected = selectedIds.has(id);
+    card.classList.toggle('selected', isSelected);
+    const cb = card.querySelector('.test-checkbox');
+    if (cb) cb.checked = isSelected;
+  }
 }
 
 function closeCompare() {
@@ -2774,27 +2946,33 @@ function renderCuissonsList() {
     new Date(b.date || 0) - new Date(a.date || 0)
   );
   
-  cuissonsList.innerHTML = sortedCuissons.map(cuisson => {
+  const fragment = document.createDocumentFragment();
+  sortedCuissons.forEach(cuisson => {
     const typeLabel = CUISSON_TYPE_LABELS[cuisson.type] || cuisson.type;
     const testsCount = getTestsForCuisson(cuisson.id).length;
     
-    return `
-      <div class="cuisson-card" data-id="${cuisson.id}" onclick="openCuissonDetail('${cuisson.id}')">
-        <div class="cuisson-card-header">
-          <div class="cuisson-card-date">${formatDateFR(cuisson.date)}</div>
-          <span class="cuisson-type-badge cuisson-type-${cuisson.type}">${typeLabel}</span>
-        </div>
-        <div class="cuisson-card-info">
-          <span class="cuisson-card-cone">
-            Cône ${cuisson.coneVise || '-'}${cuisson.coneReel ? ` → ${cuisson.coneReel}` : ''}
-          </span>
-          ${cuisson.tempMax ? `<span class="cuisson-card-temp">${cuisson.tempMax}°C</span>` : ''}
-        </div>
-        ${testsCount > 0 ? `<div class="cuisson-card-tests">${testsCount} test${testsCount > 1 ? 's' : ''} associé${testsCount > 1 ? 's' : ''}</div>` : ''}
-
+    const card = document.createElement('div');
+    card.className = 'cuisson-card';
+    card.dataset.id = cuisson.id;
+    card.addEventListener('click', () => openCuissonDetail(cuisson.id));
+    card.innerHTML = `
+      <div class="cuisson-card-header">
+        <div class="cuisson-card-date">${formatDateFR(cuisson.date)}</div>
+        <span class="cuisson-type-badge cuisson-type-${cuisson.type}">${typeLabel}</span>
       </div>
+      <div class="cuisson-card-info">
+        <span class="cuisson-card-cone">
+          Cône ${cuisson.coneVise || '-'}${cuisson.coneReel ? ` → ${cuisson.coneReel}` : ''}
+        </span>
+        ${cuisson.tempMax ? `<span class="cuisson-card-temp">${cuisson.tempMax}°C</span>` : ''}
+      </div>
+      ${testsCount > 0 ? `<div class="cuisson-card-tests">${testsCount} test${testsCount > 1 ? 's' : ''} associé${testsCount > 1 ? 's' : ''}</div>` : ''}
     `;
-  }).join('');
+    fragment.appendChild(card);
+  });
+  
+  cuissonsList.innerHTML = '';
+  cuissonsList.appendChild(fragment);
 }
 
 function getTestsForCuisson(cuissonId) {

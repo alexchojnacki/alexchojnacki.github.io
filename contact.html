@@ -6,6 +6,8 @@
   <meta name="description" content="Contactez Alex le Potier pour toute question ou commande de pièces en céramique.">
   <link rel="icon" type="image/jpeg" href="images/favicon-32x32.jpg">
   <link rel="canonical" href="https://alex.lepotier.ovh/contact.html">
+  <link rel="alternate" hreflang="fr" href="https://alex.lepotier.ovh/contact.html">
+  <link rel="alternate" hreflang="en" href="https://alex.lepotier.ovh/en/contact.html">
   <!-- Open Graph -->
   <meta property="og:title" content="Contact - Alex le Potier">
   <meta property="og:description" content="Contactez Alex le Potier pour toute question ou commande de pièces en céramique.">
@@ -47,7 +49,7 @@
       <div class="container">
         <h1>Contact</h1>
         <p>Une question, une commande ? N'hésitez pas à me contacter.</p>
-        <p style="margin-top: 1rem;"><a href="faq.html" style="color: var(--color-accent);">Consultez d'abord la FAQ</a></p>
+        <p><a href="faq.html" class="faq-link">Consultez d'abord la FAQ</a></p>
       </div>
     </section>
 
@@ -70,10 +72,11 @@
               <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=2.93%2C50.53%2C3.03%2C50.59&layer=mapnik&marker=50.5633%2C2.9875" width="400" height="250" frameborder="0" scrolling="no" loading="lazy" title="Carte - Ancoisne"></iframe>
               <p class="contact-map-label">Ancoisne, près de Lille</p>
             </div>
-            <p style="margin-top: 1rem; font-size: 14px; color: var(--color-text-light);">Siret : 99455629800010</p>
+            <p class="contact-siret">Siret : 99455629800010</p>
           </div>
           <div class="contact-form-wrapper">
             <form action="https://formspree.io/f/mreakdry" method="POST" class="contact-form">
+              <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
               <div class="form-group">
                 <label for="name">Nom</label>
                 <input type="text" id="name" name="name" autocomplete="name" required>
