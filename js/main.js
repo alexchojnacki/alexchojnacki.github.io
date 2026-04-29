@@ -6,6 +6,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   initMobileMenu();
   initLightbox();
+  initScrollAnimations();
 });
 
 /**
@@ -185,4 +186,58 @@ function initLightbox() {
       showNext();
     }
   }
+}
+
+/**
+ * Animations d'entrée au scroll (Intersection Observer)
+ */
+function initScrollAnimations() {
+  // Respect des préférences utilisateur
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  // Sélecteurs des éléments à animer
+  const selectors = [
+    '.hero-content',
+    '.demarche h2',
+    '.demarche > .container > p',
+    '.arguments',
+    '.photo-piece',
+    '.commandes',
+    '.cta-final-minimal',
+    '.pieces-header',
+    '.gallery-item',
+    '.pieces-note',
+    '.quote-hero blockquote',
+    '.editorial-content',
+    '.editorial-image',
+    '.faq-header',
+    '.faq-item',
+    '.faq-cta',
+    '.contact-info',
+    '.contact-form',
+    '.page-header'
+  ];
+
+  const elements = document.querySelectorAll(selectors.join(', '));
+  if (elements.length === 0) return;
+
+  // Ajouter la classe fade-in sur chaque élément
+  elements.forEach(el => {
+    el.classList.add('fade-in');
+  });
+
+  // Observer les éléments
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -40px 0px'
+  });
+
+  elements.forEach(el => observer.observe(el));
 }
