@@ -17,6 +17,11 @@ function initMobileMenu() {
 
   if (!menuToggle || !nav) return;
 
+  function closeMenu() {
+    menuToggle.classList.remove('active');
+    nav.classList.remove('active');
+  }
+
   menuToggle.addEventListener('click', () => {
     menuToggle.classList.toggle('active');
     nav.classList.toggle('active');
@@ -25,10 +30,15 @@ function initMobileMenu() {
   // Fermer le menu au clic sur un lien
   const navLinks = nav.querySelectorAll('.nav-link');
   navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      menuToggle.classList.remove('active');
-      nav.classList.remove('active');
-    });
+    link.addEventListener('click', closeMenu);
+  });
+
+  // Fermer le menu avec Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && nav.classList.contains('active')) {
+      closeMenu();
+      menuToggle.focus();
+    }
   });
 }
 
@@ -46,22 +56,29 @@ function initLightbox() {
   const prevBtn = lightbox.querySelector('.lightbox-prev');
   const nextBtn = lightbox.querySelector('.lightbox-next');
 
+  // Éléments focusables dans la lightbox (pour le focus trap)
+  const focusableElements = [closeBtn, prevBtn, nextBtn];
+
   // Créer le compteur d'images
   const counter = document.createElement('div');
   counter.className = 'lightbox-counter';
   lightbox.appendChild(counter);
 
   let currentIndex = 0;
+  let triggerElement = null;
   const images = Array.from(galleryItems).map(item => item.href);
 
   // Ouvrir la lightbox
   galleryItems.forEach((item, index) => {
     item.addEventListener('click', (e) => {
       e.preventDefault();
+      triggerElement = item;
       currentIndex = index;
       showImage(currentIndex);
       lightbox.classList.add('active');
       document.body.style.overflow = 'hidden';
+      // Déplacer le focus vers le bouton fermer
+      closeBtn.focus();
     });
   });
 
@@ -69,6 +86,11 @@ function initLightbox() {
   function closeLightbox() {
     lightbox.classList.remove('active');
     document.body.style.overflow = '';
+    // Retourner le focus à l'élément déclencheur
+    if (triggerElement) {
+      triggerElement.focus();
+      triggerElement = null;
+    }
   }
 
   closeBtn.addEventListener('click', closeLightbox);
@@ -76,6 +98,26 @@ function initLightbox() {
   lightbox.addEventListener('click', (e) => {
     if (e.target === lightbox) {
       closeLightbox();
+    }
+  });
+
+  // Focus trap dans la lightbox
+  lightbox.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+
+    if (e.shiftKey) {
+      if (document.activeElement === firstFocusable) {
+        e.preventDefault();
+        lastFocusable.focus();
+      }
+    } else {
+      if (document.activeElement === lastFocusable) {
+        e.preventDefault();
+        firstFocusable.focus();
+      }
     }
   });
 

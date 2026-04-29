@@ -20,12 +20,13 @@
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
+  <a href="#main-content" class="skip-link">Skip to content</a>
   <header class="header">
     <div class="container">
       <a href="index.html" class="logo">
         <img src="../images/logo_nobg.png" alt="Alex le Potier">
       </a>
-      <nav class="nav">
+      <nav class="nav" aria-label="Main navigation">
         <ul class="nav-list">
           <li><a href="index.html" class="nav-link">Home</a></li>
           <li><a href="pieces.html" class="nav-link">Pieces</a></li>
@@ -44,7 +45,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="main-content">
     <!-- Quote -->
     <section class="quote-hero">
       <div class="container">
@@ -70,7 +71,10 @@
     <!-- Portrait photo -->
     <section class="editorial-image">
       <div class="container">
-        <img src="../images/alex.jpg" alt="Alex le Potier in his workshop">
+        <picture>
+          <source srcset="../images/alex.webp" type="image/webp">
+          <img src="../images/alex.jpg" alt="Alex le Potier in his workshop">
+        </picture>
       </div>
     </section>
 

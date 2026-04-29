@@ -20,12 +20,13 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <a href="#main-content" class="skip-link">Aller au contenu</a>
   <header class="header">
     <div class="container">
       <a href="index.html" class="logo">
         <img src="images/logo_nobg.png" alt="Alex le Potier">
       </a>
-      <nav class="nav">
+      <nav class="nav" aria-label="Navigation principale">
         <ul class="nav-list">
           <li><a href="index.html" class="nav-link">Accueil</a></li>
           <li><a href="pieces.html" class="nav-link active">Pièces</a></li>
@@ -44,7 +45,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="main-content">
     <section class="pieces-header">
       <h1>Pièces en grès tournées à la main</h1>
     </section>
@@ -52,55 +53,106 @@
     <section class="gallery">
       <div class="gallery-grid">
         <a href="images/25.jpg" class="gallery-item" data-lightbox>
-          <img src="images/25.jpg" alt="Bol en grès émaillé vert olive" loading="lazy" width="1599" height="1599" sizes="(max-width: 768px) 100vw, 480px">
+          <picture>
+            <source srcset="images/25.webp" type="image/webp">
+            <img src="images/25.jpg" alt="Bol en grès émaillé vert olive" loading="lazy" width="1599" height="1599" sizes="(max-width: 768px) 100vw, 480px">
+          </picture>
         </a>
         <a href="images/26.jpg" class="gallery-item" data-lightbox>
-          <img src="images/26.jpg" alt="Planche de pièces en grès séchant à l'atelier" loading="lazy" width="1024" height="1024" sizes="(max-width: 768px) 100vw, 480px">
+          <picture>
+            <source srcset="images/26.webp" type="image/webp">
+            <img src="images/26.jpg" alt="Planche de pièces en grès séchant à l'atelier" loading="lazy" width="1024" height="1024" sizes="(max-width: 768px) 100vw, 480px">
+          </picture>
         </a>
         <a href="images/24.jpg" class="gallery-item" data-lightbox>
-          <img src="images/24.jpg" alt="Ensemble de bols en grès aux teintes naturelles" loading="lazy" width="2186" height="1230" sizes="(max-width: 768px) 100vw, 960px">
+          <picture>
+            <source srcset="images/24.webp" type="image/webp">
+            <img src="images/24.jpg" alt="Ensemble de bols en grès aux teintes naturelles" loading="lazy" width="2186" height="1230" sizes="(max-width: 768px) 100vw, 960px">
+          </picture>
         </a>
         <a href="images/23.jpg" class="gallery-item" data-lightbox>
-          <img src="images/23.jpg" alt="Tasses en grès tourné avec émail brun" loading="lazy" width="1502" height="1002" sizes="(max-width: 768px) 100vw, 480px">
+          <picture>
+            <source srcset="images/23.webp" type="image/webp">
+            <img src="images/23.jpg" alt="Tasses en grès tourné avec émail brun" loading="lazy" width="1502" height="1002" sizes="(max-width: 768px) 100vw, 480px">
+          </picture>
         </a>
         <a href="images/22.jpg" class="gallery-item" data-lightbox>
-          <img src="images/22.jpg" alt="Assiettes en grès cuites au gaz en réduction" loading="lazy" width="2130" height="1420" sizes="(max-width: 768px) 100vw, 480px">
+          <picture>
+            <source srcset="images/22.webp" type="image/webp">
+            <img src="images/22.jpg" alt="Assiettes en grès cuites au gaz en réduction" loading="lazy" width="2130" height="1420" sizes="(max-width: 768px) 100vw, 480px">
+          </picture>
         </a>
         <a href="images/21.jpg" class="gallery-item" data-lightbox>
-          <img src="images/21.jpg" alt="Vase en grès émaillé céladon" loading="lazy" width="1280" height="1280" sizes="(max-width: 768px) 100vw, 960px">
+          <picture>
+            <source srcset="images/21.webp" type="image/webp">
+            <img src="images/21.jpg" alt="Vase en grès émaillé céladon" loading="lazy" width="1280" height="1280" sizes="(max-width: 768px) 100vw, 960px">
+          </picture>
         </a>
         <a href="images/20.jpg" class="gallery-item" data-lightbox>
-          <img src="images/20.jpg" alt="Pichet en grès tourné à la main" loading="lazy" width="1582" height="1582" sizes="(max-width: 768px) 100vw, 480px">
+          <picture>
+            <source srcset="images/20.webp" type="image/webp">
+            <img src="images/20.jpg" alt="Pichet en grès tourné à la main" loading="lazy" width="1582" height="1582" sizes="(max-width: 768px) 100vw, 480px">
+          </picture>
         </a>
         <a href="images/12.jpg" class="gallery-item" data-lightbox>
-          <img src="images/12.jpg" alt="Bol à thé en grès avec glaçure mate" loading="lazy" width="640" height="428" sizes="(max-width: 768px) 100vw, 480px">
+          <picture>
+            <source srcset="images/12.webp" type="image/webp">
+            <img src="images/12.jpg" alt="Bol à thé en grès avec glaçure mate" loading="lazy" width="640" height="428" sizes="(max-width: 768px) 100vw, 480px">
+          </picture>
         </a>
         <a href="images/11.jpg" class="gallery-item" data-lightbox>
-          <img src="images/11.jpg" alt="Série de tasses en grès aux tons terreux" loading="lazy" width="640" height="428" sizes="(max-width: 768px) 100vw, 960px">
+          <picture>
+            <source srcset="images/11.webp" type="image/webp">
+            <img src="images/11.jpg" alt="Série de tasses en grès aux tons terreux" loading="lazy" width="640" height="428" sizes="(max-width: 768px) 100vw, 960px">
+          </picture>
         </a>
         <a href="images/10.jpg" class="gallery-item" data-lightbox>
-          <img src="images/10.jpg" alt="Vase haut en grès tourné émaillé" loading="lazy" width="360" height="640" sizes="(max-width: 768px) 100vw, 480px">
+          <picture>
+            <source srcset="images/10.webp" type="image/webp">
+            <img src="images/10.jpg" alt="Vase haut en grès tourné émaillé" loading="lazy" width="360" height="640" sizes="(max-width: 768px) 100vw, 480px">
+          </picture>
         </a>
         <a href="images/9.jpg" class="gallery-item" data-lightbox>
-          <img src="images/9.jpg" alt="Coupelle en grès avec émail rouille" loading="lazy" width="360" height="640" sizes="(max-width: 768px) 100vw, 480px">
+          <picture>
+            <source srcset="images/9.webp" type="image/webp">
+            <img src="images/9.jpg" alt="Coupelle en grès avec émail rouille" loading="lazy" width="360" height="640" sizes="(max-width: 768px) 100vw, 480px">
+          </picture>
         </a>
         <a href="images/4.jpg" class="gallery-item" data-lightbox>
-          <img src="images/4.jpg" alt="Collection de bols en grès cuisson réduction" loading="lazy" width="2048" height="1152" sizes="(max-width: 768px) 100vw, 960px">
+          <picture>
+            <source srcset="images/4.webp" type="image/webp">
+            <img src="images/4.jpg" alt="Collection de bols en grès cuisson réduction" loading="lazy" width="2048" height="1152" sizes="(max-width: 768px) 100vw, 960px">
+          </picture>
         </a>
         <a href="images/8.jpg" class="gallery-item" data-lightbox>
-          <img src="images/8.jpg" alt="Tasse en grès avec anse tournée" loading="lazy" width="427" height="640" sizes="(max-width: 768px) 100vw, 480px">
+          <picture>
+            <source srcset="images/8.webp" type="image/webp">
+            <img src="images/8.jpg" alt="Tasse en grès avec anse tournée" loading="lazy" width="427" height="640" sizes="(max-width: 768px) 100vw, 480px">
+          </picture>
         </a>
         <a href="images/5.jpg" class="gallery-item" data-lightbox>
-          <img src="images/5.jpg" alt="Assiette en grès avec émail blanc satiné" loading="lazy" width="480" height="640" sizes="(max-width: 768px) 100vw, 480px">
+          <picture>
+            <source srcset="images/5.webp" type="image/webp">
+            <img src="images/5.jpg" alt="Assiette en grès avec émail blanc satiné" loading="lazy" width="480" height="640" sizes="(max-width: 768px) 100vw, 480px">
+          </picture>
         </a>
         <a href="images/3.jpg" class="gallery-item" data-lightbox>
-          <img src="images/3.jpg" alt="Bol en grès tourné avec glaçure céladon" loading="lazy" width="797" height="508" sizes="(max-width: 768px) 100vw, 960px">
+          <picture>
+            <source srcset="images/3.webp" type="image/webp">
+            <img src="images/3.jpg" alt="Bol en grès tourné avec glaçure céladon" loading="lazy" width="797" height="508" sizes="(max-width: 768px) 100vw, 960px">
+          </picture>
         </a>
         <a href="images/2.jpg" class="gallery-item" data-lightbox>
-          <img src="images/2.jpg" alt="Pot en grès émaillé aux tons naturels" loading="lazy" width="1024" height="1024" sizes="(max-width: 768px) 100vw, 480px">
+          <picture>
+            <source srcset="images/2.webp" type="image/webp">
+            <img src="images/2.jpg" alt="Pot en grès émaillé aux tons naturels" loading="lazy" width="1024" height="1024" sizes="(max-width: 768px) 100vw, 480px">
+          </picture>
         </a>
         <a href="images/1.jpg" class="gallery-item" data-lightbox>
-          <img src="images/1.jpg" alt="Pièce en grès brut tournée à la main" loading="lazy" width="797" height="786" sizes="(max-width: 768px) 100vw, 480px">
+          <picture>
+            <source srcset="images/1.webp" type="image/webp">
+            <img src="images/1.jpg" alt="Pièce en grès brut tournée à la main" loading="lazy" width="797" height="786" sizes="(max-width: 768px) 100vw, 480px">
+          </picture>
         </a>
       </div>
     </section>
@@ -113,7 +165,7 @@
   </main>
 
   <!-- Lightbox -->
-  <div class="lightbox" id="lightbox">
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Visionneuse d'images">
     <button class="lightbox-close" aria-label="Fermer">&times;</button>
     <button class="lightbox-prev" aria-label="Précédent">&#10094;</button>
     <button class="lightbox-next" aria-label="Suivant">&#10095;</button>
