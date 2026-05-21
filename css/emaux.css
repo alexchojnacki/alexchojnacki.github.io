@@ -1848,3 +1848,103 @@ legend {
 .cuisson-detail-test-item:hover {
   background: var(--border);
 }
+
+/* --------------------------------------------------------------------------
+   Segments multi-paliers
+   -------------------------------------------------------------------------- */
+
+.cuisson-segments {
+  margin-bottom: 8px;
+}
+
+.segments-empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.segment-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.segment-num {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.segment-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.label-hint {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* Segments dans le détail */
+.segments-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.segment-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--bg-input);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+}
+
+.segment-detail-num {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* Courbe de cuisson */
+.cuisson-chart-container {
+  height: 200px;
+  margin: 16px 0;
+}
+
+.cuisson-chart-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Badge atmosphère */
+.cuisson-atmosphere-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: var(--radius);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--bg-input);
+  color: var(--text);
+  border: 1px solid var(--border);
+}

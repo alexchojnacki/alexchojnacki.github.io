@@ -2563,15 +2563,11 @@ function exportCuissonPDF(cuissonId) {
           </div>
           <div class="print-item">
             <div class="print-item-label">Durée</div>
-            <div class="print-item-value">${cuisson.duree ? cuisson.duree + 'h' : '-'}</div>
+            <div class="print-item-value">${cuisson.duree || '-'}</div>
           </div>
           <div class="print-item">
-            <div class="print-item-label">Vitesse montée</div>
-            <div class="print-item-value">${cuisson.vitesse ? cuisson.vitesse + '°C/h' : '-'}</div>
-          </div>
-          <div class="print-item">
-            <div class="print-item-label">Palier</div>
-            <div class="print-item-value">${cuisson.palier ? cuisson.palier + ' min' : '-'}</div>
+            <div class="print-item-label">Consommation</div>
+            <div class="print-item-value">${cuisson.conso ? cuisson.conso + ' kWh' : '-'}</div>
           </div>
         </div>
       </div>
@@ -2964,9 +2960,9 @@ function renderCuissonsList() {
         <span class="cuisson-type-badge cuisson-type-${cuisson.type}">${typeLabel}</span>
       </div>
       <div class="cuisson-card-info">
-        <span class="cuisson-card-cone">
+        ${cuisson.type !== 'degourdi' ? `<span class="cuisson-card-cone">
           Cône ${cuisson.coneVise || '-'}${cuisson.coneReel ? ` → ${cuisson.coneReel}` : ''}
-        </span>
+        </span>` : ''}
         ${cuisson.tempMax ? `<span class="cuisson-card-temp">${cuisson.tempMax}°C</span>` : ''}
       </div>
       ${testsCount > 0 ? `<div class="cuisson-card-tests">${testsCount} test${testsCount > 1 ? 's' : ''} associé${testsCount > 1 ? 's' : ''}</div>` : ''}
@@ -2989,13 +2985,30 @@ function renderCuissonDetail(cuisson) {
   const typeLabel = CUISSON_TYPE_LABELS[cuisson.type] || cuisson.type;
   const associatedTests = getTestsForCuisson(cuisson.id);
   
+  const ATMOSPHERE_LABELS = { oxydation: 'Oxydation', reduction: 'Réduction', neutre: 'Neutre' };
+  
+  const segmentsHtml = (cuisson.segments && cuisson.segments.length > 0) ? `
+    <div class="detail-section">
+      <h3>Segments</h3>
+      <div class="segments-detail-list">
+        ${cuisson.segments.map((seg, i) => `
+          <div class="segment-detail-item">
+            <span class="segment-detail-num">${i + 1}</span>
+            <span>${seg.temp ? seg.temp + '°C' : '-'}</span>
+            <span>${seg.rate ? seg.rate + '°C/h' : '-'}</span>
+            <span>${seg.hold ? seg.hold + ' min palier' : 'sans palier'}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : '';
+  
   detailContent.innerHTML = `
     <div class="detail-header">
       <div class="detail-id">Cuisson du ${formatDateFR(cuisson.date)}</div>
       <span class="cuisson-type-badge cuisson-type-${cuisson.type}">${typeLabel}</span>
+      ${cuisson.atmosphere ? `<span class="cuisson-atmosphere-badge">${ATMOSPHERE_LABELS[cuisson.atmosphere] || cuisson.atmosphere}</span>` : ''}
     </div>
-    
-
     
     <div class="detail-section">
       <h3>Paramètres</h3>
@@ -3014,18 +3027,16 @@ function renderCuissonDetail(cuisson) {
         </div>
         <div class="detail-item">
           <div class="detail-item-label">Durée</div>
-          <div class="detail-item-value">${cuisson.duree ? cuisson.duree + 'h' : '-'}</div>
+          <div class="detail-item-value">${cuisson.duree || '-'}</div>
         </div>
         <div class="detail-item">
-          <div class="detail-item-label">Vitesse montée</div>
-          <div class="detail-item-value">${cuisson.vitesse ? cuisson.vitesse + '°C/h' : '-'}</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-item-label">Palier</div>
-          <div class="detail-item-value">${cuisson.palier ? cuisson.palier + ' min' : '-'}</div>
+          <div class="detail-item-label">Consommation</div>
+          <div class="detail-item-value">${cuisson.conso ? cuisson.conso + ' kWh' : '-'}</div>
         </div>
       </div>
     </div>
+    
+    ${segmentsHtml}
     
     ${cuisson.notes ? `
     <div class="detail-section">
@@ -3048,6 +3059,9 @@ function renderCuissonDetail(cuisson) {
     </div>
     ` : ''}
   `;
+  
+  // Afficher la courbe de cuisson
+  renderCuissonChart(cuisson);
 }
 
 function openCuissonDetail(id) {
@@ -3065,11 +3079,191 @@ function openCuissonDetail(id) {
     exportCuissonPDF(id);
   };
   
+  $('btn-duplicate-cuisson').onclick = () => {
+    $('modal-cuisson-detail').classList.add('hidden');
+    duplicateCuisson(cuisson);
+  };
+  
+  $('btn-delete-cuisson-detail').onclick = async () => {
+    const associatedTests = getTestsForCuisson(id);
+    const msg = associatedTests.length > 0
+      ? `Cette cuisson a ${associatedTests.length} test(s) associé(s). Supprimer quand même ?`
+      : 'Supprimer cette cuisson ?';
+    if (!confirm(msg)) return;
+    
+    const success = await deleteCuissonFromSheets(id);
+    if (success) {
+      cuissons = cuissons.filter(c => c.id !== id);
+      closeCuissonDetail();
+      renderCuissonsList();
+      updateCuissonSelect();
+    }
+  };
+  
   $('modal-cuisson-detail').classList.remove('hidden');
+}
+
+function duplicateCuisson(source) {
+  currentEditCuissonId = null;
+  $('modal-cuisson-title').textContent = 'Dupliquer la cuisson';
+  $('btn-delete-cuisson').classList.add('hidden');
+  
+  $('cuisson-date').value = new Date().toISOString().split('T')[0];
+  $('cuisson-type').value = source.type || 'email';
+  $('cuisson-cone-vise').value = source.coneVise || '';
+  $('cuisson-cone-reel').value = '';
+  $('cuisson-temp-max').value = source.tempMax || '';
+  $('cuisson-duree').value = source.duree || '';
+  $('cuisson-notes').value = `Dupliqué depuis cuisson du ${formatDateFR(source.date)}`;
+  
+  // Dupliquer les segments si existants
+  if (source.segments && source.segments.length > 0) {
+    renderSegmentsForm(source.segments);
+  } else {
+    renderSegmentsForm([]);
+  }
+  
+  $('modal-cuisson').classList.remove('hidden');
 }
 
 function closeCuissonDetail() {
   $('modal-cuisson-detail').classList.add('hidden');
+  // Détruire le chart cuisson si existant
+  if (cuissonChartInstance) {
+    cuissonChartInstance.destroy();
+    cuissonChartInstance = null;
+  }
+}
+
+// ==========================================================================
+// SEGMENTS MULTI-PALIERS
+// ==========================================================================
+
+let cuissonChartInstance = null;
+
+function renderSegmentsForm(segments = []) {
+  const container = $('cuisson-segments');
+  if (!container) return;
+  
+  if (segments.length === 0) {
+    container.innerHTML = '<p class="segments-empty">Aucun segment. Utilisez les champs ci-dessus pour un programme simple, ou ajoutez des segments pour un programme détaillé.</p>';
+    return;
+  }
+  
+  container.innerHTML = segments.map((seg, i) => `
+    <div class="segment-row" data-index="${i}">
+      <span class="segment-num">${i + 1}</span>
+      <input type="number" class="seg-temp" placeholder="Temp °C" value="${seg.temp || ''}" min="0" max="1400">
+      <input type="number" class="seg-rate" placeholder="°C/h" value="${seg.rate || ''}" min="0" max="500">
+      <input type="number" class="seg-hold" placeholder="Palier min" value="${seg.hold || ''}" min="0" max="300">
+      <button type="button" class="btn-remove-row" onclick="removeSegment(${i})">&times;</button>
+    </div>
+  `).join('');
+}
+
+function addSegment() {
+  const container = $('cuisson-segments');
+  const rows = container.querySelectorAll('.segment-row');
+  const segments = getSegmentsFromForm();
+  segments.push({ temp: '', rate: '', hold: '' });
+  renderSegmentsForm(segments);
+}
+
+function removeSegment(index) {
+  const segments = getSegmentsFromForm();
+  segments.splice(index, 1);
+  renderSegmentsForm(segments);
+}
+
+function getSegmentsFromForm() {
+  const container = $('cuisson-segments');
+  if (!container) return [];
+  const rows = container.querySelectorAll('.segment-row');
+  return Array.from(rows).map(row => ({
+    temp: parseInt(row.querySelector('.seg-temp').value) || null,
+    rate: parseInt(row.querySelector('.seg-rate').value) || null,
+    hold: parseInt(row.querySelector('.seg-hold').value) || null,
+  })).filter(s => s.temp || s.rate || s.hold);
+}
+
+// ==========================================================================
+// COURBE DE CUISSON
+// ==========================================================================
+
+function renderCuissonChart(cuisson) {
+  const canvas = $('cuisson-chart');
+  if (!canvas) return;
+  
+  const segments = cuisson.segments || [];
+  
+  // Si pas de segments, essayer de construire une courbe simple
+  let dataPoints = [];
+  
+  if (segments.length > 0) {
+    // Construire la courbe à partir des segments
+    let currentTime = 0; // en minutes
+    let currentTemp = 20; // température ambiante
+    dataPoints.push({ time: 0, temp: 20 });
+    
+    segments.forEach(seg => {
+      if (seg.temp && seg.rate) {
+        const tempDiff = seg.temp - currentTemp;
+        const duration = Math.abs(tempDiff) / seg.rate * 60; // en minutes
+        currentTime += duration;
+        currentTemp = seg.temp;
+        dataPoints.push({ time: Math.round(currentTime), temp: currentTemp });
+      }
+      if (seg.hold) {
+        currentTime += seg.hold;
+        dataPoints.push({ time: Math.round(currentTime), temp: currentTemp });
+      }
+    });
+  }
+  
+  if (dataPoints.length < 2) {
+    canvas.style.display = 'none';
+    return;
+  }
+  
+  canvas.style.display = 'block';
+  
+  if (cuissonChartInstance) {
+    cuissonChartInstance.destroy();
+  }
+  
+  const ctx = canvas.getContext('2d');
+  cuissonChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: dataPoints.map(p => {
+        const h = Math.floor(p.time / 60);
+        const m = p.time % 60;
+        return h > 0 ? `${h}h${m > 0 ? String(m).padStart(2, '0') : ''}` : `${m}min`;
+      }),
+      datasets: [{
+        label: 'Température (°C)',
+        data: dataPoints.map(p => p.temp),
+        borderColor: '#c0392b',
+        backgroundColor: 'rgba(192, 57, 43, 0.1)',
+        fill: true,
+        tension: 0,
+        pointRadius: 4,
+        pointBackgroundColor: '#c0392b',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: 'Courbe de cuisson', font: { size: 14 } }
+      },
+      scales: {
+        y: { beginAtZero: true, title: { display: true, text: '°C' } },
+        x: { title: { display: true, text: 'Temps' } }
+      }
+    }
+  });
 }
 
 function openNewCuisson() {
@@ -3081,6 +3275,9 @@ function openNewCuisson() {
   // Date par défaut: aujourd'hui
   $('cuisson-date').value = new Date().toISOString().split('T')[0];
   
+  renderSegmentsForm([]);
+  $('cuisson-cone-vise').closest('.form-group').style.display = '';
+  $('cuisson-cone-reel').closest('.form-group').style.display = '';
   $('modal-cuisson').classList.remove('hidden');
 }
 
@@ -3097,11 +3294,18 @@ function openEditCuisson(id) {
   $('cuisson-type').value = cuisson.type || 'email';
   $('cuisson-cone-vise').value = cuisson.coneVise || '';
   $('cuisson-cone-reel').value = cuisson.coneReel || '';
+  $('cuisson-atmosphere').value = cuisson.atmosphere || '';
+  $('cuisson-conso').value = cuisson.conso || '';
   $('cuisson-temp-max').value = cuisson.tempMax || '';
   $('cuisson-duree').value = cuisson.duree || '';
-  $('cuisson-vitesse').value = cuisson.vitesse || '';
-  $('cuisson-palier').value = cuisson.palier || '';
   $('cuisson-notes').value = cuisson.notes || '';
+  
+  renderSegmentsForm(cuisson.segments || []);
+  
+  // Masquer cônes si dégourdi
+  const isDegourdi = cuisson.type === 'degourdi';
+  $('cuisson-cone-vise').closest('.form-group').style.display = isDegourdi ? 'none' : '';
+  $('cuisson-cone-reel').closest('.form-group').style.display = isDegourdi ? 'none' : '';
   
   $('modal-cuisson').classList.remove('hidden');
 }
@@ -3120,10 +3324,11 @@ async function saveCuisson(e) {
     type: $('cuisson-type').value,
     coneVise: $('cuisson-cone-vise').value,
     coneReel: $('cuisson-cone-reel').value,
+    atmosphere: $('cuisson-atmosphere').value || null,
+    conso: $('cuisson-conso').value ? parseFloat($('cuisson-conso').value) : null,
     tempMax: $('cuisson-temp-max').value ? parseInt($('cuisson-temp-max').value) : null,
-    duree: $('cuisson-duree').value ? parseFloat($('cuisson-duree').value) : null,
-    vitesse: $('cuisson-vitesse').value ? parseInt($('cuisson-vitesse').value) : null,
-    palier: $('cuisson-palier').value ? parseInt($('cuisson-palier').value) : null,
+    duree: $('cuisson-duree').value.trim() || null,
+    segments: getSegmentsFromForm(),
     notes: $('cuisson-notes').value,
     updatedAt: new Date().toISOString()
   };
@@ -3294,8 +3499,23 @@ async function init() {
   $('btn-new-cuisson').addEventListener('click', openNewCuisson);
   $('btn-close-modal-cuisson').addEventListener('click', closeModalCuisson);
   $('btn-delete-cuisson').addEventListener('click', deleteCuisson);
+  $('btn-add-segment').addEventListener('click', addSegment);
   $('cuisson-form').addEventListener('submit', saveCuisson);
   $('btn-close-cuisson-detail').addEventListener('click', closeCuissonDetail);
+  
+  // Auto-remplir pour dégourdi
+  $('cuisson-type').addEventListener('change', () => {
+    if ($('cuisson-type').value === 'degourdi') {
+      $('cuisson-cone-vise').value = '';
+      $('cuisson-cone-reel').value = '';
+      $('cuisson-temp-max').value = 980;
+      $('cuisson-cone-vise').closest('.form-group').style.display = 'none';
+      $('cuisson-cone-reel').closest('.form-group').style.display = 'none';
+    } else {
+      $('cuisson-cone-vise').closest('.form-group').style.display = '';
+      $('cuisson-cone-reel').closest('.form-group').style.display = '';
+    }
+  });
   
   // Filtres cuissons
   $('filter-cuisson-type').addEventListener('change', renderCuissonsList);
