@@ -568,6 +568,29 @@ legend {
 }
 
 /* Generated ID */
+.generated-id-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.generated-id-input {
+  flex: 1;
+  padding: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.generated-id-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
 .generated-id {
   padding: 12px;
   background: var(--bg);

@@ -424,8 +424,11 @@
           </div>
           
           <div class="form-group">
-            <label>ID généré</label>
-            <div id="generated-id" class="generated-id">-</div>
+            <label for="generated-id">ID du test</label>
+            <div class="generated-id-wrapper">
+              <input type="text" id="generated-id" class="generated-id-input" placeholder="ID auto-généré">
+              <button type="button" id="btn-regenerate-id" class="btn btn-secondary btn-small" title="Régénérer l'ID automatiquement">↻</button>
+            </div>
           </div>
         </fieldset>
 

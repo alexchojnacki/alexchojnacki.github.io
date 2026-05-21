@@ -1780,11 +1780,12 @@ function openNewTest() {
   elements.modalTitle.textContent = 'Nouveau test';
   elements.testForm.reset();
   elements.btnDelete.classList.add('hidden');
+  elements.generatedId.dataset.manual = '';
   
   // Date par défaut: aujourd'hui
   $('date').value = new Date().toISOString().split('T')[0];
   
-  updateGeneratedId();
+  updateGeneratedId(true);
   elements.modal.classList.remove('hidden');
 }
 
@@ -1875,6 +1876,7 @@ function openEdit(id) {
   });
   
   updateGeneratedId();
+  elements.generatedId.dataset.manual = 'true'; // En édition, considérer l'ID comme manuel
   elements.modal.classList.remove('hidden');
 }
 
@@ -1917,22 +1919,25 @@ function closeCompare() {
   elements.testsList.classList.remove('hidden');
 }
 
-function updateGeneratedId() {
+function updateGeneratedId(force = false) {
   const base = $('base').value;
   const cone = $('target-cone').value;
   const additives = getAdditivesFromForm();
   
-  // Pour l'édition, ne pas recalculer le numéro
-  if (currentEditId) {
+  // Pour l'édition, ne pas écraser un ID personnalisé
+  if (currentEditId && !force) {
     const test = tests.find(t => t.id === currentEditId);
     if (test) {
-      elements.generatedId.textContent = test.generatedId;
+      elements.generatedId.value = test.generatedId;
       return;
     }
   }
   
+  // Ne pas écraser si l'utilisateur a manuellement modifié l'ID (sauf si force)
+  if (!force && elements.generatedId.dataset.manual === 'true') return;
+  
   const id = generateTestId(base, additives, cone, tests);
-  elements.generatedId.textContent = id;
+  elements.generatedId.value = id;
 }
 
 async function saveTest(e) {
@@ -1949,9 +1954,7 @@ async function saveTest(e) {
   
   const testData = {
     id: currentEditId || crypto.randomUUID(),
-    generatedId: currentEditId 
-      ? tests.find(t => t.id === currentEditId)?.generatedId 
-      : generateTestId(base, additives, cone, tests),
+    generatedId: elements.generatedId.value.trim() || generateTestId(base, additives, cone, tests),
     base,
     terre: $('terre').value,
     additives,
@@ -3259,6 +3262,16 @@ async function init() {
   $('btn-close-recipes').addEventListener('click', closeRecipes);
   $('btn-close-recipes-footer').addEventListener('click', closeRecipes);
   $('btn-print-recipes').addEventListener('click', printRecipes);
+  
+  // ID éditable : marquer comme modifié manuellement
+  elements.generatedId.addEventListener('input', () => {
+    elements.generatedId.dataset.manual = 'true';
+  });
+  // Bouton régénérer l'ID
+  $('btn-regenerate-id').addEventListener('click', () => {
+    elements.generatedId.dataset.manual = '';
+    updateGeneratedId(true);
+  });
   
   // Recalculer les recettes quand la quantité change
   $('recipe-quantity').addEventListener('input', debounce(updateRecipesDisplay, 300));
