@@ -584,6 +584,7 @@ section {
 
 .gallery-item {
   display: block;
+  margin: 0;
   overflow: hidden;
 }
 
@@ -591,6 +592,11 @@ section {
   grid-column: span 2;
   margin-top: 20px;
   margin-bottom: 40px;
+}
+
+/* Sous une vignette pleine largeur, la légende garde une longueur de ligne lisible */
+.gallery-item:nth-child(3n) .gallery-caption {
+  max-width: 62ch;
 }
 
 .gallery-item img {
@@ -603,6 +609,13 @@ section {
 .gallery-item:hover img {
   opacity: 0.9;
   transform: scale(1.02);
+}
+
+.gallery-caption {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-light);
 }
 
 /* --------------------------------------------------------------------------
