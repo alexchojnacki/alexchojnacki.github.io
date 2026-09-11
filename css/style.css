@@ -838,6 +838,17 @@ section {
   margin-bottom: 0.5rem;
 }
 
+/* Texte justifié sur la page contact, avec césure pour éviter les lézardes */
+.contact-process p,
+.contact-info p,
+.contact-reasons p,
+.contact-reasons li {
+  text-align: justify;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  hyphenate-limit-chars: 6 3 3;
+}
+
 .contact-grid {
   display: grid;
   grid-template-columns: 1fr 1.5fr;
