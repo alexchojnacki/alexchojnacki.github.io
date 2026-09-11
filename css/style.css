@@ -789,6 +789,55 @@ section {
   padding: 120px 20px;
 }
 
+/* Déroulé d'une commande, au-dessus du formulaire */
+.contact-process {
+  padding: 100px 20px 0;
+}
+
+.contact-process .container {
+  max-width: var(--max-width);
+}
+
+.contact-process h2 {
+  font-size: 28px;
+  margin-bottom: 1.5rem;
+}
+
+.contact-process p {
+  max-width: 62ch;
+  color: var(--color-text-light);
+  margin-bottom: 1.5rem;
+}
+
+.contact-process + .contact {
+  padding-top: 60px;
+}
+
+/* Motifs de contact, en tête de la colonne du formulaire */
+.contact-reasons {
+  margin-bottom: 2.5rem;
+}
+
+.contact-reasons h2 {
+  font-size: 28px;
+  margin-bottom: 1rem;
+}
+
+.contact-reasons p {
+  color: var(--color-text-light);
+  margin-bottom: 0.75rem;
+}
+
+.contact-reasons ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--color-text-light);
+}
+
+.contact-reasons li {
+  margin-bottom: 0.5rem;
+}
+
 .contact-grid {
   display: grid;
   grid-template-columns: 1fr 1.5fr;
@@ -1259,6 +1308,14 @@ section {
 
   .editorial-section {
     padding: 60px 20px;
+  }
+
+  .contact-process {
+    padding: 60px 20px 0;
+  }
+
+  .contact-process + .contact {
+    padding-top: 40px;
   }
 
   .contact-grid {
