@@ -24,6 +24,10 @@ Guidelines for agentic coding agents working in this repository.
 ├── 404.html            # Custom 404 page
 ├── css/
 │   └── style.css       # All styles (single file, ~880 lines)
+├── fonts/
+│   ├── newsreader-roman.woff2   # Newsreader variable 200-800, opsz pinned (OFL)
+│   ├── newsreader-italic.woff2  # Newsreader italic variable 200-800 (OFL)
+│   └── OFL.txt         # SIL Open Font License 1.1 (required with the font files)
 ├── js/
 │   └── main.js         # Mobile menu + lightbox + swipe support
 ├── images/
@@ -125,16 +129,21 @@ This project has no automated tests. Verify changes manually in browser.
 --color-bg-alt: #f5f3f0;
 --color-text: #2c2c2c;
 --color-text-light: #666;
---color-accent: #8b7355;
+--color-accent: #7a6548;
 --color-border: #e5e2dd;
---font-primary: 'Georgia', 'Times New Roman', serif;
+--font-primary: 'Newsreader', Georgia, 'Times New Roman', serif;
 --font-secondary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 --max-width: 1000px;
+--max-width-wide: 1320px;  /* galerie uniquement */
 --transition: 0.3s ease;
 ```
 
 ### Typography
-- Body: font-weight 300
+- Serif: Newsreader, auto-hébergée (`fonts/`, woff2 variable), déclarée en `@font-face`
+  en tête de `style.css`. Ne pas passer par Google Fonts : le site n'a aucune
+  dépendance externe. Chaque page précharge le roman via `<link rel="preload">`.
+- Graisses disponibles : 200 à 800, romain et italique (vraies italiques dessinées)
+- Body: font-weight 350
 - H1: 76px on desktop, letter-spacing -1.5px, line-height 1.02
 - H1 mobile (768px): 42px
 - H1 small mobile (480px): 28px

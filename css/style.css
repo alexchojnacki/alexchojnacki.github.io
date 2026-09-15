@@ -4,6 +4,25 @@
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
+   Typographie — Newsreader (OFL), auto-hébergée, variable 200-800
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Newsreader';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('../fonts/newsreader-roman.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Newsreader';
+  font-style: italic;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('../fonts/newsreader-italic.woff2') format('woff2');
+}
+
+/* --------------------------------------------------------------------------
    Variables & Reset
    -------------------------------------------------------------------------- */
 :root {
@@ -13,9 +32,10 @@
   --color-text-light: #666;
   --color-accent: #7a6548;
   --color-border: #e5e2dd;
-  --font-primary: 'Georgia', 'Times New Roman', serif;
+  --font-primary: 'Newsreader', Georgia, 'Times New Roman', serif;
   --font-secondary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --max-width: 1000px;
+  --max-width-wide: 1320px;
   --transition: 0.3s ease;
 }
 
@@ -34,7 +54,7 @@ html {
 body {
   font-family: var(--font-primary);
   font-size: 18px;
-  font-weight: 300;
+  font-weight: 350;
   line-height: 1.7;
   color: var(--color-text);
   background-color: var(--color-bg);
@@ -109,7 +129,7 @@ ul {
    -------------------------------------------------------------------------- */
 h1 {
   font-size: 64px;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: -1px;
   line-height: 1.2;
 }
@@ -311,6 +331,7 @@ section {
 .hero h1 {
   color: white;
   font-size: 76px;
+  font-weight: 400;
   letter-spacing: -1.5px;
   line-height: 1.02;
   margin-bottom: 1.5rem;
@@ -578,7 +599,7 @@ section {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 32px;
-  max-width: var(--max-width);
+  max-width: var(--max-width-wide);
   margin: 0 auto;
 }
 
