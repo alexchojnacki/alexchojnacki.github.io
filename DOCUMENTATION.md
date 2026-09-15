@@ -198,12 +198,12 @@ La page est structurée en sections éditoriales :
 
 | Section | Contenu |
 |---------|---------|
-| Citation hero | "Ce qui est fait lentement reste." + explication |
-| L'origine | Parcours ingénieur → poterie, découverte du grès |
+| Citation hero | "Ce qui est fait lentement reste." + mise en tension |
+| Deux ateliers | Tech et céramique menées de front, au présent |
 | Photo portrait | `images/alex.jpg` / `images/alex.webp` |
-| Le geste | Tournage, apprentissage avec Didier Descamps |
-| La matière | Grès de Saint-Amand-en-Puisaye, processus |
-| Les objets | Types de pièces, philosophie |
+| Le geste | Tempo du tour, limite du contrôle |
+| La matière et le feu | Grès de Saint-Amand-en-Puisaye, cuissons, part du four |
+| Nagori | Ce qui subsiste de ce qui s'en va ; variation entre fournées |
 | CTA final | Lien vers la galerie |
 
 Pour modifier : éditer directement les paragraphes et titres dans le HTML. Pour changer la photo portrait, remplacer `images/alex.jpg` et `images/alex.webp`.
