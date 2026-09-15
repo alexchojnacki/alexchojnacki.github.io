@@ -203,7 +203,7 @@ La page est structurée en sections éditoriales :
 | Photo portrait | `images/alex.jpg` / `images/alex.webp` |
 | Le geste | Tempo du tour, limite du contrôle |
 | La matière et le feu | Grès de Saint-Amand-en-Puisaye, cuissons, part du four |
-| Nagori | Ce qui subsiste de ce qui s'en va ; variation entre fournées |
+| Ce qui reste | L'objet après le four : usage, marques, trace définitive |
 | CTA final | Lien vers la galerie |
 
 Pour modifier : éditer directement les paragraphes et titres dans le HTML. Pour changer la photo portrait, remplacer `images/alex.jpg` et `images/alex.webp`.
