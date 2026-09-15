@@ -46,13 +46,17 @@ Guidelines for agentic coding agents working in this repository.
 ## Current Design (V2)
 
 ### Homepage Structure
-1. **Hero** (100vh) - Full-screen with background image (25.jpg), centered content
-   - Title "Alex le Potier"
-   - Tagline "Ce qui est fait lentement reste."
-   - Hero tag "Grès tourné à la main"
-   - CTA button "Voir les pièces"
-2. **Signature section** - "Grès tourné à la main — pièces uniques" + "En savoir plus" button
-3. **Footer** - Logo, name, tagline, contact link, legal links, Instagram
+1. **Ouverture** - Une photo (4.jpg, l'étagère) en `<img>` plein écran sous
+   l'en-tête, `calc(100vh - 70px)`, **aucun texte par-dessus**. C'est un vrai
+   `<img>` et non un background : alt lisible et meilleur LCP (`fetchpriority`).
+2. **Bande éditoriale** - h1 = la signature « Ce qui est fait lentement reste. »
+   (le nom vit dans l'en-tête, le `<title>` et le JSON-LD), + sur-titre en
+   capitales. Aligné à gauche sur `.container-wide`.
+3. **Triptyque** - Trois pièces au format carré (27, 20, 26) liées vers la
+   galerie, puis « Voir toutes les pièces → ». Grille `.opening-grid`, une
+   colonne sous 768px.
+4. **Section démarche** - texte, arguments, photo d'étagère, commandes
+5. **Footer** - Logo, name, tagline, contact link, legal links, Instagram
 
 ### Gallery (pieces.html)
 - Asymmetric grid: 2 columns, every 3rd image spans full width
@@ -189,14 +193,21 @@ This project has no automated tests. Verify changes manually in browser.
 
 ### Adding New Gallery Images
 1. Add image file to `images/` folder
-2. Optimize: `convert source.jpg -quality 85 images/N.jpg`
-3. Add gallery item in `pieces.html`:
-   ```html
-   <a href="images/N.jpg" class="gallery-item" data-lightbox>
-     <img src="images/N.jpg" alt="Description en français" loading="lazy">
-   </a>
+2. Optimize, and generate the WebP sibling (cible < 500 Ko) :
+   ```bash
+   convert source.JPEG -resize '1200x1200>' -quality 86 -strip images/N.jpg
+   convert source.JPEG -resize '1200x1200>' -quality 82 -define webp:method=6 images/N.webp
    ```
-4. Note: Every 3rd image (nth-child(3n)) spans 2 columns
+3. Add a `<figure class="gallery-item">` in `pieces.html` **and** `en/pieces.html`,
+   with `<picture>`, `width`/`height`, `loading="lazy"`, un `alt` et une
+   `<figcaption>` rédigée.
+4. **Mise en page** : la pleine largeur vient de la classe explicite
+   `gallery-item--wide`, plus de `nth-child(3n)`. Convention : blocs de trois,
+   les deux vignettes d'une paire partagent le même format, et la pleine largeur
+   est réservée aux photos en paysage. La classe explicite permet d'ajouter des
+   carrés sans casser le rythme — l'arithmétique ne contraint plus l'ordre.
+5. `sizes` : `640px` pour une demi-largeur, `1280px` pour une pleine largeur
+   (la grille est plafonnée à `--max-width-wide`).
 
 ### Adding New Pages
 1. Copy structure from existing page (header/footer with logo)

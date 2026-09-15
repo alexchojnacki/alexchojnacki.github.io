@@ -286,81 +286,68 @@ section {
 }
 
 /* --------------------------------------------------------------------------
-   Hero
+   Ouverture (accueil) — la photo porte la page, aucun texte par-dessus
    -------------------------------------------------------------------------- */
-.hero {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  background-image: url('../images/25.jpg');
-  background-image: image-set(
-    url('../images/25.webp') type('image/webp'),
-    url('../images/25.jpg') type('image/jpeg')
-  );
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  position: relative;
+.container-wide {
+  width: 100%;
+  max-width: var(--max-width-wide);
+  margin: 0 auto;
   padding: 0 20px;
 }
 
-.hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.45);
+.opening {
+  padding: 70px 0 0;
 }
 
-.hero-content {
-  position: relative;
-  z-index: 1;
-  max-width: 480px;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
+.opening img {
+  width: 100%;
+  height: auto;
+  margin-bottom: 0;
 }
 
-.hero h1 {
-  color: white;
-  font-size: 76px;
+.opening-text {
+  padding: 56px 0 0;
+}
+
+.opening-text h1 {
+  font-size: 42px;
   font-weight: 400;
-  letter-spacing: -1.5px;
-  line-height: 1.02;
-  margin-bottom: 1.5rem;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+  max-width: 18ch;
+  margin-bottom: 0.9rem;
 }
 
-.hero p {
-  color: rgba(255, 255, 255, 0.9);
-  max-width: 480px;
-  margin: 20px 0 2rem;
-  font-size: 20px;
-  line-height: 1.8;
-}
-
-.hero .signature-word {
-  font-family: var(--font-secondary);
-  font-size: 12px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  margin-top: 40px;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.hero-tag {
-  margin-top: 20px;
+.opening-sub {
   font-family: var(--font-secondary);
   font-size: 13px;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--color-text-light);
+  max-width: none;
+}
+
+.opening-pieces {
+  padding: 36px 0 0;
+}
+
+.opening-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.opening-piece img {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  margin-bottom: 0;
+}
+
+.opening-more {
+  margin-top: 20px;
+  font-family: var(--font-secondary);
+  font-size: 14px;
+  letter-spacing: 1px;
 }
 
 /* --------------------------------------------------------------------------
@@ -396,95 +383,85 @@ section {
 }
 
 /* --------------------------------------------------------------------------
-   Démarche Section
+   Manifeste (accueil) — la phrase qui tient tout le site
    -------------------------------------------------------------------------- */
-.demarche {
-  margin-top: 40px;
-  margin-bottom: 30px;
-  background-color: var(--color-bg);
-  padding: 60px 20px;
+.manifesto {
+  background-color: var(--color-bg-alt);
+  padding: clamp(48px, 6vw, 72px) 0 clamp(36px, 4.5vw, 52px);
+  margin-top: clamp(46px, 6vw, 78px);
 }
 
-.demarche .container {
-  max-width: 700px;
-  margin: 0 auto;
-  text-align: center;
-  line-height: 1.6;
-}
-
-.demarche h2 {
-  margin-bottom: 16px;
-  font-weight: 600;
-  font-size: 24px;
-}
-
-.demarche p {
-  font-family: var(--font-primary);
-  font-size: 18px;
-  line-height: 1.8;
+.manifesto-line {
+  font-size: clamp(22px, 2.7vw, 34px);
+  font-weight: 300;
+  line-height: 1.18;
+  letter-spacing: -0.8px;
+  max-width: 24ch;
   color: var(--color-text);
-  text-align: justify;
-  margin-bottom: 30px;
 }
 
-.arguments {
-  margin-top: 35px;
-  margin-bottom: 40px;
+/* Le retournement : poussé à droite, dans la couleur d'accent */
+.manifesto-line--turn {
+  margin-left: auto;
+  margin-top: 0.3em;
+  text-align: right;
+  color: var(--color-accent);
 }
 
-.arguments-container {
-  max-width: 900px;
-  margin: 0 auto;
+/* --------------------------------------------------------------------------
+   Portes (accueil) — trois entrées vers le reste du site
+   -------------------------------------------------------------------------- */
+.doors {
+  padding: clamp(28px, 3.5vw, 40px) 0 clamp(52px, 6.5vw, 76px);
+}
+
+.doors-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  text-align: center;
+  gap: 1px;
+  background-color: var(--color-border);
+  border: 1px solid var(--color-border);
 }
 
-.argument {
-  font-size: 0.85rem;
-  font-weight: 500;
-  letter-spacing: 0.05em;
+.door {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 24px 24px 26px;
+  background-color: var(--color-bg);
+  transition: background-color var(--transition);
+}
+
+.door:hover {
+  background-color: var(--color-bg-alt);
+  color: inherit;
+}
+
+.door-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-secondary);
+  font-size: 12px;
+  letter-spacing: 3px;
   text-transform: uppercase;
   color: var(--color-text-light);
 }
 
-.photo-piece {
-  margin: 40px 0 30px 0;
+.door-label .door-go {
+  letter-spacing: 1px;
+  color: var(--color-accent);
+  white-space: nowrap;
 }
 
-.photo-piece img {
-  width: 100%;
-  height: auto;
-  max-height: 520px;
-  object-fit: cover;
-  display: block;
+.door-teaser {
+  font-size: 19px;
+  line-height: 1.4;
 }
 
-/* --------------------------------------------------------------------------
-   Commandes Section
-   -------------------------------------------------------------------------- */
-.commandes {
-  margin: 60px 0 50px 0;
-  max-width: 650px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-  line-height: 1.6;
-}
-
-.commandes h2 {
-  margin-bottom: 16px;
-  font-weight: 600;
-}
-
-.commandes p {
-  margin-bottom: 16px;
-  color: var(--color-text);
-}
-
-.commandes p + p {
-  margin-top: 14px;
+.door-go {
+  font-size: 13px;
 }
 
 /* --------------------------------------------------------------------------
@@ -609,14 +586,14 @@ section {
   overflow: hidden;
 }
 
-.gallery-item:nth-child(3n) {
+.gallery-item--wide {
   grid-column: span 2;
   margin-top: 20px;
   margin-bottom: 40px;
 }
 
 /* Sous une vignette pleine largeur, la légende garde une longueur de ligne lisible */
-.gallery-item:nth-child(3n) .gallery-caption {
+.gallery-item--wide .gallery-caption {
   max-width: 62ch;
 }
 
@@ -1305,23 +1282,17 @@ section {
     transform: rotate(-45deg) translate(5px, -5px);
   }
 
-  .hero {
-    min-height: 100vh;
-    justify-content: center;
+  .opening-text {
+    padding-top: 60px;
   }
 
-  .hero-content {
-    margin-left: 0;
-    align-items: center;
-    text-align: center;
+  .opening-text h1 {
+    font-size: 30px;
   }
 
-  .hero h1 {
-    font-size: 42px;
-  }
-
-  .hero p {
-    font-size: 18px;
+  .opening-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
 
   .gallery-grid {
@@ -1329,7 +1300,15 @@ section {
     gap: 24px;
   }
 
-  .gallery-item:nth-child(3n) {
+  .doors-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .manifesto-line {
+    max-width: none;
+  }
+
+  .gallery-item--wide {
     grid-column: span 1;
   }
 
@@ -1401,10 +1380,6 @@ section {
   }
 
   p {
-    font-size: 16px;
-  }
-
-  .hero p {
     font-size: 16px;
   }
 
