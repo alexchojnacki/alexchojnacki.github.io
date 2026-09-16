@@ -378,7 +378,7 @@ Le sitemap inclut les URLs anglaises avec des priorités légèrement inférieur
 2. **Pages légales** : `mentions-legales.html` et `cgv.html` n'ont pas le sélecteur de langue FR/EN.
 3. **`letter_A.*`** : trois fichiers (SVG, PNG, PNG fiche) dans `images/` mais non référencés dans le HTML. Conservés volontairement : visuels de marque.
 4. **`logo_nobg_backup.png`** : sauvegarde du logo, non référencée. Conservée volontairement.
-5. **Fichiers sources** : `32.JPEG`, `32_HD.png`, `33.JPEG`, `34.JPEG`, `35.png`, `Banniere.png` sont les originaux fournis par Alex. Non référencés par le site, conservés comme sources. Quatre d'entre eux sont dans l'historique git (`1c7440e`), les deux plus récents ne le sont pas.
+5. **Fichiers sources** : `32.JPEG`, `32_HD.png`, `33.JPEG`, `34.JPEG`, `35.png`, `Banniere.png` sont les originaux fournis par Alex. Non référencés par le site, conservés comme sources. Tous les six sont dans l'historique git (`1c7440e` pour les quatre premiers, `7d2f19f` pour `32_HD.png` et `Banniere.png`).
 
 Résolu le 16/09/2026 : la valeur de `--color-accent` documentée dans `AGENTS.md`, et les images orphelines `hero.*`, `shelf.*` et `31.*`, supprimées.
 
