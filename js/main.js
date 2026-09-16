@@ -197,13 +197,10 @@ function initScrollAnimations() {
 
   // Sélecteurs des éléments à animer
   const selectors = [
-    '.hero-content',
-    '.demarche h2',
-    '.demarche > .container > p',
-    '.arguments',
-    '.photo-piece',
-    '.commandes',
-    '.cta-final-minimal',
+    '.opening-text',
+    '.opening-piece',
+    '.manifesto-line',
+    '.door',
     '.pieces-header',
     '.gallery-item',
     '.pieces-note',
