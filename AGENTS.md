@@ -23,7 +23,8 @@ Guidelines for agentic coding agents working in this repository.
 ├── cgv.html            # Terms and conditions
 ├── 404.html            # Custom 404 page
 ├── css/
-│   └── style.css       # All styles (single file, ~880 lines)
+│   └── style.css       # Styles du site public (~1440 lignes)
+│   └── emaux.css       # Styles de l'outil privé emaux.html, séparés à dessein
 ├── fonts/
 │   ├── newsreader-roman.woff2   # Newsreader variable 200-800, opsz pinned (OFL)
 │   ├── newsreader-italic.woff2  # Newsreader italic variable 200-800 (OFL)
@@ -114,7 +115,7 @@ This project has no automated tests. Verify changes manually in browser.
 - External links: use `target="_blank" rel="noopener"`
 
 ### CSS
-- Single file: `css/style.css`
+- Un seul fichier pour le site public : `css/style.css` (`emaux.css` ne sert qu'à l'outil privé)
 - Use CSS custom properties (variables) defined in `:root`
 - Section comments with dashed separators:
   ```css
@@ -124,8 +125,16 @@ This project has no automated tests. Verify changes manually in browser.
   ```
 - Follow existing variable naming: `--color-*`, `--font-*`, `--max-width`
 - Breakpoints: 768px (tablet), 480px (mobile)
+- `@media (prefers-reduced-motion: reduce)` neutralise l'animation `.fade-in`
+  pour les utilisateurs qui demandent moins de mouvement — à préserver.
 - Use `var(--transition)` for consistent animations
-- Global transition: `* { transition: all 0.25s ease; }`
+- **Pas de transition globale.** Il n'existe aucune règle `* { transition: ... }` :
+  ce serait une charge inutile pour le navigateur à chaque survol et chaque
+  scroll. Seuls quatre sélecteurs précis portent `transition: all
+  var(--transition)` — le bouton CTA, la lightbox, les liens de fiches
+  techniques et le menu mobile déplié — parce qu'ils animent plusieurs
+  propriétés à la fois (opacity + visibility, ou transform + opacity).
+  Partout ailleurs, nommer la propriété animée.
 
 ### CSS Variables (reference)
 ```css
@@ -182,7 +191,7 @@ This project has no automated tests. Verify changes manually in browser.
 - Fixed position with logo, nav, mobile toggle
 - Logo: 45px height, margin-bottom -8px to compensate for logo spacing
 - Update `active` class on `.nav-link` for current page
-- Navigation: Accueil, Pièces, À propos, FAQ, Contact, Instagram icon
+- Navigation: Accueil, Pièces, À propos, Contact, FAQ, icône Instagram, sélecteur FR/EN
 
 ### Footer (repeated on all pages)
 - Logo (40px height), name, tagline
@@ -201,13 +210,17 @@ This project has no automated tests. Verify changes manually in browser.
 3. Add a `<figure class="gallery-item">` in `pieces.html` **and** `en/pieces.html`,
    with `<picture>`, `width`/`height`, `loading="lazy"`, un `alt` et une
    `<figcaption>` rédigée.
-4. **Mise en page** : la pleine largeur vient de la classe explicite
-   `gallery-item--wide`, plus de `nth-child(3n)`. Convention : blocs de trois,
-   les deux vignettes d'une paire partagent le même format, et la pleine largeur
-   est réservée aux photos en paysage. La classe explicite permet d'ajouter des
-   carrés sans casser le rythme — l'arithmétique ne contraint plus l'ordre.
-5. `sizes` : `640px` pour une demi-largeur, `1280px` pour une pleine largeur
-   (la grille est plafonnée à `--max-width-wide`).
+4. **Mise en page** : grille régulière de trois colonnes, toutes les vignettes
+   au même gabarit carré (`aspect-ratio: 1/1`, `object-fit: cover`). Plus de
+   pleine largeur, plus d'appariement par format, plus de `nth-child(3n)` :
+   l'ordre des pièces est libre, seul compte le contenu. Le cadrage d'origine
+   reste intact dans la lightbox. Deux colonnes sous 768 px, une sous 480 px.
+5. `sizes` : `420px` pour toutes les vignettes.
+6. **Légende** : une `<span class="caption-spec">` (l'étiquette, en capitales :
+   objet · terre · émail, séparés par des points médians) suivie d'une
+   `<span class="caption-note">` (une seule phrase, propre à cette pièce).
+   Ne pas nommer les références fournisseur des terres : « grès blanc pyrité »,
+   « grès de Saint-Amand », pas les codes.
 
 ### Adding New Pages
 1. Copy structure from existing page (header/footer with logo)
