@@ -62,7 +62,7 @@ sitemap.xml           → Plan du site pour le SEO
 | Signature | `.opening-text` > `<h1>` | "Ce qui est fait lentement reste." |
 | Sur-titre | `.opening-sub` | "Grès tourné à la main, petites séries" |
 | Triptyque | `.opening-grid` > 3 × `.opening-piece` | Les trois pièces mises en avant, liées vers la galerie |
-| Manifeste | `.manifesto-line` (x2) | Les deux lignes ; la seconde, `--turn`, est poussée à droite |
+| Manifeste | `.manifesto-line` (x2) | Le retournement de « Ce qui reste » ; la seconde ligne, `--turn`, est poussée à droite |
 | Les 3 portes | `.door` (x3) | Libellé, accroche et destination de chaque carte |
 
 ### Modifier un texte
@@ -201,8 +201,8 @@ La page est structurée en sections éditoriales :
 | Photo portrait | `images/alex.jpg` / `images/alex.webp` |
 | Le geste | Tempo du tour, limite du contrôle |
 | La matière et le feu | Grès de Saint-Amand-en-Puisaye, cuissons, part du four |
-| Ce qui reste | L'objet après le four : usage, marques, trace définitive |
-| CTA final | Lien vers la galerie |
+| Ce qui reste | L'objet après le four : usage, marques, trace définitive. Ancre `#ce-qui-reste` (`#what-remains` en anglais), pour pouvoir y renvoyer directement. La dernière phrase porte `.highlight` |
+| Sortie | `.editorial-outro` : du vide, puis un lien discret vers la galerie. Pas de bouton — il écraserait la dernière phrase |
 
 Pour modifier : éditer directement les paragraphes et titres dans le HTML. Pour changer la photo portrait, remplacer `images/alex.jpg` et `images/alex.webp`.
 

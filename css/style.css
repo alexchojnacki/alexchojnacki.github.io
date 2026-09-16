@@ -1220,9 +1220,16 @@ section {
   color: var(--color-text-light);
 }
 
-.editorial-cta {
-  text-align: center;
+/* La fin d'« À propos » doit pouvoir respirer. Même fond que le bloc qui
+   précède : ce n'est pas une nouvelle section, c'est le silence qui continue
+   après la dernière phrase, puis une sortie discrète. */
+.editorial-outro {
   background-color: var(--color-bg-alt);
+  padding: clamp(56px, 8vw, 104px) 20px clamp(44px, 5vw, 68px);
+  text-align: center;
+  font-family: var(--font-secondary);
+  font-size: 14px;
+  letter-spacing: 1px;
 }
 
 /* --------------------------------------------------------------------------
