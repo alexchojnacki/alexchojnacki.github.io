@@ -188,14 +188,46 @@ section {
 .logo {
   display: flex;
   align-items: center;
+  gap: 12px;
+  min-width: 0;
 }
 
 .logo img {
-  height: 45px;
+  height: 36px;
   width: auto;
+  flex-shrink: 0;
   object-fit: contain;
   object-position: center;
-  margin-bottom: -8px;
+  margin-bottom: 0;
+}
+
+/* Le logotype, repris de la bannière : « Alex » posé sur « le potier ».
+   Le bloc fait exactement la hauteur du monogramme. */
+.logo-name {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.logo-first {
+  font-family: var(--font-primary);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.3px;
+  color: var(--color-text);
+}
+
+.logo-last {
+  font-family: var(--font-secondary);
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
 }
 
 .nav-list {
@@ -1213,6 +1245,28 @@ section {
     height: 60px;
   }
 
+  .logo {
+    gap: 10px;
+  }
+
+  .logo img {
+    height: 30px;
+  }
+
+  .logo-first {
+    font-size: 18px;
+  }
+
+  .logo-last {
+    font-size: 8px;
+    letter-spacing: 0.2em;
+  }
+
+  /* L'en-tête mesure 60 px sur mobile, pas 70 */
+  .opening {
+    padding-top: 60px;
+  }
+
   .nav {
     position: fixed;
     top: 60px;
@@ -1271,13 +1325,16 @@ section {
   }
 
   .opening-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 10px;
+  }
+
+  .opening-more {
+    margin-top: 16px;
   }
 
   .gallery-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px 16px;
   }
 
   .doors-grid {
@@ -1330,6 +1387,23 @@ section {
    Responsive - Mobile
    -------------------------------------------------------------------------- */
 @media (max-width: 480px) {
+  .logo img {
+    height: 26px;
+  }
+
+  .opening-grid {
+    gap: 7px;
+  }
+
+  .logo-first {
+    font-size: 16px;
+  }
+
+  .logo-last {
+    font-size: 7.5px;
+    letter-spacing: 0.18em;
+  }
+
   h1 {
     font-size: 28px;
   }
@@ -1339,8 +1413,7 @@ section {
   }
 
   .gallery-grid {
-    grid-template-columns: 1fr;
-    gap: 28px;
+    gap: 22px 10px;
   }
 
   .cta {
