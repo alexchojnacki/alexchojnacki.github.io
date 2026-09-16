@@ -57,9 +57,8 @@ alexchojnacki.github.io/
 ├── images/              ← Toutes les images du site
 │   ├── logo_nobg.png    ← Logo du site
 │   ├── alex.jpg/webp    ← Photo portrait
-│   ├── shelf.jpg/webp   ← Photo étagère (accueil)
-│   ├── 25.jpg/webp      ← Image hero (fond d'accueil)
-│   └── 1-26.jpg/webp    ← Photos des pièces
+│   ├── banniere.jpg/webp ← Bannière d'ouverture de l'accueil
+│   └── 1-35.jpg/webp    ← Photos des pièces
 ├── en/                  ← Version anglaise du site
 ├── CNAME                ← Nom de domaine personnalisé
 ├── robots.txt           ← Configuration pour les moteurs de recherche

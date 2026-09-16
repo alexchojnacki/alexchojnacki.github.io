@@ -58,14 +58,12 @@ sitemap.xml           → Plan du site pour le SEO
 
 | Élément | Où le trouver | Ce qu'il faut modifier |
 |---------|---------------|----------------------|
-| Titre principal | `.hero-content` > `<h1>` | Le texte "Alex le Potier" |
-| Phrase d'accroche | `.hero-content` > `<p>` | "Ce qui est fait lentement reste." |
-| Étiquette hero | `.hero-tag` | "Poteries en grès tournées à la main..." |
-| Bouton CTA | Lien `.cta` dans le hero | Texte et URL du bouton |
-| Section démarche | `.demarche` | Titre H2, paragraphes, arguments |
-| Les 3 arguments | `.argument` (x3) | Titre `<h3>` et texte `<p>` de chaque |
-| Section commandes | `.commandes` | Texte sur les commandes personnalisées |
-| Image photo-piece | `.photo-piece` > `<picture>` | Remplacer `shelf.jpg`/`shelf.webp` |
+| Bannière d'ouverture | `.opening` > `<picture>` | Remplacer `banniere.jpg`/`banniere.webp` (16:9, sans texte incrusté) |
+| Signature | `.opening-text` > `<h1>` | "Ce qui est fait lentement reste." |
+| Sur-titre | `.opening-sub` | "Grès tourné à la main, petites séries" |
+| Triptyque | `.opening-grid` > 3 × `.opening-piece` | Les trois pièces mises en avant, liées vers la galerie |
+| Manifeste | `.manifesto-line` (x2) | Les deux lignes ; la seconde, `--turn`, est poussée à droite |
+| Les 3 portes | `.door` (x3) | Libellé, accroche et destination de chaque carte |
 
 ### Modifier un texte
 

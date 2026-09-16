@@ -34,11 +34,10 @@ Guidelines for agentic coding agents working in this repository.
 ├── images/
 │   ├── logo_nobg.png   # Site logo (trimmed, no background)
 │   ├── logo_nobg_backup.png # Backup of original logo
-│   ├── alex.jpg        # Profile photo
-│   ├── hero.jpg        # Hero background (alternative)
-│   ├── 25.jpg          # Current hero background
-│   ├── 26.jpg          # Planche image
-│   └── [1-26].jpg      # Portfolio images
+│   ├── alex.jpg        # Profile photo (À propos)
+│   ├── banniere.jpg    # Bannière d'ouverture de l'accueil (16:9, sans lettrage)
+│   └── [1-35].jpg      # Portfolio images (+ variante .webp pour chacune)
+│                       # Les sources lourdes (*.JPEG, *.png) ne sont pas servies
 ├── robots.txt          # SEO robots file
 ├── sitemap.xml         # SEO sitemap
 └── CNAME               # Custom domain configuration
