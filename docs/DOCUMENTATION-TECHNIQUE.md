@@ -111,10 +111,10 @@ Le header et le footer sont **dupliqués dans chaque fichier HTML**. Il n'y a pa
 - **Schema.org** : JSON-LD `LocalBusiness` dans le `<head>`
 
 #### `pieces.html` — Galerie
-- 17 images dans `.gallery-grid`
-- Chaque image dans un `<a data-lightbox>` contenant un `<picture>` (WebP + JPG)
+- 26 vignettes dans `.gallery-grid`, grille régulière de trois colonnes
+- Chaque vignette est un `<figure class="gallery-item">` : un `<a data-lightbox>` avec un `<picture>` (WebP + JPG), puis une `<figcaption class="gallery-caption">` en deux parties (`.caption-spec`, `.caption-note`)
 - Lightbox HTML en bas de page (`#lightbox`)
-- Images actuelles (dans l'ordre) : 25, 26, 24, 23, 22, 21, 20, 12, 11, 10, 9, 4, 8, 5, 3, 2, 1
+- Images actuelles (dans l'ordre) : 36, 28, 29, 32, 33, 34, 35, 27, 30, 25, 26, 24, 21, 20, 23, 2, 1, 22, 10, 9, 4, 8, 5, 3, 12, 11
 
 #### `apropos.html` — À propos
 - Style éditorial magazine : sections alternées `.editorial-section` / `.editorial-section--alt`
@@ -378,7 +378,7 @@ Le sitemap inclut les URLs anglaises avec des priorités légèrement inférieur
 2. **Pages légales** : `mentions-legales.html` et `cgv.html` n'ont pas le sélecteur de langue FR/EN.
 3. **`letter_A.*`** : trois fichiers (SVG, PNG, PNG fiche) dans `images/` mais non référencés dans le HTML. Conservés volontairement : visuels de marque.
 4. **`logo_nobg_backup.png`** : sauvegarde du logo, non référencée. Conservée volontairement.
-5. **Fichiers sources** : `32.JPEG`, `32_HD.png`, `33.JPEG`, `34.JPEG`, `35.png`, `Banniere.png` sont les originaux fournis par Alex. Non référencés par le site, conservés comme sources. Tous les six sont dans l'historique git (`1c7440e` pour les quatre premiers, `7d2f19f` pour `32_HD.png` et `Banniere.png`).
+5. **Fichiers sources** : `32.JPEG`, `32_HD.png`, `33.JPEG`, `34.JPEG`, `35.png`, `36_HD.png`, `Banniere.png` sont les originaux fournis par Alex. Non référencés par le site, conservés comme sources. Tous les sept sont dans l'historique git (`1c7440e` pour les quatre premiers, `7d2f19f` pour `32_HD.png` et `Banniere.png`, et le commit de la 36 pour `36_HD.png`).
 
 Résolu le 16/09/2026 : la valeur de `--color-accent` documentée dans `AGENTS.md`, et les images orphelines `hero.*`, `shelf.*` et `31.*`, supprimées.
 
