@@ -36,7 +36,7 @@ Guidelines for agentic coding agents working in this repository.
 │   ├── logo_nobg_backup.png # Backup of original logo
 │   ├── alex.jpg        # Profile photo (À propos)
 │   ├── banniere.jpg    # Bannière d'ouverture de l'accueil (16:9, sans lettrage)
-│   └── [1-35].jpg      # Portfolio images (+ variante .webp pour chacune)
+│   └── [1-36].jpg      # Portfolio images (+ variante .webp pour chacune)
 │                       # Les sources lourdes (*.JPEG, *.png) ne sont pas servies
 ├── robots.txt          # SEO robots file
 ├── sitemap.xml         # SEO sitemap
@@ -52,7 +52,7 @@ Guidelines for agentic coding agents working in this repository.
 2. **Bande éditoriale** - h1 = la signature « Ce qui est fait lentement reste. »
    (le nom vit dans l'en-tête, le `<title>` et le JSON-LD), + sur-titre en
    capitales. Aligné à gauche sur `.container-wide`.
-3. **Triptyque** - Trois pièces au format carré (27, 20, 26) liées vers la
+3. **Triptyque** - Trois pièces au format carré (28, 29, 36) liées vers la
    galerie, puis « Voir toutes les pièces → ». Grille `.opening-grid`, une
    colonne sous 768px.
 4. **Section démarche** - texte, arguments, photo d'étagère, commandes
