@@ -362,6 +362,15 @@ section {
   max-width: none;
 }
 
+/* Le conflit, dit en une phrase avant les pièces */
+.opening-lede {
+  font-size: clamp(19px, 2vw, 22px);
+  line-height: 1.55;
+  max-width: 48ch;
+  margin-top: clamp(20px, 2.4vw, 30px);
+  color: var(--color-text);
+}
+
 .opening-pieces {
   padding: 36px 0 0;
 }
