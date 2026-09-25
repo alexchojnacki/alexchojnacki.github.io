@@ -418,7 +418,7 @@ section {
 }
 
 /* --------------------------------------------------------------------------
-   Manifeste (accueil) — la phrase qui tient tout le site
+   Manifeste (accueil) — les trois phrases qui tiennent tout le site
    -------------------------------------------------------------------------- */
 .manifesto {
   background-color: var(--color-bg-alt);
@@ -435,10 +435,13 @@ section {
   color: var(--color-text);
 }
 
+.manifesto-line + .manifesto-line {
+  margin-top: 0.3em;
+}
+
 /* Le retournement : poussé à droite, dans la couleur d'accent */
 .manifesto-line--turn {
   margin-left: auto;
-  margin-top: 0.3em;
   text-align: right;
   color: var(--color-accent);
 }
