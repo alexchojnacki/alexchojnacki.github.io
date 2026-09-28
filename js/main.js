@@ -199,6 +199,7 @@ function initScrollAnimations() {
   const selectors = [
     '.opening-text',
     '.opening-piece',
+    '.manifesto-line',
     '.door',
     '.pieces-header',
     '.gallery-item',
