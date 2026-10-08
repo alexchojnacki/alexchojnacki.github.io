@@ -387,6 +387,11 @@ section {
   margin-bottom: 0;
 }
 
+/* Photo verticale : le recadrage carré remonte pour garder les cols */
+.opening-piece--high img {
+  object-position: 50% 20%;
+}
+
 .opening-more {
   margin-top: 20px;
   font-family: var(--font-secondary);
@@ -639,6 +644,11 @@ section {
   object-fit: cover;
   margin-bottom: 0;
   transition: transform 0.4s ease, opacity var(--transition);
+}
+
+/* Photo verticale : le recadrage carré remonte pour garder le col */
+.gallery-item--high img {
+  object-position: 50% 20%;
 }
 
 .gallery-item:hover img {
