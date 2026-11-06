@@ -17,7 +17,7 @@ Guidelines for agentic coding agents working in this repository.
 ├── index.html          # Homepage - hero with background image + signature section
 ├── pieces.html         # Gallery page with asymmetric grid + lightbox
 ├── apropos.html        # About page (editorial style with alternating sections)
-├── faq.html            # FAQ page (10 questions/answers)
+├── faq.html            # FAQ page (12 questions/answers)
 ├── contact.html        # Contact form (Formspree integration) + FAQ link
 ├── mentions-legales.html # Legal mentions
 ├── cgv.html            # Terms and conditions
